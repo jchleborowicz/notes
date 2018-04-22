@@ -1,0 +1,34 @@
+= Learning notes
+
+== Description
+
+This project contains learning notes.
+
+Use at your own risk.
+
+== Opening local files with browser
+
+To open locally generated notes run:
+
+[source,bash]
+$ ./gradlew openLocal
+
+== Opening remote site
+
+[source,bash]
+$ ./gradlew openRemote
+
+== Updating s3 folder
+
+To update generated files to s3:
+
+. Configure custom project properties:
++
+  .. Copy _gradle.properties_ file to _custom.gradle.properties_. Do not commit _custom.gradle.properties_
+     file.
+  .. Set _awsProfile_ and _awsTarget_ in _custom.gradle.properties_ file.
++
+. Run update task:
++
+[source,bash]
+$ ./gradlew update

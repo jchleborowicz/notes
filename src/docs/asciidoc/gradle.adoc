@@ -45,7 +45,7 @@ jar {
 
 [source,groovy]
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
+    gradleVersion = '4.7'
 }
 
 ```
@@ -54,7 +54,7 @@ $ graddle wrapper
 
 gradlew clean
 
-=== Making jar runnable
+== Making jar runnable
 
 [source,groovy]
 apply plugin: 'application'

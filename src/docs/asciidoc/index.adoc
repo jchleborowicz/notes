@@ -2,7 +2,7 @@
 :Author: Jacek Chleborowicz
 :Email: <j.chleborowicz@gmail.com>
 
-= Disclaimer
+== Disclaimer
 
 This site contains learning notes.
 
