@@ -1,0 +1,61 @@
+= Gradle
+
+== Command line
+
+* tasks
+* init
+* wrapper
+* components
+* dependencies
+* dependencyInsight
+* help
+* projects
+* properties
+* tasks
+
+== Basics
+
+[source,groovy]
+----
+apply plugin: 'java'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile 'joda-time:joda-time:2.2'
+}
+----
+
+Other types of dependencies:
+
+* providedCompile
+* testCompile
+
+[source,groovy]
+jar {
+    baseName = 'gs-gradle'
+    version = '0.1.0'
+}
+
+== Wrapper
+
+[source,groovy]
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.6'
+}
+
+```
+$ graddle wrapper
+```
+
+gradlew clean
+
+=== Making jar runnable
+
+[source,groovy]
+apply plugin: 'application'
+mainClassName = 'org.example.Main'

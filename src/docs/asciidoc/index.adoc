@@ -1,0 +1,15 @@
+= Learning Notes
+:Author: Jacek Chleborowicz
+:Email: <j.chleborowicz@gmail.com>
+
+= Disclaimer
+
+This site contains learning notes.
+
+The notes might be out of date or might contain invalid information.
+
+Use at your own risk.
+
+== Contents
+
+link:gradle.html[Gradle]
