@@ -1,17 +1,120 @@
 = Gradle
+:icons: font
 
 == Command line
 
-* tasks
-* init
-* wrapper
-* components
-* dependencies
-* dependencyInsight
-* help
+=== Options
+
+- --console=plain
+- --build-cache
+- --build-no-cache
+- -h, --help
+
+[source,bash]
+$ gradle myTask
+
+[source,bash]
+$ gradle mySubProject:taskName
+
+==== Excluding tasks from execution
+
+[source,bash]
+$ gradle dist --exclude-task test
+
+[source,bash]
+$ gradle dist -x test
+
+==== Forcing tasks to execute
+
+[source,bash]
+$ gradle test --rerun-tasks
+
+=== Common tasks
+
+* build - assembling all outputs and running all checks
+* run - assembles application and executes script or binary
+* check - verification tasks, such as tests and linting
+* clean - crearing output
 * projects
-* properties
-* tasks
+* tasks, tasks --all
+* help --task someTask
+* dependencies
+* buildEnvironment - visualises the buildscript dependencies of the selected project
+* dependencyInsight
+* properties - list of project properties
+* model - hierarchical view of elements for software model.
+
+=== Debug options
+
+* ?, -h, --help
+* -v, --version
+* -S, --full-stacktrace
+* -s, --stacktrace
+* --scan
+* -Dorg.gradle.debug=true
+* -Dorg.gradle.daemon.debug=true
+
+=== Performance options
+
+* --build-cache, --no-build-cache - default is on
+* --configure-on-demand, --no-configure-on-demand
+* --max-workers - default set to nuber of processors
+* --profile - generates performance report in build/reports/profile
+* --scan - publishes build scan
+
+=== Daemon options
+
+* --daemon, --no-daemon - default is on
+* --foreground - starts the gradle daemon in foreground process
+* --status
+* --stop
+* -Dorg.gradle.deamon.idletimeout=(number of milliseconds) - when should deamon stop, default is 3h
+
+=== Logging options
+
+* -Dorg.gradle.logging.level=(quiet,warn,lifecycle,info,debug)
+* -q, --quiet
+* -w, --warn
+* -i, --info
+* -d, --debug
+* --console=(auto,plain,rich,verbose)
+* --warning-mode=(all,none,summary)
+
+=== Execution options
+
+* --include-build
+* --offline
+* --refresh-dependencies
+* --dry-run
+
+=== Environment options
+
+* -b, --build-file
+* -c, --settings-file
+* -g, --gradle-user-home
+* -p, --project-dir
+* --project-cache-dir - default is .gradle in root project dir
+* -u, --no-search-upward - do not search in parent dirs for settings.gradle, deprecated
+* -D, --system-prop
+* -I, --init-script
+* -P, --project-prop
+* -Dorg.gradle.jvmargs
+* -Dorg.gradle.java.home
+
+=== Bootstrapping new projects
+
+* init
+* init --type java-library
+* wrapper
+    ** --gradle-version=4.4
+    ** --distribution-type=(bin|all)
+    ** --gradle-distribution-url
+    ** --gradle-distribution-sha256-sum
+
+=== Continuous build
+
+[source,bash]
+$ gradle test --continuous
 
 == Basics
 
@@ -52,10 +155,32 @@ task wrapper(type: Wrapper) {
 $ graddle wrapper
 ```
 
-gradlew clean
-
 == Making jar runnable
 
 [source,groovy]
 apply plugin: 'application'
 mainClassName = 'org.example.Main'
+
+== Migrating from Maven
+
+=== Profiles
+
+[source,groovy]
+if (!hasProperty('buildProfile')) ext.buildProfile = 'default'
+apply from: "profile-${buildProfile}.gradle"
+
+[source,bash]
+$ gradle -PbuildProfile=test build
+
+== Resource filtering
+
+[source,groovy]
+processResources {
+    expand(version: version, buildNumber: currentBuildNumber)
+}
+
+Replaces all specified properties (in the example: version, buildNumber) in resource files.
+
+== Todo
+
+* https://docs.gradle.org/4.6/userguide/inspecting_dependencies.html
