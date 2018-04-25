@@ -1,0 +1,587 @@
+= JavaScript
+:icons: font
+:toc: left
+
+== Java Road Trip
+
+.Strings
+
+* `\t` - tab
+* `\"` - "
+* `\\` - \
+* `\n` - new line
+
+.Comparison
+
+* `==` equality
+* `!=`
+
+[source,javascript]
+"abc".length
+
+Variable names can contain $ and _
+
+[source,javascript]
+"abc".charAt(3)
+
+[source,html]
+----
+<html>
+<head>
+<script src="trains.js"></script>
+</head>
+<body>
+...
+</body>
+</html>
+----
+
+.File structure
+
+ /index.html
+ /script/trains.js
+
+[source,javascript]
+console.log();
+
+Conditionals: `&&`, `||`
+
+.Built-ins
+
+[source,javascript]
+----
+alert("Alert!");
+
+if (confirm("Do you agree?')) ...
+
+prompt("What colour do you like?")
+----
+
+.typeof
+* is an operator
+* returns: boolean, string, number, undefined, object, function
+* typeof null == "object"
+
+.Arrays
+
+[source,javascript]
+----
+var arr = [];
+
+arr.push("val");
+
+arr.pop();
+
+arr.shift(); //removes and returns 1st element
+
+arr[0] = undefined;
+
+typeof(undefined) == "undefined"
+
+var numbers = [12, 3, 4];
+
+var results = numbers.map();
+----
+
+.Objects
+
+[source,javascript]
+----
+var obj = {
+    volume: 320
+    "# of stops": 3
+};
+
+obj["volume"];
+
+delete mybox.contents; // removes property from an object
+
+delete mybox["contents"];
+
+var aquarium = {
+    Nemo: "abc",
+    Dory: "def"
+};
+
+for (key in aquarium) {
+    console.log(key + ': ' + aquarium[key]);
+}
+----
+
+.Object prototype
+- valueOf
+- constructor
+- toLocaleString
+- isPrototypeOf
+- propertyIsEnumerable
+- hasOwnProperty(name)
+
+.Array prototype:
+- length
+- pop()
+- push()
+- shift()
+- reverse()
+- sort()
+- join()
+- reduce()
+- slice()
+
+.String prototype:
+-length, charAt(), trim() …
+
+Number prototype.
+
+.Function prototype:
+- name, call().
+
+.Adding new method to prototype
+[source,javascript]
+----
+String.prototype.countAll = function (letter) {
+    var result = 0;
+    var upperLetter = letter.toUpperCase();
+    for (var i = 0; i < this.length; i++) {
+        if (this.charAt(i).toUpperCase() == upperLetter) {
+            result++;
+        }
+    }
+
+    return result;
+}
+----
+
+.Constructor
+
+Note the uppercase S in function name (`Shoe`).
+
+That is an object constructor.
+
+[source,javascript]
+----
+function Shoe (shoeSize, shoeColor, forGender, constructStyle) {
+    this.size = shoeSize;
+    this.color = shoeColor;
+    ...
+}
+
+var beachShoe = new Shoe(10, 'blue', 'women', 'flipflop');
+
+Shoe.prototype = {
+    putOn: function () { ... }
+};
+----
+
+.Comparison
+
+* `==` - uses type conversion
+
+* `===` - checks also type of the value
+
+.Object prototype
+- `valueOf()`
+- `toString()`
+
+`object.constructor` - reference to constructor
+
+`object.constructor.prototype` - reference to prototype
+
+`+object.__proto__+` - refrence to prototype
+
+`hasOwnProperty()` - locations of prototype property.
+
+[source,javascript]
+Object.prototype.findOwnerOfProperty = function (propName) {
+    var currentObject = this;
+    while (currentObject !== null) {
+        if (currentObject.hasOwnProperty(propName)) {
+            return currentObject;
+        }
+        currentObject = currentObject.__proto__;
+    }
+    return "No property found";
+};
+
+.Sites
+
+* http://www.smashingmagazine.com/tag/javascript
+* http://www.javascriptkit.com
+* http://scripterlative.com
+
+[[javascript-best-practices]]
+
+== JavaScript Best Practices
+
+.Ternary conditional
+
+[source,javascript]
+predicate ? trueVal : falseVal;
+
+[source,javascript]
+----
+predicate ? function () {
+    instr1;
+    instr2;
+}()
+: function () {
+    inst1;
+    instr2;
+}();
+----
+
+[source,javascript]
+predicate ? (weapon = 'abc', helmet = 'abc')
+    : (weapon = 'def', helmet = 'Iron Helm');
+
+.Nested ternary conditions
+
+[source,javascript]
+this.swords = this.swords ? this.swords : [];
+
+[source,javascript]
+var heading = document.querySelector('h1');
+heading.innerHTML = 'Hello world!';
+
+[source,javascript]
+Match.sin(3.5);
+Math.PI
+
+NOTE: Numbers in JavaScript are 'double-precision 64-bit format IEEE 754 values'.
+
+[source,javascript]
+parseInt('123', 10); //have to supply second argument
+parseInt('010', 10);
+
+Conversion to int by `unary +`:
+[source,javascript]
++ '43'
+
+parseInt('hello', 10) → returns NaN
+
+`1 / 0` - returns Infinity
+
+`parseInt` and `parseFloat` functions parse a string until they reach a character that isn't valid for the specified
+number format, then return the number parsed up to that point.
+
+[source,javascript]
+----
+'hello'.length //5
+
+'hello'.charAt(0)
+
+'hello, world'.replace('hello', 'goodbye');
+
+hello.toUpperCase(); //HELLO
+----
+
+`null` - is of type Object
+
+When variable is defined, but uninitialized, it is `undefined`
+
+`undefined` is a constant.
+
+.Conversions to boolean
+* false: converted from `false`, `0`, empty string (`''`), `NaN`, `null`, `undefined`
+* true: all other values
+
+.Explicit conversion
+* `Boolean('');`
+* `Boolean(234);`
+
+Variables defined with *var* keyword.
+
+Blocks do not have scope, only functions have scope.
+
+.Control structures
+* if (_condition_) ; else ;
+* while (_condition_) ;
+* do { … } while (_condition_);
+* for (var i = 0; i < 5; i++) { … }
+
+.Checking for null objects
+[source,javascript]
+var name = o && o.getName();
+
+.Ternary operator
+
+[source,javascript]
+condition ? trueVal : falseVal;
+
+.Switch statement
+
+Comparisons in switch use === operator
+
+[source,javascript]
+----
+switch (action) {
+    case 'draw':
+        drawIt();
+        break;
+    default:
+        doNothing();
+}
+----
+
+=== Objects
+
+.Creating an object
+
+[source,javascript]
+----
+var obj = new Object();
+var obj = {};
+obj.details.color;
+obj['details']['size'];
+----
+
+.Object prototype
+
+[source,javascript]
+----
+function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+
+var you = new Person('a', 12);
+
+['dog', 'duck'].forEach(function (currentValue, index, array) {
+    ...
+}
+----
+
+.Array methods
+* toString()
+* toLocaleString()
+* concat(item1, item2, itemN) - new array with items added on it
+* a.join(_separator_)
+* a.pop()
+* a.push(_item_)
+* a.reverse()
+* a.shift()
+* a.slice(_start_, _end_) - returns subarray
+* a.sort()
+* a.splice(start, delcount[, item1, item2, itemN]) - removes and inserts items
+* a.unshift(item) - prepends items to the start of the array.
+
+=== Functions
+
+If there's no *return* statement in function, it returns `undefined`.
+
+Function have additional variable called `arguments`.
+
+.Calling function with arguments stored in array
+[source,javascript]
+functionName.apply(null, *['a', 'b']);
+
+=== Object Oriented Programming
+
+Namespace is just another object containing methods, properties and objects - no language-level difference between regular objects and namespaces.
+
+Creating global namespace:
+
+[source,javascript]
+var MYAPP = MYAPP || {};
+
+Built-in objects: `Math`, `Object`, `Array`, `String`.
+
+Every object is an instance of the object `Object` and therefore inherits its properties and methods.
+
+[source,javascript]
+----
+var User = function() {};
+
+var user = new User();
+
+helloFunction.call(person1); //calling a method, parameter will "this" inside the function
+----
+
+=== Inheritance
+
+[source,javascript]
+----
+function Person(firstName) {
+    this.firstName = firstName;
+}
+
+function Student(firstName, subject) {
+    Person.call(this, firstName);
+    this.subject = subject;
+}
+
+Student.prototype = Object.create(Person.prototype);
+
+var student = new Student('ahmed', 'math');
+student instanceof Person // returns true
+student instanceof Student // returns true
+----
+
+`Person.prototype` is an object shared by all instances of Person
+
+Every time you attempt to access a property of `Person` that isn't set, JavaScript will check `Person.prototype`
+to see if that property exists there instead.
+
+.Rest parameters
+
+[source,javascript]
+var x = function abc(param1, ...otherParams) {};
+
+Scope objects::
+Brand new scope object is created when function is executing
+
+Scope chain::
+a closure is a combination of a function and the scope object in which it was created
+
+.Data types
+
+* Boolean
+* Null
+* Undefined
+* Number
+* String
+* Symbol
+* Object
+
+[[nodejs]]
+
+=== nodejs
+
+`process.argv` - arguments array - [ 'nodejs', '<script-name>', arg1, arg2, ….]
+
+.fs
+
+[source,javascript]
+----
+var fs = require('fs');
+
+fs.readFileSync('/path/to/file') // returns a Buffer object
+
+buffer.toString()
+----
+
+.Callbacks
+
+[source,javascript]
+----
+fs.readFile('number.txt', function doneReading(err, fileContents) {
+    myNumber = parseInt(fileContents);
+    myNumber++;
+});
+
+fs.readdir(dirname, function (error, listOfFiles) {
+    ...
+});
+----
+
+
+== Eloquent javascript
+
+`confirm()`, `prompt()`, `alert()` - to show simple dialogs.
+
+Variables are defined per function (not per block).
+
+.Checking if object contains property
+[source,javascript]
+'field' in objectName:
+
+[source,javascript]
+----
+var obj = {
+    name: 'Jacek'
+}
+'name' in obj === true
+'date' in obj === false
+----
+
+.Arrays
+
+- pop(): element
+- push(element)
+- slice(startIndex, endIndex)
+- concat(anotherArray)
+
+.String
+
+* slice(start, end)
+* indexOf(substr)
+* trim()
+* length
+* charAt(pos) → same as [pos]
+
+For browsers global scope is stored in `window` object.
+
+Functions:
+
+* call(this, arg1, arg2, ...)
+* apply(this, [arg1, arg2, ...]
+* bind(this, arg1, arg2, ...] - creates partially applied function
+
+=== Objects
+
+* getPrototypeOf(obj) - returns null for Object.prototype
+* .prototype - contains prototype
+* .create(prototypeObj)
+
+`Object.prototype`
+
+`Function.prototype`
+
+`Array.prototype`
+
+[source,javascript]
+----
+//calling toString from Object prototype on array
+console.log(Object.prototype.toString.call([1, 2]));
+
+//defining non-enumerable property
+Object.defineProperty(Object.prototype, 'hiddenNonsense',
+                      {enumerable: false, value: 'hi'});
+
+obj.hasOwnProperty(propertyName);
+----
+
+To create object without prototype:
+
+[source,javascript]
+Object.create(null);
+
+[[getters-and-setters]]
+=== getters and setters
+
+[source,javascript]
+----
+var pile = {
+    elements: ["eggshell", "orange peel", "worm"],
+    get height() {
+        return this.elements.length;
+    },
+    set height(value) {
+        console.log("Ignoring attempt to set height to", value);
+    }
+};
+----
+
+Other way to define getters and setters:
+
+[source,javascript]
+----
+Object.defineProperty(TextCell.prototype, "heightProp", {
+    get: function() { return this.text.length; }
+});
+----
+
+== Inheritance
+
+[source,javascript]
+----
+function RTextCell(text) {
+    TextCell.call(this, text);
+}
+
+RTextCell.prototype = Object.create(TextCell.prototype);
+----
+
+=== Strict mode
+
+. have to define variables
+. `this` in functions is `undefined`

@@ -1,0 +1,28 @@
+= Gradle
+:icons: font
+:toc: left
+
+== Methods
+
+*$()*:: returns element by id
+*$$()*:: takes arbitrary number of CSS selectors and returns documend-order array
+         of extended DOM elements.
+*$A()*:: converts the single argument to an Array object.
+*$F()*:: value of a form control. Alias for Form.Element.getValue
+*$H()*:: converts objects into enumerable Hash objects that resemble associative arrays.
+*$R()*:: creates a new ObjectRange object
+*$w()*:: splits a string into an Array
+*Try.these*:: takes function list, return result of first function that doesn't throv an error.
+
+== Element object
+
+.Methods
+
+* absolutize()
+* addClassName()
+* addMethods()
+* adjacent() - finds all siblings
+* ancestors()
+* childElements()
+* classNames() - deprecated
+* cleanWhitespace()
