@@ -194,7 +194,7 @@ Evaluating properties (highest to lowest precedence):
 
 Evaluation order (highest precedence first):
 
-* system properties set with -D - e.g. +-Dgradle.user.home+
+* system properties on command line set with -D - e.g. +-Dgradle.user.home+
 * gradle.properties in GRADLE_USER_HOME
 * gradle.properties in project directory
 
@@ -210,7 +210,8 @@ Evaluation order (highest precedence first):
 
 *org.gradle.console=(auto,plain,rich,verbose)*
 
-*org.gradle.daemon=(true,false)*
+*org.gradle.daemon=(true,false)*::
+    default is true
 
 *org.gradle.daemon.idletimeout=(# of idle millis)*::
     when should idle daemon terminate. Default is 3 hours.
@@ -222,12 +223,59 @@ Evaluation order (highest precedence first):
 
 *org.gradle.logging.level=(quiet,warn,lifecycle,info,debug*
 
-*org.gradle.parallel=(true,false)*
+*org.gradle.parallel=(true,false)*::
+    default is false
 
 *org.gradle.warning.mode=(all,none,summary)*
 
 *org.gradle.workers.max=(max # of worker processes)*::
     default is number of processors
+
+=== System properties
+
+Using -D command-line option, you can pass a system property to JVM which runs gradle.
+
+Setting system properties in gradle.properties:
+
+[source]
+systemProp.gradle.wrapperUser=myuser
+systemProp.gradle.wrapperPassword=mypassword
+
+System properties available:
+
+*gradle.wrapperUser=(myuser)*::
+    username to download Gradle distributions from servers using HTTP Basic Authentication
+
+*gradle.wrapperPassword=(mypassword)*::
+    password for downloading a Gradle distribution using a Gradle wrapper
+
+*gradle.user.home=(path to directory)*
+
+In a multi project build, `systemProp.` properties set in any project except the root will be ignored.
+
+=== Environment variables
+
+*GRADLE_OPTS*::
+    Specifies command line arguments to use when starting gradle client.
+
+*GRADLE_USER_HOME*::
+    Defaults to $USER_HOME/.gradle if not set.
+
+*JAVA_HOME*::
+    JDK to use.
+
+=== Project properties
+
+* Can be added with `-P` command line option.
+* Can be added with system properties:
++
+[source]
+ORG_GRADLE_PROJECT_foo=bar
++
+* Can be added with gradle.properties:
++
+[source]
+org.gradle.project.foo=par
 
 == Todo
 
