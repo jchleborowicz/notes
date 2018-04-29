@@ -1,0 +1,154 @@
+= Java 8 lambdas
+:icons: font
+
+Interface Callable<T>:
+----
+T call()
+----
+
+@FunctionalInterface
+
+.Intermediate operations
+----
+limit(n)
+filter(predicate)
+distinct
+----
+
+.Terminal operations:
+----
+forEach()
+count()
+collect()
+----
+
+.Reducing
+
+[source,java]
+stream.reduce(0, (a, b) -> a + b);
+
+NOTE: reduce takes a BinaryOperator<T>
+
+To create Stream<Integer>:
+
+[source,java]
+IntStream.boxed()
+
+[source,java]
+OptionalInt maxCalories = menu.stream()
+    .mapToInt(Dish::getCalories)
+    .max();
+
+[source,java]
+Stream.iterate(0, n -> n + 2)
+
+== Collectors
+
+[source,java]
+----
+final Comparator<Dish> comparator = Comparator.comparingInt(Dish::getCalories);
+
+Optional<Dish> mostCaloriesDish = menu.stream()
+                                      .collect(maxBy(comparator));
+----
+
+or
+
+[source,java]
+menu.stream.max(comparator);
+
+[source,java]
+final Integer collect = menu.stream()
+                            .collect(summingInt(Dish::getCallories));
+
+[source,java]
+Double average = menu.stream().collect(*averagingInt*(Dish::getCalories));
+
+[source,java]
+IntSummaryStatistics stats = menu.stream()
+                                 .collect(summarizingInt(Dish::getCallories));
+
+== Joining strings
+
+[source,java]
+String shortMenu = menu.stream()
+                       .map(Dish::getName)
+                       .collect(joining(", "));
+
+[source,java]
+MENU.stream()
+    .collect(reducing(0, Dish::getCalories, (a, b) -> a + b))
+
+`stream().collect(reducing(...))` --- same as --> `stream.reduce(...)`
+
+== Custom collectors
+
+[source,java]
+interface Collector<T, A, R> {
+    Supplier<A> supplier();
+    BiConsumer<A, T> accumulator();
+    BinaryOperation<A> combiner();
+    Function<A, R> finisher();
+    Set<Characteristics> characteristics();
+}
+
+
+== Fork-join framework
+
+ExecutorService
+
+ForkJoinPool
+
+.interface Future<V>
+----
+boolean cancel(boolean mayInterruptRunning);
+boolean isCancelled();
+boolean isDone();
+V get() throws CancellationException, ExecutionException, InterruptedException;
+V get(long timeout, TimeUnit unit)
+----
+
+class `RecursiveTask<R>` or `RecursiveAction` (if no result)
+
+.RecursiveTask<R>
+----
+protected abstract R compute();
+----
+
+.Task hierarchy
+
+* Future<V>
+** ForkJoinTask<V>
+*** RecursiveTask<V>
+*** RecursiveAction
+
+.Example implementation of RecursiveTask.compute() method
+[source,java]
+----
+RecursiveTask a = ...;
+a.fork();
+RecursiveTask b = ...;
+return b.compute() + a.join();
+
+new ForkJoinPool().invoke(recursiveTask);
+----
+
+.Best practices
+
+* join() method blocks
+* don’t call FortJoinPool.invoke() from within RecursiveTask
+* call compute() on one of the tasks to reuse thread
+
+.Work stealing
+
+* each thread has list of tasks, after completion of own tasks takes task from other thread
+
+===== Spliterator
+
+.interface Spliterator<T>
+----
+boolean tryAdvance(Consumer<? super T> action);
+Spliterator<T> trySplit();
+long estimateSize();
+int characteristics();
+----
