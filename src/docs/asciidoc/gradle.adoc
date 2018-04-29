@@ -277,6 +277,16 @@ ORG_GRADLE_PROJECT_foo=bar
 [source]
 org.gradle.project.foo=par
 
+
+== Init scripts
+
+How to define init script:
+
+* specify on command line with `-I` or `--init-script` option
+* put a `init.gradle` file in `USER_HOME/.gradle/` dir
+* put a file with `.gradle` extension in the `USER_HOME/.gradle/init.d/` dir
+* put a file with `.gradle` extension in `GRADLE_HOME/init.d/` directory in the gradle distribution
+
 == Todo
 
 * https://docs.gradle.org/4.6/userguide/inspecting_dependencies.html

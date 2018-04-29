@@ -1,0 +1,30 @@
+= Groovy
+
+[source,groovy]
+print "cmd /C dir".execute().text
+
+[cols=",",options="header",]
+|==============================================
+|Command |Comment
+|3.times \{ print it } |prints 012
+|3.upto(5) \{ print it } |prints 345
+|0.step(10, 2) \{ print it } |prints 02468
+|for (i in 0..2) \{ print i } |prints 012
+|str?.reverse() |if (str != null) str.reverse()
+|} catch (e) { a|
+catches all exceptions derived from Exception.
+
+to catch all Throwables use
+
+catch (Throwable e) \{
+
+|==============================================
+
+.Rules:
+
+* return statement is optional
+* semicolons are almost always optional
+* methods and classes are public by default
+* we can initialize java beans using named parameters
+* not forced to catch exceptions
+* static methods - this returns reference to class object
