@@ -1,5 +1,8 @@
 = Java 8 lambdas
 :icons: font
+:toc: left
+
+== Introduction
 
 Interface Callable<T>:
 ----
@@ -55,14 +58,16 @@ Optional<Dish> mostCaloriesDish = menu.stream()
 or
 
 [source,java]
-menu.stream.max(comparator);
+menu.stream()
+    .max(comparator);
 
 [source,java]
 final Integer collect = menu.stream()
                             .collect(summingInt(Dish::getCallories));
 
 [source,java]
-Double average = menu.stream().collect(*averagingInt*(Dish::getCalories));
+Double average = menu.stream()
+                     .collect(averagingInt(Dish::getCalories));
 
 [source,java]
 IntSummaryStatistics stats = menu.stream()
@@ -143,7 +148,7 @@ new ForkJoinPool().invoke(recursiveTask);
 
 * each thread has list of tasks, after completion of own tasks takes task from other thread
 
-===== Spliterator
+== Spliterator
 
 .interface Spliterator<T>
 ----

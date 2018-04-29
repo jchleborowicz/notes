@@ -16,6 +16,8 @@ link:gradle.html[Gradle]
 
 link:groovy.html[Groovy]
 
+link:java8-lambdas.html[Java 8 lambdas]
+
 link:javascript.html[JavaScript]
 
 link:prototype-js.html[prototype.js]
