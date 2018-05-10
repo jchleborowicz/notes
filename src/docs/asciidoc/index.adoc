@@ -12,6 +12,8 @@ Use at your own risk.
 
 == Contents
 
+link:angular.html[Angular]
+
 link:gradle.html[Gradle]
 
 link:groovy.html[Groovy]

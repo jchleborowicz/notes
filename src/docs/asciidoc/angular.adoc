@@ -1,0 +1,800 @@
+= Angular
+
+== Introduction
+
+==== Install angular globally
+
+[source,bash]
+npm install -g @angular/cli
+
+==== Create project
+
+[source,bash]
+----
+$ ng new my-app
+$ cd my-app
+$ ng serve --open
+----
+
+==== Configure bootstrap within a project
+
+[source,bash]
+$ npm install --save bootstrap
+
+then go to .angular-cli.json and add `../node_modules/bootstrap/dist/css/bootstrap.min.css` to styles.
+
+==== Generate new component
+
+[source,bash]
+$ ng generate component servers
+$ ng g c servers //same as ng generate component
+
+==== Creating selector an attribute
+
+
+|===
+|File|Code
+
+|*.component.ts     |selector: '[app-servers]'
+|*.html             |<div app-servers></div>
+|===
+
+==== Creating selector a class:
+
+|===
+|File|Code
+
+|*.component.ts     |selector: '[.app-servers]'
+|*.html             |<div class="app-servers"></div>
+|===
+
+
+[[binding]]
+== Binding
+
+Databinding:
+
+* string interpolation - `{{ data }}`
+* property binding - `[property]="data"`
+
+.Event binding:
+
+ (event)="expression"
+
+[source]
+<input type="text"
+       class="form-control"
+       (input)="onUgdateServenName($event)">
+
+.Two way binding:
+
+[source]
+<input type="text"
+       class="form-control"
+       [(ngModel)]="serverName">
+
+For Two-Way-Binding to work, you need to enable the ngModel directive.
+This is done by adding the `FormsModule` to the `imports[]` array in the `AppModule`.
+
+== Directives
+
+[source]
+<p *ngIf="serverCreated">Server was created, server name is {{serverName}}</p>
+
+.if-else:
+
+[source]
+----
+<p *ngIf="serverCreated; else noServer">
+    Server was created, name {{serverName}}
+</p>
+
+<ng-template #noServer>
+<p>No server was created</p>
+</ng-template>
+----
+
+.Directive types:
+
+* structural directives
+* attribute directives - change only the element they were placed on
+
+.Attribute directive:
+
+[source]
+----
+<p [ngStyle]="{backgroundColor: getColor()}"
+   [ngClass]="{online: serverStatus == 'online'}">
+        Server with ID {{serverId}} is {{getServerStatus()}}
+</p>
+----
+
+.for loop
+
+[source]
+<app-server *ngFor="let _server_ of servers"></app-server>
+
+[source]
+----
+<p *ngFor="let item of operations; let i = index"
+   [ngClass]="{oldItem: i >= 4}"
+   [ngStyle]="{
+       backgroundColor: _i_ < 4 ? 'white' : 'blue'*
+   }">{{item}}</p>
+----
+
+.Generate component, no test class
+[source,bash]
+$ ng g c recipes --spec false
+
+.External properties:
+
+`@Input` - property decorator
+
+[source]
+----
+<app-server-element *ngFor="let serverElement of serverElements"
+                    [element]="serverElement">
+</app-server-element>
+----
+
+.Events:
+
+Declaration:
+
+[source]
+@Output() serverCreated =
+    new EventEmitter<{serverName: string, serverContent: string}>();
+
+Usage:
+
+[source]
+<app-cockpit (serverCreated)="onServerAdded($event)">
+
+.Using local references:
+
+[source]
+----
+<input type="text" class="form-control" #serverContentInput>
+<button class="btn btn-primary"
+        (click)="onAddServer(serverNameInput)">
+    Add Server
+</button>
+----
+
+[source]
+----
+onAddServer(nameInput: HTMLInputElement) {
+    console.log(nameInput.value);
+}
+----
+
+.To reference DOM element:
+
+[source]
+@ViewChild('serverContentInput') serverContentInput: ElementRef;
+
+Accessible after view init:
+
+[source]
+console.log(this.serverContentInput.nativeElement.value);
+
+Accessible after content init:
+
+[source]
+@ContentChild('contentParagraph') paragraph: ElementRef;
+
+.Projecting content into component:
+
+[source]
+<ng-content>
+
+== Lifecycle hooks
+
+[cols=""]
+|===
+|Name                   |Description
+
+|ngOnChanges            |whenever @Input properties changes
+|ngOnInit               |
+|ngDoCheck              |Invoked when the change detector of the given component is invoked.
+                         It allows us to implement our own change detection algorithm for the given component.
+|ngAfterContextInit     |after content (ng-content) has been projected into view
+|ngAfterContentChecked  |called every time the projected content has been checked
+|ngAfterViewInit        |after the component’s view has been initialized
+|ngAfterViewChecked     |
+|ngOnDestroy            |
+|===
+
+Interfaces:
+
+* OnInit,
+* OnChanges,
+* DoCheck
+* AfterContentInit
+* AfterContentChecked
+* AfterViewInit
+* AfterViewChecked
+* OnDestroy
+
+= Directives
+
+* attribute directives - sit on elements, only affect that attribute sit on
+* structural attributes - change the structure of the DOM
+
+[source,typescript]
+----
+@Directive({
+    selector: '[appBasicHighlight]'
+})
+export class BasicHighlightDirective implements OnInit {
+    constructor(private elementRef: ElementRef) {
+    }
+
+    ngOnInit(): void {
+        this.elementRef.nativeElement.style.backgroundColor = 'green';
+    }
+}
+----
+
+Add to declarations in app.module.ts
+
+[source,html]
+<p appBasicHighlight>Style me with basic directive!</p>
+
+To add new directive from command line:
+
+[source,bash]
+$ ng g d better-highlight
+
+[source,typscript]
+----
+@Directive({
+    selector: '[appBetterHighlight]'
+})
+export class BetterHighlightDirective implements OnInit {
+    constructor(private elementRef: ElementRef, private renderer: Renderer2) {
+    }
+
+    ngOnInit(): void {
+        this.renderer.setStyle(this.elementRef.nativeElement, 'background-color', 'blue');
+    }
+}
+----
+
+[source,typscript]
+----
+@Directive({selector: '[appBetterHighlight]'})
+export class BetterHighlightDirective implements OnInit {
+
+    @Input() defaultColor = 'transparent';
+
+    @Input('appBetterHighlight') highlightColor = 'blue';
+
+    @HostBinding('style.backgroundColor') backgorundColor: string = this.defaultColor;
+
+    constructor(private elementRef: ElementRef, private renderer: Renderer2) {
+    }
+
+    ngOnInit(): void {
+        this.backgorundColor = this.defaultColor;
+    }
+
+    @HostListener('mouseenter') mouseOver(eventData: Event) {
+        this.backgorundColor = this.highlightColor;
+    }
+
+    @HostListener('mouseleave') mouseLeave(eventData: Event) {
+        this.backgorundColor = this.defaultColor;
+    }
+}
+----
+
+=== Toggling style
+
+[source,typscript]
+----
+@Directive({
+    selector: '[appDropdown]'
+})
+export class DropdownDirective {
+
+    @HostBinding('class.open') isOpen;
+
+    @HostListener('click') onClick() {
+        this.isOpen = !this.isOpen;
+    }
+}
+----
+
+= Routes
+
+[source,typscript]
+----
+const appRoutes: Routes = [
+    {path: '', component: HomeComponent},
+    {path: 'users', component: UsersComponent},
+    {path: 'servers', component: ServersComponent}
+];
+----
+
+Import RouterModule in app.module.ts:
+
+[source,typscript]
+RouterModule.forRoot(appRoutes)
+
+[source]
+----
+<router-outlet></router-outlet>
+
+<a routerLink="/servers">
+<a [routerLink]="['/users']">
+
+<li role="presentation"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{exact: true}">
+    <a routerLink="/">Home</a>
+</li>
+
+<li role="presentation" routerLinkActive="active">
+    <a routerLink="/servers">Servers</a>
+</li>
+----
+
+[source,typscript]
+----
+constructor(private router: Router) {
+}
+
+this.router.navigate(['/servers']);
+----
+
+[[relative-routes]]
+=== Relative routes
+
+[source,typscript]
+----
+constructor(private router: Router,
+            private route: ActivatedRoute) {
+}
+
+this.router.navigate(['servers'], {relativeTo: this.route});
+----
+
+.Parameterized routes
+
+[source,typscript]
+{path: 'users/:id', component: UserComponent}
+
+.Updating values in the component by observable
+
+[source,typscript]
+----
+export class UserComponent implements OnInit {
+    user: { id: number, name: string };
+
+    constructor(private route: ActivatedRoute) {
+    }
+
+    ngOnInit(): void {
+        this.user = {
+            id: this.route.snapshot.params['id'],
+            name: this.route.snapshot.params['name']
+        };
+
+        this.route.params.subscribe(
+            (params: Params) => {
+                this.user.id = params['id'];
+                this.user.name = params['name'];
+            }
+        );
+    }
+}
+----
+
+== Links again
+
+[source]
+----
+<a
+    [routerLink]="['/servers', 5, 'edit']"
+    [queryParams]="{allowEdit: '1'}"
+    fragment="loading"
+    href="#"
+    class="list-group-item"
+    *ngFor="let _server_ of servers">
+        {{ server.name }}
+</a>
+----
+
+[source,typscript]
+----
+this.router.navigate(
+    ['/servers', id, 'edit'],
+    {
+        queryParams: {allowEdit: '1'},
+        fragment: 'loading'
+    }
+);
+----
+
+.Redirecting not found:
+
+[source,typscript]
+----
+{path: 'not-found', component: PageNotFoundComponent},
+{path: '**', redirectTo: 'not-found'}
+----
+
+.Full path match:
+
+[source,typscript]
+{path: '', component: HomeComponent, pathMatch: 'full'}
+
+.Routing in separate module:
+
+[source,typscript]
+----
+@NgModule({
+    imports: [
+        RouterModule.forRoot(appRoutes)
+    ],
+    exports: [
+        RouterModule
+    ]
+})
+
+export class AppRoutingModule {
+}
+----
+
+== Guarding routes
+
+[source,typscript]
+----
+@Injectable()
+export class AuthGuard implements CanActivate {
+    constructor(private authService: AuthService,
+                private router: Router) {
+    }
+
+    canActivate(route: ActivatedRouteSnapshot,
+                state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+        return this.authService.isAuthenticated()
+            .then(authenticated => {
+                if (authenticated) {
+                    return true;
+                } else {
+                    this.*outer.navigate(['/']);
+                }
+            });
+    }
+}
+----
+
+app.module.ts:
+
+
+[source]
+----
+{
+    path: 'servers',
+    canActivate: [AuthGuard],
+    component: ServersComponent,
+}
+----
+
+== Routing data
+
+In routing:
+
+[source]
+{path: 'not-found', component: ErrorPageComponent, data: {message: 'Page not found!'}}
+
+usage:
+
+[source,typscript]
+this.errorMessage = this.route.snapshot.data['message'];
+
+== Resolvers
+
+[source,typscript]
+----
+@Injectable()
+export class ServerResolver implements Resolve<Server> {
+    constructor(private serverService: ServersService) {
+    }
+
+    resolve(route: ActivatedRouteSnapshot,
+            state: RouterStateSnapshot): Observable<Server> | Promise<Server> | Server {
+        return this.serverService.getServer(+route.params['id']);
+    }
+}
+----
+
+In routing:
+
+ {path: ':id', component: ServerComponent, resolve: {server: ServerResolver}}
+
+Using # in paths:
+
+[source]
+RouterModule.forRoot(appRoutes, {useHash: true})
+
+= Observables
+
+`.subscribe()` method has three params:
+
+* next
+* error
+* complete
+
+[source,typscript]
+----
+import 'rxjs/Rx';
+
+const myNumbers = Observable.interval(1000);
+
+myNumbers.subscribe(
+    (number: number) => console.log(number)
+);
+----
+
+[source,typscript]
+----
+const myObservable = Observable.create((observer: Observer<string>) => {
+    setTimeout(() => observer.next('first package'), 2000);
+    setTimeout(() => observer.next('second package'), 4000);
+    setTimeout(() => observer.error('this does not work'), 5000);
+});
+
+myObservable.subscribe(
+    (data: string) => console.log(data),
+    (error: string) => console.log(error),
+    () => console.log('completed')
+);
+----
+
+= Forms
+
+Two approaches:
+
+* template-driven
+* reactive
+
+[source]
+----
+<form (ngSubmit)="onSubmit(_f_)" #f="ngForm"**>
+
+onSubmit(form: NgForm) {
+
+_*console*_.log(form);
+
+}
+
+@ViewChild(*'f'*) *signupForm*: NgForm;
+
+<**input type="text"**
+
+*id="username"*
+
+*class="form-control"*
+
+*ngModel*
+
+*name="username"*
+
+**required**>
+
+<**div class="form-group"**>
+
+<**label for="email"**>Mail</**label**>
+
+<**input type="email"**
+
+*id="email"*
+
+*class="form-control"*
+
+*ngModel*
+
+*name="email"*
+
+*required*
+
+*email*
+
+**#email="ngModel"**>
+
+<**span class="help-block" *ngIf="_email_.touched && !_email_.valid"**>Please enter a valid email!</**span**>
+
+<**button class="btn btn-primary" type="submit"**
+
+*[disabled]="!signupForm.valid"*
+
+<**div id="user-data"**
+
+*ngModelGroup="userData"*
+
+*#userData="ngModelGroup"*
+
+>
+
+…
+
+</**div**>
+
+<**p *ngIf="_userData_.touched && !_userData_.valid"**>User data is invalid</**p**>
+
+<**div class="radio" *ngFor="let _gender_ of genders"**>
+
+<**label**>
+
+<**input type="radio"**
+
+*name="gender"*
+
+*ngModel*
+
+*[value]="_gender_"*
+
+**required**>
+
+{{_*gender*_}}
+
+</**label**>
+
+</**div**>
+
+--Replacing values in all form fields
+
+*this*.*signupForm*.setValue({
+
+*userData*: {
+
+*username*: suggestedName,
+
+*email*: *'test@example.com'*
+
+},
+
+*secret*: *'pet'*,
+
+*questionAnswer*: *''*,
+
+*gender*: *'male'*
+
+});
+
+-- Replacing value in single field
+
+*this*.*signupForm*.*form*.patchValue({
+
+*userData*: {
+
+*username*: suggestedName
+
+}
+
+});
+
+[[programmatic-forms]]
+== Programmatic forms
+
+Import ReactiveFormsModule in app.module.ts imports section.
+
+*signupForm*: FormGroup;
+
+*this*.*signupForm* = *new* FormGroup({
+
+*'userData'*: *new* FormGroup({
+
+*'username'*: *new* FormControl(*null*, [Validators._required_, *this*.forbiddenNames.bind(*this*)]),
+
+*'email'*: *new* FormControl(*null*, [Validators._required_, Validators._email_], *this*.forbiddenEmails)
+
+}),
+
+*'gender'*: *new* FormControl(*'male'*),
+
+*'hobbies'*: *new* FormArray([])
+
+});
+
+onAddHobby() {
+
+*const* control = *new* FormControl(*null*, Validators._required_);
+
+(<FormArray>**this**.*signupForm*.get(*'hobbies'*)).push(control);
+
+}
+
+forbiddenNames(control: FormControl): { [*s*: *string*]: *boolean* } {
+
+*if* (*this*.*forbiddenUsernames*.indexOf(control.*value*) >= 0) {
+
+*return* {*'nameIsForbidden'*: *true*};
+
+}
+
+*return null*;
+
+}
+
+forbiddenEmails(control: FormControl): Promise<**any**> | Observable<**any**> {
+
+**return new _Promise_**<**any**>(((resolve) => {
+
+_setTimeout_(() => {
+
+*if* (control.*value* === *'test@t'*) {
+
+resolve({*'emailIsForbidden'*: *true*});
+
+} *else* {
+
+resolve(*null*);
+
+}
+
+}, 1500);
+
+}));
+
+}
+
+Two observables:
+
+* _______________________
+FormGroup.statusChanges
+_______________________
+* ______________________
+FormGroup.valueChanges
+______________________
+
+[[_jew8n3625tej]]Pipes
+
+{{username *| uppercase*}}
+
+Pipes:
+
+* _________
+uppercase
+_________
+* ____
+date
+____
+* ____________________
+async - for promises
+____________________
+
+[[pipe-parameters]]
+=== Pipe parameters
+
+{{aDate | date:’fullDate’}}
+
+[[implementing-custom-pipe]]
+=== Implementing custom pipe
+
+@Pipe({ +
+name: 'shorten' +
+}) +
+export class ShortenPipe implements PipeTransform { +
+ +
+transform(value: any): any { +
+return value.substr(0, 10); +
+} +
+}
+
+Then add the pipe class to *declarations* in app module.
+
+To reflect data changes in arrays and object for the pipe, use *pure: false* in @Pipe declaration.
+
+[[using-firebase-sdk]]
+= Using firebase sdk
+
+$ npm install --save firebase
+
+In the app.component.ts:
+
+ngOnInit()
