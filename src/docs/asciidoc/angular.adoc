@@ -217,7 +217,7 @@ Interfaces:
 * AfterViewChecked
 * OnDestroy
 
-= Directives
+== Directives
 
 * attribute directives - sit on elements, only affect that attribute sit on
 * structural attributes - change the structure of the DOM
@@ -307,7 +307,7 @@ export class DropdownDirective {
 }
 ----
 
-= Routes
+== Routes
 
 [source,typscript]
 ----
@@ -521,7 +521,7 @@ Using # in paths:
 [source]
 RouterModule.forRoot(appRoutes, {useHash: true})
 
-= Observables
+== Observables
 
 `.subscribe()` method has three params:
 
@@ -555,7 +555,7 @@ myObservable.subscribe(
 );
 ----
 
-= Forms
+== Forms
 
 Two approaches:
 
@@ -697,7 +697,7 @@ Two observables:
 *FormGroup.statusChanges
 *FormGroup.valueChanges
 
-= Pipes
+== Pipes
 
 .Example:
  {{username | uppercase}}
@@ -726,7 +726,7 @@ Then add the pipe class to *declarations* in app module.
 
 To reflect data changes in arrays and object for the pipe, use *pure: false* in @Pipe declaration.
 
-= Using firebase sdk
+== Using firebase sdk
 
  $ npm install --save firebase
 
