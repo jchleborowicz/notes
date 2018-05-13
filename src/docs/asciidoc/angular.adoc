@@ -2,12 +2,12 @@
 
 == Introduction
 
-==== Install angular globally
+=== Install angular globally
 
 [source,bash]
 npm install -g @angular/cli
 
-==== Create project
+=== Create project
 
 [source,bash]
 ----
@@ -563,238 +563,173 @@ Two approaches:
 * reactive
 
 [source]
-----
 <form (ngSubmit)="onSubmit(_f_)" #f="ngForm"**>
 
+[source,typescript]
+----
 onSubmit(form: NgForm) {
-
-_*console*_.log(form);
-
+    console.log(form);
 }
 
-@ViewChild(*'f'*) *signupForm*: NgForm;
+@ViewChild('f') signupForm: NgForm;
+----
 
-<**input type="text"**
+[source]
+<input type="text"
+    id="username"
+    class="form-control"
+    ngModel
+    name="username"
+    required>
 
-*id="username"*
+[source]
+<div class="form-group">
+<label for="email">Mail</label>
+<input type="email"
+    id="email"
+    class="form-control"
+    ngModel
+    name="email"
+    required
+    email
+    #email="ngModel">
+<span class="help-block"
+      *ngIf="email.touched && !email.valid">
+    Please enter a valid email!
+</span>
 
-*class="form-control"*
+[source]
+<button class="btn btn-primary"
+        type="submit"
+        [disabled]="!signupForm.valid"
 
-*ngModel*
+[source]
+<div id="user-data"
+     ngModelGroup="userData"
+     #userData="ngModelGroup">
+    ...
+</div>
 
-*name="username"*
+<p *ngIf="userData.touched && !_userData_.valid">
+    User data is invalid
+</p>
 
-**required**>
+[source]
+<div class="radio" *ngFor="let _gender_ of genders">
+    <label>
+        <input type="radio"
+               name="gender"
+               ngModel
+               [value]="gender"
+               required>
+        {{_*gender*_}}
+    </label>
+</div>
 
-<**div class="form-group"**>
+.Replacing values in all form fields
 
-<**label for="email"**>Mail</**label**>
-
-<**input type="email"**
-
-*id="email"*
-
-*class="form-control"*
-
-*ngModel*
-
-*name="email"*
-
-*required*
-
-*email*
-
-**#email="ngModel"**>
-
-<**span class="help-block" *ngIf="_email_.touched && !_email_.valid"**>Please enter a valid email!</**span**>
-
-<**button class="btn btn-primary" type="submit"**
-
-*[disabled]="!signupForm.valid"*
-
-<**div id="user-data"**
-
-*ngModelGroup="userData"*
-
-*#userData="ngModelGroup"*
-
->
-
-…
-
-</**div**>
-
-<**p *ngIf="_userData_.touched && !_userData_.valid"**>User data is invalid</**p**>
-
-<**div class="radio" *ngFor="let _gender_ of genders"**>
-
-<**label**>
-
-<**input type="radio"**
-
-*name="gender"*
-
-*ngModel*
-
-*[value]="_gender_"*
-
-**required**>
-
-{{_*gender*_}}
-
-</**label**>
-
-</**div**>
-
---Replacing values in all form fields
-
-*this*.*signupForm*.setValue({
-
-*userData*: {
-
-*username*: suggestedName,
-
-*email*: *'test@example.com'*
-
-},
-
-*secret*: *'pet'*,
-
-*questionAnswer*: *''*,
-
-*gender*: *'male'*
-
+[source,typescript]
+this.signupForm.setValue({
+    userData: {
+        username: suggestedName,
+        email: 'test@example.com'
+    },
+    secret: 'pet',
+    questionAnswer: '',
+    gender: 'male'
 });
 
--- Replacing value in single field
+.Replacing value in single field
 
-*this*.*signupForm*.*form*.patchValue({
-
-*userData*: {
-
-*username*: suggestedName
-
-}
-
+[source,typescript]
+this.signupForm.form.patchValue({
+    userData: {
+        username: suggestedName
+    }
 });
 
-[[programmatic-forms]]
 == Programmatic forms
 
 Import ReactiveFormsModule in app.module.ts imports section.
 
-*signupForm*: FormGroup;
+[source,typescript]
+----
+signupForm: FormGroup;
 
-*this*.*signupForm* = *new* FormGroup({
-
-*'userData'*: *new* FormGroup({
-
-*'username'*: *new* FormControl(*null*, [Validators._required_, *this*.forbiddenNames.bind(*this*)]),
-
-*'email'*: *new* FormControl(*null*, [Validators._required_, Validators._email_], *this*.forbiddenEmails)
-
-}),
-
-*'gender'*: *new* FormControl(*'male'*),
-
-*'hobbies'*: *new* FormArray([])
-
+this.signupForm = new FormGroup({
+    'userData': new FormGroup({
+        'username': new FormControl(null,
+            [Validators.required, this.forbiddenNames.bind(this)]),
+        'email': new FormControl(null,
+            [Validators.required, Validators.email], this.forbiddenEmails)
+    }),
+    'gender': new FormControl('male'),
+    'hobbies': new FormArray([])
 });
 
 onAddHobby() {
-
-*const* control = *new* FormControl(*null*, Validators._required_);
-
-(<FormArray>**this**.*signupForm*.get(*'hobbies'*)).push(control);
-
+    const control = new FormControl(null, Validators.required);
+    (<FormArray>this.signupForm.get('hobbies')).push(control);
 }
 
-forbiddenNames(control: FormControl): { [*s*: *string*]: *boolean* } {
-
-*if* (*this*.*forbiddenUsernames*.indexOf(control.*value*) >= 0) {
-
-*return* {*'nameIsForbidden'*: *true*};
-
+forbiddenNames(control: FormControl): { [s: string]: boolean } {
+    if (this.forbiddenUsernames.indexOf(control.value) >= 0) {
+        return {'nameIsForbidden': true};
+    }
+    return null;
 }
 
-*return null*;
-
+forbiddenEmails(control: FormControl): Promise<any> | Observable<any> {
+    return new Promise<any>(((resolve) => {
+        setTimeout(() => {
+            if (control.value === 'test@t') {
+                resolve({'emailIsForbidden': true});
+            } else {
+                resolve(*null*);
+            }
+        }, 1500);
+    }));
 }
-
-forbiddenEmails(control: FormControl): Promise<**any**> | Observable<**any**> {
-
-**return new _Promise_**<**any**>(((resolve) => {
-
-_setTimeout_(() => {
-
-*if* (control.*value* === *'test@t'*) {
-
-resolve({*'emailIsForbidden'*: *true*});
-
-} *else* {
-
-resolve(*null*);
-
-}
-
-}, 1500);
-
-}));
-
-}
+----
 
 Two observables:
 
-* _______________________
-FormGroup.statusChanges
-_______________________
-* ______________________
-FormGroup.valueChanges
-______________________
+*FormGroup.statusChanges
+*FormGroup.valueChanges
 
-[[_jew8n3625tej]]Pipes
+= Pipes
 
-{{username *| uppercase*}}
+.Example:
+ {{username | uppercase}}
 
 Pipes:
 
-* _________
-uppercase
-_________
-* ____
-date
-____
-* ____________________
-async - for promises
-____________________
+* uppercase
+* date
+* async - for promises
 
-[[pipe-parameters]]
 === Pipe parameters
 
-{{aDate | date:’fullDate’}}
+ {{aDate | date:’fullDate’}}
 
-[[implementing-custom-pipe]]
 === Implementing custom pipe
 
-@Pipe({ +
-name: 'shorten' +
-}) +
-export class ShortenPipe implements PipeTransform { +
- +
-transform(value: any): any { +
-return value.substr(0, 10); +
-} +
+[source,typescript]
+@Pipe({name: 'shorten'})
+export class ShortenPipe implements PipeTransform {
+    transform(value: any): any {
+        return value.substr(0, 10);
+    }
 }
 
 Then add the pipe class to *declarations* in app module.
 
 To reflect data changes in arrays and object for the pipe, use *pure: false* in @Pipe declaration.
 
-[[using-firebase-sdk]]
 = Using firebase sdk
 
-$ npm install --save firebase
+ $ npm install --save firebase
 
 In the app.component.ts:
 
-ngOnInit()
+ ngOnInit()
