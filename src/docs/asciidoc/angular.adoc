@@ -5,7 +5,15 @@
 === Install angular globally
 
 [source,bash]
-npm install -g @angular/cli
+$ npm install -g @angular/cli@latest
+
+=== Updating npm and Angular CLI
+
+[sgource,bash]
+$ sudo npm install -g npm
+$ sudo npm uninstall -g angular-cli @angular/cli
+$ npm cache clean
+$ sudo npm install -g @angular/cli
 
 === Create project
 
@@ -19,9 +27,9 @@ $ ng serve --open
 ==== Configure bootstrap within a project
 
 [source,bash]
-$ npm install --save bootstrap
+$ npm install --save bootstrap@3
 
-then go to .angular-cli.json and add `../node_modules/bootstrap/dist/css/bootstrap.min.css` to styles.
+then go to angular.json and add `node_modules/bootstrap3/dist/css/bootstrap.min.css` to styles.
 
 ==== Generate new component
 
@@ -90,7 +98,7 @@ This is done by adding the `FormsModule` to the `imports[]` array in the `AppMod
 </p>
 
 <ng-template #noServer>
-<p>No server was created</p>
+    <p>No server was created</p>
 </ng-template>
 ----
 
@@ -151,6 +159,20 @@ Usage:
 [source]
 <app-cockpit (serverCreated)="onServerAdded($event)">
 
+==== View encapsulation
+
+[source,typescript]
+@Component({
+    ...
+    styleUrls: ['./server-element.compontent.css'],
+    encapsulation: ViewEncapsulation.None
+)
+
+`encapsulation: ViewEncapsulation.None` doesn't use now view encapsulation.
+
+`ViewEncapsulation.Native` uses shadow-DOM technology (not supported by older browsers).
+
+
 .Using local references:
 
 [source]
@@ -188,6 +210,10 @@ Accessible after content init:
 
 [source]
 <ng-content>
+
+== Debugging
+
+`Augury` tool to better understand app structure.
 
 == Lifecycle hooks
 

@@ -1,0 +1,1736 @@
+= Docker
+:icons: font
+
+ Book: Docker: Up and Running by Karl Matthias & Sean P. Kane
+
+Main challenges:
+
+* management
+* security
+* certification
+
+= General
+
+Introduced by Solomon Hykes, founder and CEO of dotCloud.
+
+.Benefits
+
+* packaging software in a way that leverages the skills developers already have
+* building application software and required OS filesystems together in a single standardized image format
+* using packaged artifacts to test and deliver the exact same artifact to all systems in all environments
+
+.What Docker is not
+
+* Enterprise Virtualization Platform (VMware, KVM, etc.)
+* Cloud Platform (Openstack, CloudStack, etc.)
+* Configuration Management (Puppet, Chef, Ansible etc.)
+* Deployment Framework (Capistrano, Fabric, etc.)
+* Workload Management Tool (Mesos, Fleet, etc.)
+* Development Environment (Vagrant, etc.)
+
+Docker is an open platform for developers and sysadmins to build, ship, and run distributed applications.
+
+Consists of:
+
+* docker engine - a portable, lightweight runtime and packaging tool
+* docker hub - a cloud service for sharing applications and automated workflows
+
+Traditional VMs:
+
+* server hardware
+* host operating system
+* hypervisor (virtual box, vm ware)
+    ** and then inside hypervisor there are guest OS
+        *** bins/libs/apps
+
+In docker:
+
+* server hardware
+* host operating system
+* docker engine
+    ** inside bins / libs / apps
+
+.Running docker daemon
+
+ $ docker -d
+
+Docker ports:
+
+* 2375 - unsecure
+* 2376 - secure
+
+.Tooling:
+
+* Compose
+* Machine
+* Swarm
+
+.Command line tool
+
+* build a container image
+* pull/push images from/to registry
+* start container
+* retrieve logs from a remote server
+* start a command line shell inside a running container
+
+== Container networking
+
+* each container has its own virtual Ethernet interface connected to the Docker bridge and its own IP address allocated to the virtual interface
+* docker allows to bind ports on the host to the container
+* incoming traffic passes over a proxy before getting to the container
+
+Docker allocates the private subnet from an unused private subnet block.
+
+Network interface on the server called docker0.
+
+All of the containers are on a network together and can talk to each other directly.
+
+To get to the outside world, containers talk to docker0 virtual bridge interface.
+
+.Options for enforcing isolation:
+* SELinux
+* AppArmor
+
+Docker filesystem layers
+
+* each filesystem layer identified by unique hash.
+
+Docker is tagging images at deployment time
+
+Docker ecosystem:
+
+. Orchestration:
+    .. Docker’s Swarm
+    .. New Relic’s Centurion
+    .. Spotify’s Helios
+    .. Google’s Kubernetes
+    .. Apache Mesos
+. Atomic hosts:
+    .. CoreOS
+    .. Project Atomic
+. Additional tools
+    .. Mozilla’s Heka log router
+
+== Terminology
+
+docker client::
+    command used to control docker and talk to remote docker servers
+docker server::
+    the _docker_ command run in daemon mode.
+docker images::
+    one or more filesystem layers and some important metadata that
+    represent all the files required to run a dockerized application. +
+    A container will typically have both a name and a tag. +
+    The tag is generally used to identify a particular release
+    of an image.
+docker container::
+    a linux container that has been instantiated from a docker image.
+atomic host::
+    a small, finely tuned operating system image (CoreOS, Project Atomic),
+    that supports container hosting and atomic OS upgrades.
+
+== Installation
+
+.Installing on Debian
+
+ $ sudo apt-get update
+ $ sudo apt-get install docker.io cgroup-lite apparmor
+ $ sudo usermod -a -G docker $USER
+
+.Running Docker daemon
+
+ $ sudo docker -d -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375
+
+.systemd-based linux
+
+ $ sudo systemctl enable docker
+ $ sudo systemctl start docker
+
+.upstart-based linux:
+
+ $ sudo update-rc.d docker.io defaults
+ $ service docker.io start
+
+== Get started tutorial
+
+ $ docker run hello-world
+
+ $ docker run [OPTIONS] IMAGE [COMMAND] [ARG…]
+
+ $ docker run busybox /bin/echo "hello world"
+
+A container is a stripped-to-basics version of Linux OS.
+
+An image is software you load into a container.
+
+After running above command Docker:
+. checked to see if hello-world image is present
+. downloaded the image from the Docker Hub
+. loaded the image into the container and "ran" it
+
+.Simple dockerfile
+
+ $ mkdir mydockerbuild
+ $ cd mydockerbuild
+ $ vim Dockerfile
+
+Dockerfile:
+[source,dockerfile]
+----
+FROM docker/whalesay:latest
+
+RUN apt-get -y update && apt-get install -y fortunes
+
+CMD /usr/games/fortune -a | cowsay
+----
+
+Build it:
+
+ $ docker build -t docker-whale .
+
+== Dockerfile build process
+
+ $ docker build -t <image-name> .
+
+ $ docker tag <image-id> jchleborowicz/docker-whale:latest
+
+ $ docker login --username=jchleborowicz --email=mailto:j.chleborowicz@gmail.com[j.chleborowicz@gmail.com]
+
+ $ docker push jchleborowicz/docker-whale
+
+.Removing image from local
+
+ $ docker rmi -f <image-id>
+
+ $ docker rmi -f <image-name>
+
+.Show full image ids
+
+ $ docker images --no-trunc=true
+
+ $ docker inspect <image-name>
+
+=== Running an interactive shell
+
+$ docker run -it ubuntu /bin/bash
+
+* `-i` starts an interactive container
+* `-t` creates a pseudo-TTY that attaches stdin and stdout
+
+.Display all containers, also stopped:
+
+ $ docker ps -a
+
+. Giving container a name:
+
+ $ run -d --name my-name <image>
+
+`-d` means detached mode
+
+=== Binding to another host/port
+
+By default docker listens on *unix:///var/run/docker.sock* to allow only local connections by the root user.
+
+ -H tcp://[host:[port][path]
+
+ -H unix://path
+
+== Long-running worker process
+
+ $ JOB=$(docker run -d ubuntu /bin/sh -c "while true do; echo Hello World; sleep 1; done")
+
+ $ docker logs $JOB
+
+ $ docker kill $JOB
+
+.Start a new container
+
+ $ JOB=$(docker run ...)
+
+ $ docker stop $JOB
+
+ $ docker start $JOB
+
+ $ docker restart $JOB
+
+.SIGKILL a container
+
+ $ docker kill $JOB
+
+.Remove a container
+
+ $ docker stop $JOB
+
+ $ docker rm $JOB
+
+=== Bind a service on a TCP port
+
+ $ JOB=$(docker run -d -p 4444 alpine nc -l 4444)
+
+ $ PORT=$(docker port $JOB 4444 | cut -d: -f2)
+
+ $ echo hello world | nc localhost $PORT
+
+To edit and commit an image:
+
+ $ docker run -it <image> /bin/bash
+
+modify sth within a container, and then
+
+ $ docker commit -m "Message" <container-id> <new-image-name>
+
+for example:
+
+ $ docker commit -m "Setting password in custom configuration" 84fd redis-password
+
+to log into docker hub:
+
+ $ docker login
+
+to push image:
+
+ $ docker tag redis-password jchleborowicz/redis password
+
+ $ docker push jchleborowicz/redis-password
+
+== Dockerfile
+
+[source,dockerfile]
+----
+FROM node:0.10
+
+MAINTAINER Anna Doe <mailto:anna@example.com[_anna@example.com_]>
+
+LABEL "rating"="Five Stars" "class"="First Class"
+
+USER root
+
+ENV AP /data/app
+
+ENV SCPATH /etc/supervisor/conf.d
+
+RUN apt-get -y update
+
+#The daemons
+
+RUN apt-get -y install supervisor
+
+RUN mkdir -p /var/logl/supervisor
+
+#Supervisor configuration
+
+ADD ./supervisord/conf.d/* $SCPATH/
+
+#Application Code
+
+ADD *.js* $AP/
+
+WORKDIR $AP
+
+RUN npm install
+
+CMD ["supervisord", "-n"]
+----
+
+=== Building
+
+ $ docker build -t example/docker-node-hello:latest .
+
+NOTE: use --no-cache switch not to use cache
+
+ $ docker run -d -p 8080:8080 example/docker-node-hello:latest
+
+Running with environment variables:
+
+ $ docker run -d -p 8080:8080 -e WHO_ENV_VAR="Jacek" example/docker-node-hello:latest
+
+`docker-registry` project for local docker registries
+
+=== Authenticating to a registry
+
+ $ docker login
+
+Creates ~/.dockercfg file
+
+ $ docker logout
+
+If logging somewhere else than dockerhub, specify host on the command line:
+
+ $ docker login someregistry.example.com
+
+To check what has changed in the filesystem:
+
+ $ docker diff <image>
+
+To copy files:
+
+ $ docker cp <image>:/usr/bin/file .
+
+ $ docker inspect <image>
+
+=== Mirroring a registry
+
+Launch docker with additional parameter: *--registry-mirror*
+
+=== Linux Container
+
+Virtualization systems:
+
+* VMware, Xen
+* virtualized layer called `a hypervisor`
+* each hosted kernel sits in separate memory space and has defined entry points into the actual hardware
+
+== Linux Containers History
+
+* 1979 - Version 7 Unix - `chroot` system call restricting filesystem access
+* 2000 - FreeBSD 4.0 - `jail` command
+* 2004 - Solaris 10 - Solaris Containers, which later evolved into Solaris Zones
+* 2007 - HP released Secure Resource Partitions for HP-UX, later renamed to HP-UX Containers
+* 2008 - LXC released in kernel version 2.6.24
+
+CoreOS Rocket - open source container runtime
+
+== Creating a container
+
+`docker run` performs two things:
+
+* docker create
+* docker start
+
+==== Naming a container:
+
+ $ docker create --name="awesome-service" ubuntu:latest
+
+==== Labels
+
+ $ docker run -d --name labels -l deployer=Ahmed -l tester=Asako ubuntu:latest sleep 1000
+
+ $ docker ps -a -f label=deployer=Ahmed
+
+Use `docker inspect` command to view labels on existing container.
+
+./etc/hostname
+
+ $ docker run -it --rm --hostname="mycontainer.example.com" ubuntu:latest /bin/bash
+
+./etc/resolv.conf
+
+ $ docker run -it --rm --dns=8.8.8.8 --dns=8.8.4.4 --dns-search=example.com --dns-search=example2.com ubuntu:latest /bin/bash
+
+Results in following /etc/resolv.conf:
+
+[source]
+----
+nameserver 8.8.8.8
+
+nameserver 8.8.4.4
+
+search example.com example2.com
+----
+
+==== MAC address (Media Access Control)
+
+By default MAC address starts with _02:42:ac:11_ prefix
+
+ $ docker run -it --rm --mac-address="a2:11:aa:22:bb:33" ubuntu:latest /bin/bash
+
+==== Storage volumes
+
+ $ docker run -it --rm -v /mnt/session_data:/data ubuntu:latest /bin/bash
+
+===== Running read-only
+
+ $ docker run -it --rm --read-only -v /mnt/session_data:/data ubuntu:latest /bin/bash
+
+=== Resource quotas
+
+==== CPU shares
+
+1024 - total shares
+
+512 - 50% of total shares
+
+ $ docker run --rm -ti progrium/stress --cpu 2 --io 1 --vm-bytes 128M --timeout 120s
+
+to run same with half of available CPU time:
+
+ $ docker run --rm -ti -c 512 progrium/stress --cpu 2 --io 1 --vm-bytes 128M --timeout 120s
+
+==== CPU pinning
+
+ $ docker run --rm -ti -c 512 --cpuset=0 progrium/stress --cpu 2 --io 1 --vm 2 --vm-bytes 128M --timeout 120s
+
+==== Constraining memory
+
+ $ docker run --rm -ti -m 512m progrium/stress --cpu 2 --io 1 --vm 2 --vm-bytes 128M --timeout 120s
+
+-m sets both amount of RAM and amount of swap
+
+to set different amount of swap use --memory-swap:
+
+ $ docker run --rm -ti -m 512m --memory-swap=768m progrium/stress --cpu 2 --io 1 --vm 2 --vm-bytes 128M --timeout 120s
+
+to disable swap *--memory-swap -1*
+
+=== ulimits
+
+Defaults for starting all containers with a hard limit of 150 open files and 20 processes:
+
+ $ sudo docker -d --default-ulimit nofile=50:150 --default-ulimit nproc=10:20
+
+Overriding default values:
+
+ $ docker run -d --ulimit nproc=100:200 nginx
+
+== Starting a Container
+
+ $ docker create -p 6379:6379 redis:2.8
+
+ $ docker start 768a93cab55fcd165296614f27d8c9ced2403b22c427ba2dd0172ffb7a21072c
+
+== Auto-restarting a container
+
+ $ docker run -ti --restart=on-failure:3 -m 200m --memory-swap=300m ...
+
+--restart arguments:
+
+* no
+* always
+* on-failure:#
+
+=== Stopping a Container
+
+ $ docker stop <container-id>
+
+when stopping, SIGTERM is sent
+
+ $ docker stop -t 25 <container-id>
+
+SIGTERM is sent immediately, then, after 25 seconds if the process is still alive SIGKILL is sent
+
+==== Killing an container
+
+ $ docker kill <container-id>
+
+To send any other signal:
+
+ $ docker kill --signal=USR1 <container-id>
+
+==== Pausing a container
+
+ $ docker pause <container-id>
+
+ $ docker unpause <container-id>
+
+==== Removing a container
+
+ $ docker rm <container-id>
+
+To remove all the containers:
+
+ $ docker rm $(docker ps -aq)
+
+==== Removing and image
+
+ $ docker images
+
+ $ docker rmi <image-id>
+
+== Docker video tutorial
+
+Docker file
+
+[source,dockerfile]
+----
+FROM ubuntu:14.04
+
+MAINTAINER Jacek Chleborowicz <mailto:j.chleborowicz@gmail.com[_j.chleborowicz@gmail.com_]>
+
+#copies a file from source directory into a docker image:
+
+ADD nginx_signing.key /tmp/nginx_singing.key
+
+RUN apt-key add /tmp/nginx_signing.key
+----
+
+NOTE: each RUN creates new image
+
+Links:
+
+$ docker run -p 8000:8000 -d --name django --link postgres:db --link memcached:cache
+
+todo AWS beanstalk !!!
+
+Interesting projects:
+
+Flynn
+
+Deis
+
+Volumes:
+
+* ________________________________________
+VOLUME instruction inside Dockerfile, or
+________________________________________
+* _____________________________
+-v flag to docker run command
+_____________________________
+
+VOLUME /data
+
+$ docker run -v /data test/webserver
+
+$ docker run -v /host/dir:/container/dir test/webserver
+
+[[underlying-technologies]]
+== Underlying technologies
+
+Docker uses _runc_ driver:
+
+* ________________________________________________________________________________________________________________________________
+cgroups - managing resources used by a container (CPU and memory usage). Responsible also for freezing and unfreezing containers
+________________________________________________________________________________________________________________________________
+* ___________________________________________________________________________________________________________
+namespaces are responsible for isolating containers (filesystem, hostname, users, networking and processes)
+___________________________________________________________________________________________________________
+
+Lib container also supports SElinux and AppArmor, which can be enabled for tighter security.
+
+UFS - Union File System:
+
+* ____
+AUFS
+____
+* ____________
+devicemapper
+____________
+* _____
+BTRFS
+_____
+* _______
+Overlay
+_______
+
+The build context:
+
+the docker _build_ command requires a Dockerfile and a _build context_.
+
+The build context is the set of local files and directories that can be referenced from ADD or COPY instructions in the Dockerfile.
+
+.dockerignore file:
+
+.git
+
+*/.git
+
+*/*/.git
+
+*.sw?
+
+[[caching]]
+== Caching
+
+* ___________________________________________________
+when same parent image and exactly same instruction
+___________________________________________________
+* ________________________________________________________________________________________________________________________________
+in case of COPY and ADD instructions, the cache will be invalidated if the checksum or metadata for any of the files has changed
+________________________________________________________________________________________________________________________________
+
+[[dockerfile-commands]]
+=== Dockerfile commands
+
+ADD /file
+
+CMD
+
+COPY ["src", "dest"]
+
+ENTRYPOINT ["/bin/bash", "-c"]
+
+ENV MY_VERSION 1.3
+
+EXPOSE - indicates to Docker that the container will have a process listening on the given port or ports. This information is used when linking containers or publishing ports by "-P" argument to run; by itself the EXPOSE instruction will not affect networking.
+
+FROM
+
+MAINTAINER
+
+ONBUILD - specifies the instruction to be executed later, when teh image is used as the base layer to another image.
+
+RUN - runs the given instruction inside the container and commits the result
+
+USER - sets the user (by name or UID) to use in any subsequent RUN, CMD or ENTRYPOINT instructions.
+
+VOLUME - declares specified file or directory to be a volume.
+
+WORKDIR - sets the working directory for any subsequent RUN, CMD, ENTRYPOINT, ADD or COPY instructions
+
+$ docker inspect -f \{\{.Author}} IMAGE
+
+[[connecting-containers-to-the-world]]
+=== Connecting Containers to the World
+
+$ ID=$(docker run -d -P nginx)
+
+$ docker port $ID 80
+
+[[linking-containers]]
+== Linking containers
+
+--link CONTAINER:ALIAS
+
+To prevent containers that haven’t been linked from communicating:
+
+--icc=false
+
+--iptables
+
+[[volumes]]
+== Volumes
+
+Docker volumes are directories that are not part of the container’s UFS.
+
+$ docker inspect -f \{\{.Mounts}} PROCESS
+
+Three way to set up volumes:
+
+1.  ____________________________
+docker run *-v /data* debian
+____________________________
+2.  ________________
+in Dockerfile: +
+VOLUME /data
+________________
+3.  ______________________________________
+docker run *-v HOST_DIR:CONTAINER_DIR*
+______________________________________
+
+[[sharing-data]]
+==== Sharing data
+
+$ docker run -it -h NEWCONTAINER *--volumes-from container-test* debian /bin/bash
+
+All volumes from container container-test will be visible in new container.
+
+#initializing data container:
+
+$ docker run --name dbdata postgres echo "Data-only container for postgres"
+
+$ docker run -d --volumes-from dbdata --name db1 postgres
+
+[[deleting-volumes]]
+=== Deleting volumes
+
+* ______________________________________________
+container was deleted with *docker rm -v* , or
+______________________________________________
+* ________________________________________
+the --rm flag was provided to docker run
+________________________________________
+
+and:
+
+* _________________________________________
+no existing container links to the volume
+_________________________________________
+* ______________________________________________
+no host directory was specified for the volume
+______________________________________________
+
+docker run parameters:
+
+* ____________
+-a, --attach
+____________
+* ____________
+-d, --detach
+____________
+* _________________
+-i, --interactive
+_________________
+* _____________________
+--restart parameters:
+_____________________
+** ______________________________________________
+no - will never attempt to restart a container
+______________________________________________
+** ______
+always
+______
+** _______________________________________________________________________________________________________________________________
+on-failure - takes optional number of times to attempt to restart before giving up: docker run --restart on-failure:10 postgres
+_______________________________________________________________________________________________________________________________
+* ______________________________________________________________________________
+--rm automatically removes the container when it exits. cannot be used with -d
+______________________________________________________________________________
+* __________________________________
+-t, --tty - allocates a pseudo-TTY
+__________________________________
+* ___________________________________________________
+-e, --env +
+$ docker run -e var1=val -e var2="val 2" debian env
+___________________________________________________
+* __________
+--env-file
+__________
+* _________________________________________________
+-h, --hostname sets the container’s unix hostname
+_________________________________________________
+* ____________________________________
+--name assigns name to the container
+____________________________________
+* ____________
+-v, --volume
+____________
+* ___________________________________________________
+--volumes-from mounts volumes from other containers
+___________________________________________________
+* _______________________________________________
+--expose only really makes sense with -P option
+_______________________________________________
+* ______________________________________________________________________
+--link s set up a private network interface to the specified container
+______________________________________________________________________
+* _____________
+-p, --publish
+_____________
+* _________________
+-P, --publish-all
+_________________
+* ____________
+--entrypoint
+____________
+* ______________________________________________________
+-u , --user sets the user that commands are run under.
+______________________________________________________
+* __________________________________________________________
+-w, --workdir sets the working directory in the container.
+__________________________________________________________
+
+Managing containers:
+
+* _____________
+docker attach
+_____________
+* _____________
+docker create
+_____________
+* _________
+docker cp
+_________
+* ___________
+docker exec
+___________
+* ____________________________________________________________________________________
+docker kill by default sends a SIGKILL, the signal can be specified with -s argument
+____________________________________________________________________________________
+* ________________________________________________________________________
+docker pause suspends all processes. Uses cgroups freezer functionality.
+________________________________________________________________________
+* ______________
+docker unpause
+______________
+* ______________
+docker restart
+______________
+* _________
+docker rm
+_________
+* ____________
+docker start
+____________
+* ___________
+docker stop
+___________
+
+To detach from container without stopping it press ctrl+p ctrl+q - works only when attached in interactive mode with a tty
+
+Docker info
+
+* ___________
+docker info
+___________
+* ___________
+docker help
+___________
+* ______________
+docker version
+______________
+
+Container info:
+
+* ______________________________________________________________________________________________
+docker diff shows changes made to containers filesystem compared to image it was launched from
+______________________________________________________________________________________________
+* _____________
+docker events
+_____________
+* ____________________________________________________
+docker inspect detailed info on containers or images
+____________________________________________________
+* ___________
+docker logs
+___________
+* ________________________________________
+docker port lists exposed port mappings:
+________________________________________
+** _______________
+docker port $ID
+_______________
+** ____________________
+docker port $ID 6379
+____________________
+** ________________________
+docker port $ID 6379/tcp
+________________________
+* _________
+docker ps
+_________
+* _________________________________________________________________________________
+docker top provides information on the running processes inside a given container
+_________________________________________________________________________________
+
+Dealing with images:
+
+* ____________
+docker build
+____________
+* _____________________________________________________
+docker commit -a "Jacek" -m "Comment" $ID commit:test
+_____________________________________________________
+* _______________________________
+docker export - exports to file
+_______________________________
+* ____________________________________________________________
+docker history information on each of the layers in an image
+____________________________________________________________
+* _____________________________________________
+docker images provides a list of local images
+_____________________________________________
+* ______________________________________________________
+docker import: +
+$ docker export 35d17 | docker import - flatten:test +
+$ docker history flatten:test
+______________________________________________________
+* ___________
+docker load
+___________
+* __________
+docker rmi
+__________
+* ___________
+docker save
+___________
+* ______________________________________________________________
+docker tag: +
+$ docker tag faa2b newname +
+$ docker tag newname:latest amauat/newname +
+$ docker tag newname:latest amouat/newname:newtag +
+$ docker tag newname:latest myregistry.com:5000/newname:newtag
+______________________________________________________________
+
+Using the Registry
+
+* ____________
+docker login
+____________
+* _____________
+docker logout
+_____________
+* ___________
+docker pull
+___________
+* ___________
+docker push
+___________
+* _____________
+docker search
+_____________
+
+[[docker-compose]]
+=== Docker compose
+
+Commands:
+
+* __
+up
+__
+* _____
+build
+_____
+* __
+ps
+__
+* ___
+run
+___
+* ____
+logs
+____
+* ____
+stop
+____
+* __
+rm
+__
+
+[[docker-swarm]]
+=== Docker swarm
+
+* _________________
+docker swarm init
+_________________
+* ______________________________________________________
+docker stack deploy -c docker-compose.yml _stack-name_
+______________________________________________________
+
+On subsequent calls to "docker stack deploy" docker will update stack.
+
+* ________________________________________________
+docker stack rm _stack-name_ # removes the stack
+________________________________________________
+* __________________________
+docker swarm leave --force
+__________________________
+
+Swarm managers vs swarm workers
+
+$ docker-machine create --driver virtualbox myvm1 +
+$ docker-machine create --driver virtualbox myvm2
+
+$ docker-machine ls
+
+$ docker-machine ssh myvm1 "docker swarm init"
+
+$ docker-machine scp docker-compose.yml myvm1:~
+
+$ docker-machine ssh myvm1 "docker stack deploy -c docker-compose.yml getstartedlab"
+
+The nodes in a swarm participate in an ingress routing mesh.
+
+Ingress routing mesh ensures that a service deployed at a certain port within your swarm always has that port reserved to itself, no matter what node is actually running the container.
+
+To use the ingress network in the swarm, you need to have following ports open between the swarm nodes before you enable swarm mode:
+
+* ____________________________________________
+7945 TCP/UDP for container network discovery
+____________________________________________
+* __________________________________________
+4789 UDP for the container ingress network
+__________________________________________
+
+[[networking-with-docker]]
+== Networking with docker
+
+$ docker network ls
+
+Network named *bridge* is a special network. Docker launches containers in bridge network by default.
+
+$ docker network inspect bridge
+
+$ docker network disconnect <network-name> <container-name>
+
+Bridge networks vs overlay networks - bridge network is limited to a single host running Docker Engine. An overlay network can include multiple hosts and is a more advanced topic.
+
+$ docker network create -d bridge <network-name>
+
+$ docker run -d --net=<network-name> --name db training/postgres
+
+$ docker inspect --format=’\{\{json .NetworkSettings.Networks}}’ db
+
+$ docker network connect <network-name> <container-name>
+
+[[docker-swarm-1]]
+= Docker swarm
+
+*Swarm* - cluster of docker engines, used to deploy services.
+
+*Node* - instance of Docker engine participating in the swarm.
+
+*Manager node* - accepts service definitions. Dispatches units of work called *tasks*.
+
+Manager nodes elect a single leader to conduct orchestration tasks.
+
+*Worker nodes* - receive and execute tasks. Manager nodes can be configured to be manager-only nodes.
+
+*Service* - the definition of the tasks to execute on the worker nodes.
+
+* ________________________________________________________________________________
+replicated services - swarm manager distributes specific number of replica tasks
+________________________________________________________________________________
+* ____________________________________________________________________________________________
+global services - swarm runs one task for the service on every available node in the cluster
+____________________________________________________________________________________________
+
+*Task* - carries a Docker container and the commands to run inside the container.
+
+Manager nodes assign tasks to worker nodes.
+
+Once a task is assigned to a node it cannot move to another node - it can only run on assigned node or fail.
+
+*Ingress load balancing* - to expose the services you want to make available externally to the swarm.
+
+Swarm manager can automatically assign a *PublishedPort* (range 30000-32767)
+
+External components can access the service on the PublishedPort of any node in the cluster (whether or not the node is currently running the task for the service).
+
+All nodes in the swarm route ingress connections to a running task instance.
+
+Swarm mode has an internal DNS component that automatically assigns each service in the swarm a DNS entry.
+
+The swarm manager uses *internal load balancing* to distribute requests among services within the cluster based upon the DNS name of the service.
+
+[[docker-networking]]
+= Docker networking
+
+The Docker networking architecture is build on a set of interfaces called the *Container Networking Model (CNM)*. image:extracted-media/media/image2.png[Container Networking Model,width=624,height=373]
+
+CNM Constructs:
+
+* __________________________________________________________________________________________________________________________________________________________
+*Sandbox* - contains the configuration of a container’s network stack. This includes management of container interfaces, routing table and DNS settings. +
+An implementation of a Sandbox could be a Linux Network Namespace, a FreeBSD Jail or similar concept. +
+A Sandbox may contain many endpoints from multiple networks.
+__________________________________________________________________________________________________________________________________________________________
+* __________________________________________
+*Endpoint* - joins a Sandbox to a Network.
+__________________________________________
+* ____________________________________________________________________________________________________________________________________________
+*Network* - collection of endpoints that have connectivity between them. implementation of the network could be a Linux bridge, a VLAN, etc.
+____________________________________________________________________________________________________________________________________________
+
+Network Drivers:
+
+* ______________________________________________________________________________________________________________________________________________________________________
+*Network Drivers* - provide the actual implementation that makes networks work. +
+Multiple network drivers can be used on a given Docker Engine or Cluster concurrently, but each Docker network is only instantiated through a single network driver. +
+Two broad types of CNM network drivers:
+______________________________________________________________________________________________________________________________________________________________________
+** _____________________________________________________________________________________________________________________
+*Native Network Drivers* - native part of the Docker Engine and are provided by Docker. +
+There are multiple drivers to choose from that support different capabilities like overlay networks or local bridges.
+_____________________________________________________________________________________________________________________
+** ______________________________________________________________________________________
+*Remote Network Drivers* - network drivers created by the community and other vendors.
+______________________________________________________________________________________
+* _____________________________________________________________________________________________________________________________________________________________________
+*IPAM Drivers* - Docker has a native IP Address Management Driver that provides default subnets or IP addresses for networks and endpoints if they are not specified.
+_____________________________________________________________________________________________________________________________________________________________________
+
+[[_mbsv9hk75lg4]]O’Reilly course: Learning Path: Delivering Applications with Docker
+
+What are containers:
+
+* _____________________________________________________
+isolated view of processes, user space na file system
+_____________________________________________________
+* ________________________
+shares host linux kernel
+________________________
+
+OS virtualization technologies:
+
+* _____________
+FreeBSD Jails
+_____________
+* _____________
+Solaris Zones
+_____________
+* ___
+LXC
+___
+
+Virtual machines vs containers - vm’s use hypervisor, containers use container engine (jails, solaris zones, LXC).
+
+Docker properties:
+
+* ____________________________________________________
+abstraction on container engines (libvirt, LXC, etc)
+____________________________________________________
+* _________________________
+command line and HTTP API
+_________________________
+* ______________________
+standardized packaging
+______________________
+* ____________________
+layered image format
+____________________
+* _______________________________
+ecosystem of tools and services
+_______________________________
+
+Docker host contains:
+
+* _____________
+docker daemon
+_____________
+* __________
+containers
+__________
+* ______
+images
+______
+
+Docker registry - remote service that houses docker images
+
+Docker machine:
+
+* _____________________________________________________
+command line tool to create many managed docker hosts
+_____________________________________________________
+
+Docker-compose
+
+* _________________________________
+wire bunch of containers together
+_________________________________
+
+Docker machine:
+
+* ______________________________________________
+docker-machine create --driver virtualbox dev1
+______________________________________________
+* _______________________________
+eval $(docker-machine env dev1)
+_______________________________
+* ______________________
+docker-machine ip dev1
+______________________
+* ________________________
+docker-machine stop dev1
+________________________
+* ______________________
+docker-machine rm dev1
+______________________
+
+Linking containers:
+
+$ docker run -d -P --name redis redis
+
+$ docker run --link redis ubuntu bash
+
+$ docker ps -l - prints last container
+
+$ docker port <container-name> - lists ports
+
+Using "docker stop" will issue SIGTERM signal followed by SIGKILL signal.
+
+$ docker stop --time 10 <container-name> - waits 10 seconds between SIGTERM and SIGKILL
+
+[[restart-policy]]
+== Restart policy
+
+$ docker run -d *--restart unless-stopped* ubuntu
+
+[[logs]]
+== Logs
+
+$ docker logs -f <container-name>
+
+$ docker inspect --format=’\{\{.NetworkSettings.IPAddress}}’ <conotainer-name>
+
+[[docker-images]]
+= Docker images
+
+Dockerfile:
+
+FROM ubuntu:15:10
+
+RUN apt-get install python
+
+RUN pip install flask
+
+ADD app.py
+
+EXPOSE 5000
+
+ENTRYPOINT python app.py
+
+Starting with alpine linux:
+
+apk update
+
+apk add nodejs
+
+nodejs --version
+
+$ docker commit -m "a comment" <container-id>
+
+Sample Dockerfile:
+
+FROM alpine
+
+MAINTAINER Jacek Chleborowicz <j.chleborowicz@gmail.com>
+
+RUN apk update && apk add nodejs
+
+RUN mkdir average
+
+ADD average.js average/
+
+WORKDIR average
+
+ENTRYPOINT ["node","average.js"]
+
+$ docker build -t tag .
+
+[[build-triggers]]
+=== Build triggers
+
+In Dockerfile:
+
+ONBUILD used to define instructions to execute in descending build
+
+[[networking]]
+=== Networking
+
+$ docker network create --driver bridge my-network
+
+$ docker run -d -P *--net my-network* --name hello rickfast/hello-oreilly-http
+
+Unique container name can be used to resolve ip address.
+
+[[net-alias]]
+=== Net alias
+
+docker run -d --net dns-test --name dns-test-app *--net-alias dns-alias* rickfast/oreilly-dns-test
+
+[[volumes-1]]
+== Volumes
+
+File system inside docker is called *union fs*
+
+[[data-volume-containers]]
+== Data volume containers
+
+Containers to only store data
+
+$ docker *create -v /usr/local/var/lib/couchdb* --name db-data debian:jessie /bin/true
+
+$ docker run -p 5984:5984 *-v /usr/local/var/lib/couchdb* --name db1 -d *--volumes-from db-data* couchdb
+
+$ docker run -p 5985:5984 *-v /usr/local/var/lib/couchdb* --name db2 -d *--volumes-from db-data* couchdb
+
+TODO: examine flocker by clusterhq
+
+[[docker-swarm-2]]
+=== Docker swarm
+
+Need backing key-value storage mechanism. Options:
+
+* ______
+consul
+______
+* ____
+etcd
+____
+* _________
+zookeeper
+_________
+
+$ docker run -d -p 2181:2181 --name zookeeper jplocak/zookeeper
+
+[[extras]]
+== Extras
+
+Kitematic - UI client to docker
+
+[[log-drivers]]
+=== Log drivers
+
+Json file log driver - default.
+
+to be explicit:
+
+$ docker run *--log-driver=json-file* <container-name>
+
+Splunk - popular logging service
+
+$ docker run --name splunk -p 8080:8080 -p 8088:8088 -d outcoldman/splunk:6.3.3
+
+[[docker-swarm-3]]
+= Docker swarm
+
+Runned with SwarmKit
+
+nodes
+
+deploy services
+
+Manager node - accepts service definition submissions
+
+Manager node sends *tasks* to worker nodes.
+
+Agent runs on worker nodes.
+
+$ docker node ls
+
+$ docker service create --replicas 1 --name helloworld alpine ping wyborcza.pl
+
+$ docker service inspect --pretty helloworld
+
+$ docker service scale helloworld=5
+
+$ docker service rm helloworld
+
+$ docker service create --replicas 3 --name redis --update-delay 10s redis:3.0.6
+
+$ docker service update --image redis:3.0.7 redis
+
+docker service create params:
+
+* _________________
+--update-delay 5s
+_________________
+* _________________________________________________________________________________________________
+--update-parallelism 4 - set maximum number of service tasks that scheduler update simultaneously
+_________________________________________________________________________________________________
+* ________________________________________________
+--update-failure-action pause|countinue|rollback
+________________________________________________
+
+$ docker node update *--availability drain* worker1
+
+$ docker node inspect --pretty worker1
+
+$ docker node update --availability active worker1
+
+[[ingress-routing-mesh]]
+== Ingress routing mesh
+
+Each node in the swarm accepts connections on published ports for any service running in the swarm, even if there’s no task running on the node.
+
+In order to use ingress network in the swarm, you need following ports open between swarm nodes before you enable swarm mode:
+
+* ____________________________________________
+7946 tcp/udp for container network discovery
+____________________________________________
+* __________________________________________
+4789 udp for the container ingress network
+__________________________________________
+
+[[publish-a-port-for-a-service]]
+==== Publish a port for a service
+
+$ docker service create --name my-web --publish 8080:80 --replicas 2 nginx
+
+[[adding-published-port]]
+==== Adding published port
+
+$ docker service update --publish-add 8080:80 my-web
+
+[[presentation-docker-beyond-the-basics-ci-cd-by-sean-kane-2017-11-13]]
+= Presentation *Docker: Beyond the Basics (CI & CD)* by Sean Kane, 2017-11-13
+
+Swarm - entry level workload management tool (proper ones are Mesos and Kubernetes)
+
+Components:
+
+* _____________
+Docker client
+_____________
+* _____________________________
+Docker server (Docker engine)
+_____________________________
+* ___________________________
+Virtual Machine (Docker CE)
+___________________________
+* ______
+images
+______
+* __________
+containers
+__________
+
+Linux namespaces:
+
+* ___________________________
+Mount (filesystem resoures)
+___________________________
+* ________________________
+UTS (host & domain name)
+________________________
+* _______________________________
+IPC (shared memory, semaphores)
+_______________________________
+* __________________
+PID - process tree
+__________________
+* _______
+Network
+_______
+* _________________________
+User - user and group ids
+_________________________
+
+Control groups (cgroups)
+
+* _________________
+resource limiting
+_________________
+* ______________
+prioritization
+______________
+* __________
+accounting
+__________
+* _______
+control
+_______
+
+[[_2w6lzcwc80pa]]Kubernetes
+
+Linux academy course "Running Container Clusters with Kubernetes" by Terrence Cox
+
+Safari books online course "Kubernetes Fundamentals" by Sebastien Goasguen
+
+What is Kubernetes:
+
+* ________________________________________________________________________________________________
+is an open-source system for automating deployment, scaling and management of containerized apps
+________________________________________________________________________________________________
+* ________________________
+docker or rkt containers
+________________________
+* _____________________________________
+open source container cluster manager
+_____________________________________
+* _____________________
+released in July 2015
+_____________________
+* __________________
+Apache License 2.0
+__________________
+* _______________
+design overview
+_______________
+** __________
+primitives
+__________
+*** ____________________________________________________________________________________________________
+provide a method for deployment, maintenance and scalability of container based application clusters
+____________________________________________________________________________________________________
+*** ______________________________
+designed to be loosely coupled
+______________________________
+*** ________________________________
+easily extensible through an API
+________________________________
+** _______________
+building blocks
+_______________
+*** _____________________
+nodes - aka "minions"
+_____________________
+*** ____
+pods
+____
+*** ______
+labels
+______
+*** _________
+selectors
+_________
+*** ___________
+controllers
+___________
+*** ________
+services
+________
+*** ____________
+control pane
+____________
+*** ___
+API
+___
+
+Google’s white paper "Large-scale cluster management at Google with Borg": https://research.google.com/pubs/pub43438.html[_https://research.google.com/pubs/pub43438.html_]
+
+Borg was google container management system.
+
+Omega is next version of Borg.
+
+Kubernetes is a complete open-source rewrite of Borg.
+
+Docker lineage:
+
+* ____
+Borg
+____
+** _____
+Omega
+_____
+** __________
+Kubernetes
+__________
+** _____
+Mesos
+_____
+** _____________
+Cloud Foundry
+_____________
+* _______
+cgroups
+_______
+** _______________________________
+OCI - Open Container Initiative
+_______________________________
+** _________________
+Docker - rkt/appc
+_________________
+** ___
+LXC
+___
+
+cgroups:
+
+* _________________________________________________________________________________
+Google developed cgroups when working on Borg and donated cgroups to linux kernel
+_________________________________________________________________________________
+* _________________________________________
+constrain containers memory and cpu usage
+_________________________________________
+
+LXC (Linux Containers):
+
+* ___________
+use cgroups
+___________
+* __________________________________
+namespaces - to isolate containers
+__________________________________
+
+Docker
+
+* ____________
+uses cgroups
+____________
+* __________________________________________________________________________________________________
+originally used LXC, but then they used their own library called libcontainer to manage namespaces
+__________________________________________________________________________________________________
+
+Where to find information:
+
+* ________________________________________________
+https://kubernetes.io/[_https://kubernetes.io/_]
+________________________________________________
+* __________________________________________________________________________________________________________________________________________
+https://www.cncf.io/[_https://www.cncf.io/_] - Cloud Native Computing Foundation - open source foundation that manages kubernetes software
+__________________________________________________________________________________________________________________________________________
+* ___________________________________________________________________________________________________________________________________________
+https://www.youtube.com/channel/UCvqbFHwN-nwalWPjPUKpvTA[_https://www.youtube.com/channel/UCvqbFHwN-nwalWPjPUKpvTA_] - CNCF youtube channel
+___________________________________________________________________________________________________________________________________________
+* _________________________________________________________________________________________________________________________________________________
+https://www.youtube.com/channel/UCZ2bu0qutTOM0tHYa_jkIwg[_https://www.youtube.com/channel/UCZ2bu0qutTOM0tHYa_jkIwg_] - Kubernetes youtube channel
+_________________________________________________________________________________________________________________________________________________
+* _______________________________________________________________________________________________________________________________________
+search for Kubernetes on stackoverflow - https://stackoverflow.com/search?q=kubernetes[_https://stackoverflow.com/search?q=kubernetes_]
+_______________________________________________________________________________________________________________________________________
+* _____________________________________________________________________________________________
+github page for kubernetes - https://github.com/kubernetes/[_https://github.com/kubernetes/_]
+_____________________________________________________________________________________________
+* ___________________________________________________________________________________________________________________________________
+https://github.com/kubernetes-incubator[_https://github.com/kubernetes-incubator_] - community projects that are tied to Kubernetes
+___________________________________________________________________________________________________________________________________
+
+Architecture
+
+* ______________________________________
+Head node - is the brain of Kubernetes
+______________________________________
+** __________
+API server
+__________
+** _________________________________________________________
+scheduler - to place the containers where they need to go
+_________________________________________________________
+** _____________________________________________________________________________
+controller manager - checks that the state of the system is what it should be
+_____________________________________________________________________________
+** ____________________________________________
+etcd - datastore for the state of the system
+____________________________________________
+** __________
+sometimes:
+__________
+*** _______
+kubelet
+_______
+*** ______
+docker
+______
+* ___________
+Worker node
+___________
+** ___________________________
+kubelet - Kubernetes’ agent
+___________________________
+*** ________________________________________________________
+talks with Kubernetes API server and local docker daemon
+________________________________________________________
+** ______________________________________________________
+kube-proxy - system to manage the iptables in the node
+______________________________________________________
+** ______
+docker
+______
+
+*Look at the head node*
+
+$ kubectl get nodes
+
+$ systemctl status kubelet
+
+$ less /etc/systemd/system/kubelet.service.d/10_kubeadm.conf
+
+$ cd /etc/kubernetes/manifests # this directory contains yaml configuration files for etcd, apiserver, controller-manager and scheduler
+
+$ ls -l
+
+pod - lowest compute unit in kubernetes
+
+$ kubectl get pods --all-namespaces
+
+*Look at worker node*
+
+$ systemctl status kubelet
+
+$ less /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+# on a head node
+
+$ kubectl run nginx --image=nginx
+
+$ kubectl expose deployments nginx --port 80 --type NodePort
+
+# on worker node
+
+$ kubectl get pods
+
+$ kubectl get svc
+
+*Installing kubernetes:*
+
+* ________
+minikube
+________
+* ______________________________________________________
+gcloud container clusters - on google container engine
+______________________________________________________
+* _______________________________
+kubeadm - cli tool by community
+_______________________________
+
+todo:
+
+* _______
+systemd
+_______
+* ________
+iptables
+________
+* ____
+etcd
+____
