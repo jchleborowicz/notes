@@ -173,7 +173,7 @@ Usage:
 `ViewEncapsulation.Native` uses shadow-DOM technology (not supported by older browsers).
 
 
-.Using local references:
+==== Using local references:
 
 [source]
 ----
@@ -183,6 +183,8 @@ Usage:
     Add Server
 </button>
 ----
+
+Local references can be referred only in html code.
 
 [source]
 ----
@@ -245,8 +247,8 @@ Interfaces:
 
 == Directives
 
-* attribute directives - sit on elements, only affect that attribute sit on
-* structural attributes - change the structure of the DOM
+* *attribute directives* - sit on elements, only affect that attribute sit on
+* *structural attributes* - change the structure of the DOM
 
 [source,typescript]
 ----
@@ -316,6 +318,20 @@ export class BetterHighlightDirective implements OnInit {
 }
 ----
 
+=== ng-template
+
+A code:
+
+[source,typscript]
+<p *ngIf="contition">Text</p>
+
+gets transformed by Angular to:
+
+[source,typscript]
+<ng-template [ngIf]="condition">
+    <p>text</p>
+</ng-template>
+
 === Toggling style
 
 [source,typscript]
@@ -332,6 +348,41 @@ export class DropdownDirective {
     }
 }
 ----
+
+=== Structural directive sample
+
+[source,typscript]
+----
+@Directive({
+  selector: '[appUnless]'
+})
+export class UnlessDirective {
+
+  @Input('appUnless') set unless(condition: boolean) {
+    if (condition) {
+      this.viewContainerRef.clear();
+    } else {
+      this.viewContainerRef.createEmbeddedView(this.templateRef);
+    }
+  }
+
+  constructor(private templateRef: TemplateRef<any>, private viewContainerRef: ViewContainerRef) {
+  }
+
+}
+----
+
+==== ng-switch
+
+[source]
+<div [ngSwitch]="value">
+  <p *ngSwitchCase="5">Value is 5</p>
+  <p *ngSwitchCase="10">Value is 10</p>
+  <p *ngSwitchCase="15">Value is 15</p>
+  <p *ngSwitchDefault="">Value is other</p>
+</div>
+
+
 
 == Routes
 
