@@ -247,7 +247,7 @@ Interfaces:
 
 == Directives
 
-* *attribute directives* - sit on elements, only affect that attribute sit on
+* *attribute directives* - sit on elementsSo whS, only affect that attribute sit on
 * *structural attributes* - change the structure of the DOM
 
 [source,typescript]
@@ -382,8 +382,6 @@ export class UnlessDirective {
   <p *ngSwitchDefault="">Value is other</p>
 </div>
 
-
-
 == Routes
 
 [source,typscript]
@@ -418,6 +416,7 @@ RouterModule.forRoot(appRoutes)
 </li>
 ----
 
+.Routing programatically
 [source,typscript]
 ----
 constructor(private router: Router) {
@@ -468,6 +467,25 @@ export class UserComponent implements OnInit {
     }
 }
 ----
+
+.Removing the subscription explicitly
+[source]
+----
+implements OnDestroy
+
+aSubscription: Subscription
+
+ngOnInit() {
+    this.aSubscription = this.route.params.subscribe(...);
+}
+
+ngOnDestroy() {
+    this.aSubscription.unsubscribe();
+}
+----
+
+This is not necessary for angular objects, but it is necessary for
+
 
 == Links again
 
@@ -524,6 +542,16 @@ this.router.navigate(
 export class AppRoutingModule {
 }
 ----
+
+==== Activating children
+
+.In AuthGuard class:
+[source]
+... implements CanActivateChild
+
+.In routes:
+[source]
+canActivateChild: [AuthGuard]
 
 == Guarding routes
 
@@ -592,6 +620,11 @@ export class ServerResolver implements Resolve<Server> {
 In routing:
 
  {path: ':id', component: ServerComponent, resolve: {server: ServerResolver}}
+
+In component:
+
+ this.route.data.subscribe(
+
 
 Using # in paths:
 

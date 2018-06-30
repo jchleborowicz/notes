@@ -1,0 +1,120 @@
+= Kubernetes
+
+docker-compose.yml
+
+[source]
+----
+pg:
+    image: postgres:9.4
+frontend:
+    image: nginx
+    links:
+        -pg
+----
+
+Another docker-compose.yml:
+
+[source]
+----
+pg:
+    image: postgres
+api:
+    restart: on-failure
+    build: ./api
+    volumes:
+        - ./api:/app
+    command: "--reload"
+    links:
+        - pg
+    ports:
+        - "8000:8000"
+apiambassador:
+    image: cpuguy83/docker-grand-ambassador
+    volumes: /var/run/docker.sock:/var/run/docker.sock
+    command: -name=chapter2_api_1
+frontend:
+    image: nginx
+    volume:
+        - ./frontend/nginx.conf:/etc/nginx/nginx.conf
+    linx:
+        - apiambassador:api
+    ports:
+        - "80:80"
+----
+
+An ambassador container is a container that stands in front of another one.
+
+== What is Kubernetes
+
+* runs docker containers
+* labeling system for control
+* spans many physical machines
+* runs google container engine
+
+.Pods:
+* atomic unit of control
+* set of running docker containers (often only one)
+* containers "think" they’re running on the same machine
+* always on the same host
+
+.Replication controller (RC):
+* manages pods
+* tries to maintain a number of matching pods
+* matches using labeling system
+
+.Replication controller properties:
+*count
+*name
+*version
+
+.Services:
+* DNS
+* load balancer (set of pods comes from label matching)
+
+=== Download kubernetes
+
+Download latest stable release from https://github.com/kubernetes/kubernetes/releases
+
+Open up cluster/aws/config-default.sh with editor
+
+ $ KUBERNETES_PROVIDER=aws cluster/kube-up.sh
+
+What that did:
+
+* new VPC: 172.20.0.*
+* 5 EC2 instances (master + 4 minions), with public IPs
+* ASG for minions
+* SSH keys for direct access
+    ** ~/.ssh/kube_aws_rsa
+* kubectl is configured:
+    ** ~/.kube/config
+
+=== Kubernetes service
+
+* Service
+* Endpoints
+
+[source]
+----
+kind: Service
+apiVersion: v1
+metadata:
+    name: database
+spec:
+    ports:
+        - port: 5432
+kind: Endpoints
+apiVersion: v1
+metadata:
+    name: database
+subnets:
+    - addresses:
+        - ip: 172.20.2.118
+    ports:
+        - port: 5432
+----
+
+ $ kubectl create -f database.yml
+
+ $ kubectl describe svc database
+
