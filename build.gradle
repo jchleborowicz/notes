@@ -22,6 +22,9 @@ if(new File('custom.gradle.properties').exists()){
 build.dependsOn asciidoctor
 
 task upload() {
+    group 'Html operations'
+    description 'Uploads html pages to s3.'
+
     dependsOn asciidoctor
 
     inputs.dir "${buildDir}/asciidoc/html5"
@@ -39,6 +42,9 @@ def browse(String uriString) {
 }
 
 task openLocal() {
+    group 'Html operations'
+    description 'Opens local generated html index page.'
+
     dependsOn asciidoctor
 
     doLast {
@@ -47,6 +53,9 @@ task openLocal() {
 }
 
 task openRemote() {
+    group 'Html operations'
+    description 'Opens remote (uploaded) html index page.'
+
     doLast {
         browse(notesUrl)
     }
