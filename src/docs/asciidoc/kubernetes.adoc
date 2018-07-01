@@ -118,3 +118,98 @@ subnets:
 
  $ kubectl describe svc database
 
+== From start
+
+=== Starting the cluster
+
+ $ kubeadm config images pull
+
+ $ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+ $ mkdir ~/.kube
+ $ sudo cp /etc/kubernetes/admin.conf ~/.kube/config
+ $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+ $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml
+
+ $ kubectl get pods --all-namespaces
+
+ $ sudo kubeadm join 172.31.99.111:6443 --token 0wso1u.vxe0tt68vv0bshqj --discovery-token-ca-cert-hash sha256:c2a44af9e5182df3c35ab9c4e1811ad77e591ba5036991cd17c2ab9ce1370979
+
+ $ kubectl get nodes
+
+.Node types:
+* master node
+    ** kube-apiserver
+        *** etcd
+        *** kube-scheduler
+        *** cloud-controller-manager
+        *** kube-controller-mamager
+* worker node
+    ** kubelet
+    ** kube proxy
+    ** pod
+        *** container
+
+=== Debian Install From Scratch
+
+.Ports (all are TCP ports):
+
+[cols="^2,^2,10",options="header"]
+|======
+|node type  |ports       |usage
+.6+|master     |6443        |Kubernetes API server
+               |2379-2380   |etcd server client API
+               |10250       |Kubelet API
+               |10251       |kube-scheduler
+               |10252       |kube-controller-manager
+               |10255       |Read-Only Kubelet API
+.3+|worker     |10250       |Kubelet API
+               |10255       |Read-Only Kubelet API
+               |30000-32767 |NodePort Services
+|======
+
+ $ sudo -i
+ $ apt install docker.io -y
+ $ cat << EOF > /etc/docker/deamon.json
+
+./etc/docker/daemon.json
+[source]
+{
+    "exec-opts": ["native.cgroupdriver=systemd"]
+}
+
+ $ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+ $ cat << EOF > /etc/apt/sources.list.d/kubernetes.list
+
+./etc/apt/sources.list.d/kubernetes.list
+[source]
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+
+ $ apt update && apt upgrade -y
+
+ $ apt install -y kubelet kubeadm kubectl
+
+ $ kubeadm init --pod-network-cidr=10.244.0.0/16
+
+
+
+=== Container networking
+
+* CNM - Container Network Model
+* CNI - Container Network Interface
+
+==== Container Network Model
+
+Specification proposed by Docker.
+
+Adopted by libnetwork
+
+.Native Dorker drivers:
+* none
+* bridge
+* overlay
+
+`Libnetwork` is the canonical implementation of the CNM specification.
+
