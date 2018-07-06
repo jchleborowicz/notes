@@ -170,8 +170,7 @@ subnets:
 |======
 
  $ sudo -i
- $ apt install docker.io -y
- $ cat << EOF > /etc/docker/deamon.json
+ $ sudo apt install docker.io -y
 
 ./etc/docker/daemon.json
 [source]
@@ -179,20 +178,108 @@ subnets:
     "exec-opts": ["native.cgroupdriver=systemd"]
 }
 
- $ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-
- $ cat << EOF > /etc/apt/sources.list.d/kubernetes.list
+ $ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 
 ./etc/apt/sources.list.d/kubernetes.list
 [source]
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 
- $ apt update && apt upgrade -y
+ $ sudo apt update && sudo apt upgrade -y
 
- $ apt install -y kubelet kubeadm kubectl
+ $ sudo apt install -y kubelet kubeadm kubectl
 
- $ kubeadm init --pod-network-cidr=10.244.0.0/16
+ $ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 
+Exit the root shell
+
+ $ mkdir $HOME/.kube
+ $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+ $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+ $ kubectl get pods --all-namespaces
+
+ $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml
+
+==== Creating worker nodes
+
+ $ sudo apt install docker.io -y
+
+./etc/docker/daemon.json
+[source]
+{
+    "exec-opts": ["native.cgroupdriver=systemd"]
+}
+
+ $ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+./etc/apt/sources.list.d/kubernetes.list
+[source]
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+
+ $ sudo apt update && sudo apt upgrade -y
+
+ $ sudo apt install -y kubelet kubeadm kubectl
+
+ $ kubeadm join ...
+
+=== Installing on RedHat
+
+.swap off:
+
+ $ sudo swapoff -a
+
+Remove swap from `/etc/fstab
+
+ $ sudo yum update -y
+
+ $ sudo yum -y install docker
+
+ $ sudo systemctl enable docker
+
+ $ sudo systemctl start docker
+
+[source]
+----
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+----
+
+ $ sudo setenforce 0
+
+.edit /etc/selinux/config
+
+ SELINUX=permissive
+
+ $ sudo yum install -y kubelet kubeadm kubectl
+
+ $ sudo systemctl enable kubelet
+
+ $ sudo systemctl start kubelet
+
+[source]
+----
+cat <<EOF >  /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+----
+
+ $ sudo sysctl --system
+
+ $ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+ $ mkdir -p $HOME/.kube
+ $ sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
+ $ sudo chmod $(id -u):$(id -g) config
+
+ $ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml
 
 
 === Container networking

@@ -1,0 +1,83 @@
+= GIT
+
+== Basics
+
+.Setting up
+
+[source,bash]
+$ git config --global user.name “<your name>”
+$ git config --global user.email “<mailto:youemail@example.com[youemail@example.com]>”
+$ git config --global core.editor vim
+$ git config --list
+
+.Getting help
+
+[source,bash]
+$ git help <verb>
+$ git <verb> help
+$ man git-<verb>
+
+ $ git status
+
+.short status
+ $ git status -s
+
+.diffs
+[source,bash]
+$ git diff
+$ git diff --staged
+$ git diff --cached
+$ git log -p -2
+
+.Remotes
+ $ git remote add origin <url>
+
+In case you already have remote, but with wrong url:
+
+ $ git remote set-url origin <url>
+
+Main branch is named `master`.
+
+ $ git push origin master
+
+=== Remotes
+
+ $ git remote add <remotename> <url>
+ $ git remote -v
+
+=== Branches
+
+.List branches:
+ $ git branch -v
+
+.Add new branch:
+ $ git branch <branch-name>
+
+.Create and switch to branch in one line:
+ $ git checkout -b <branch-name>
+
+ $ git checkout --track origin/serverfix
+
+.Setting upstream branch:
+ $ git branch -u origin/serverfix
+
+.Fetching remote changes from all remotes:
+ $ git fetch --all_
+
+.Branch info:
+ $ git branch -vv
+
+.Move onto a branch:
+ $ git checkout <branch-name>
+
+.Rename current branch:
+ $ git branch -m <new-branch-name>
+
+.Merging:
+ $ git merge <branch-name>
+
+.Deleting local branch:
+ $ git branch -d <branch-name>
+
+.Deleting remote branch:
+ $ git push -d <remote-name> <branch-name>
