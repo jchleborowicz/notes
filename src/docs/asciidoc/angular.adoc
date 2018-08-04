@@ -526,7 +526,7 @@ this.router.navigate(
 [source,typscript]
 {path: '', component: HomeComponent, pathMatch: 'full'}
 
-.Routing in separate module:
+==== Routing in separate module:
 
 [source,typscript]
 ----
@@ -552,6 +552,22 @@ export class AppRoutingModule {
 .In routes:
 [source]
 canActivateChild: [AuthGuard]
+
+=== Child routes
+
+[source,typescript]
+  {
+    path: 'servers',
+    component: ServersComponent,
+    children: [
+      {path: ':id', component: ServerComponent, resolve: {server: ServerResolver}},
+      {
+        path: ':id/edit',
+        component: EditServerComponent,
+        canDeactivate: [CanDeactivateGuard]
+      }
+    ]
+  }
 
 == Guarding routes
 
@@ -623,7 +639,7 @@ In routing:
 
 In component:
 
- this.route.data.subscribe(
+ this.route.data.subscribe()
 
 
 Using # in paths:
@@ -665,20 +681,38 @@ myObservable.subscribe(
 );
 ----
 
+Always make sure to unsubscribe:
+
+... implements *OnDestroy*
+
+ mySubscription: Subscription
+ mySubscription = observable.subscribe(...);
+ mySubscription.unsubscribe();
+
+.Rx.js website:
+http://reactivex.io/
+
+==== Subjects
+
+ userActivated = new Subject();
+
+ userActivated.next(3);
+
 == Forms
 
 Two approaches:
 
-* template-driven
-* reactive
+* template-driven - Angular infers the Form Object from the DOM
+* reactive - from is created programmatically and synchronized with the DOM
 
 [source]
-<form (ngSubmit)="onSubmit(_f_)" #f="ngForm"**>
+<form (ngSubmit)="onSubmit(f)" #f="ngForm">
 
 [source,typescript]
 ----
 onSubmit(form: NgForm) {
     console.log(form);
+    console.log(form.value);
 }
 
 @ViewChild('f') signupForm: NgForm;
@@ -687,9 +721,9 @@ onSubmit(form: NgForm) {
 [source]
 <input type="text"
     id="username"
+    name="username"
     class="form-control"
     ngModel
-    name="username"
     required>
 
 [source]
