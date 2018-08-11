@@ -718,6 +718,8 @@ onSubmit(form: NgForm) {
 @ViewChild('f') signupForm: NgForm;
 ----
 
+.`required` directive:
+
 [source]
 <input type="text"
     id="username"
@@ -725,6 +727,8 @@ onSubmit(form: NgForm) {
     class="form-control"
     ngModel
     required>
+
+.`email` directive
 
 [source]
 <div class="form-group">
@@ -742,33 +746,64 @@ onSubmit(form: NgForm) {
     Please enter a valid email!
 </span>
 
+https://angular.io/api/forms/Validators
+
+.Disabling button when form is not valid
 [source]
 <button class="btn btn-primary"
         type="submit"
         [disabled]="!signupForm.valid"
 
 [source]
+----
 <div id="user-data"
      ngModelGroup="userData"
      #userData="ngModelGroup">
     ...
 </div>
 
-<p *ngIf="userData.touched && !_userData_.valid">
+<p *ngIf="userData.touched && !userData.valid">
     User data is invalid
 </p>
+----
+
+.Setting default values with ngModel property binding
+[source]
+----
+defaultQuestion = 'pet';
+
+<select id="secret"
+      name="secret"
+      class="form-control"
+      required
+      [ngModel]="defaultQuestion">
+    <option value="pet">Your first Pet?</option>
+    <option value="teacher">Your first teacher?</option>
+</select>
+----
 
 [source]
-<div class="radio" *ngFor="let _gender_ of genders">
+<div class="radio" *ngFor="let gender of genders">
     <label>
         <input type="radio"
                name="gender"
                ngModel
                [value]="gender"
                required>
-        {{_*gender*_}}
+        {{gender}}
     </label>
 </div>
+
+.Grouping content
+----
+<div id="user-data"
+     ngModelGroup="userData"
+     #userData="ngModelGroup">
+        ...
+</div>
+
+<p
+----
 
 .Replacing values in all form fields
 

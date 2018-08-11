@@ -1,4 +1,4 @@
-= Gradle
+= Prototype
 :icons: font
 :toc: left
 

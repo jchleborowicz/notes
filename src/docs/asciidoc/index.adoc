@@ -16,6 +16,8 @@ link:angular.html[Angular]
 
 link:docker.html[Docker]
 
+link:dit.html[Git]
+
 link:gradle.html[Gradle]
 
 link:groovy.html[Groovy]
