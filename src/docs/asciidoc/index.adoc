@@ -16,7 +16,7 @@ link:angular.html[Angular]
 
 link:docker.html[Docker]
 
-link:dit.html[Git]
+link:git.html[Git]
 
 link:gradle.html[Gradle]
 
@@ -29,3 +29,5 @@ link:javascript.html[JavaScript]
 link:kubernetes.html[Kubernetes]
 
 link:prototype-js.html[prototype.js]
+
+link:tc-server.html[tc-server.js]

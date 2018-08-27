@@ -1,0 +1,36 @@
+= tcServer
+
+Editions:
+
+* tcServer Developer Edition
+* tcServer Standard Edition
+* tcServer Spring Edition
+
+Installation scenarios:
+
+* minimal
+    ** one instance, single machine
+* small distributed installation
+* large distributed installation
+
+Components:
+
+* Hyperic server
+* Hyperic Agent
+* tc Runtime
+
+Requirements:
+
+* JDK or JRE must be installed
+    ** set JAVA_HOME
+
+Installation process:
+
+. unpack tcServer Developer Edition
+. Install JDK
+. Install tc runtime:
++
+[source,bash]
+$ ./tcruntime-instance.sh create -t insight -i /var/opt/pivotal/pivotal-tc-server-developer insight-instance
+
+

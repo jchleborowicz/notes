@@ -287,6 +287,69 @@ How to define init script:
 * put a file with `.gradle` extension in the `USER_HOME/.gradle/init.d/` dir
 * put a file with `.gradle` extension in `GRADLE_HOME/init.d/` directory in the gradle distribution
 
+== Publishing
+
+[source,groovy]
+----
+publishing {
+    publications {
+        myLibrary(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'myRepo'
+            url = "file://${buildDir}/repo"
+        }
+    }
+}
+----
+
+Previous code snippet defines publication named _myLibrary_.
+
+It creates task: publish**__MyLibrary__**PublicationTo**__MyRepo__**Repository
+
+For web publications you can use:
+
+ from components.web
+
+=== Adding custom artifacts to publication
+
+[source,groovy]
+----
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+----
+
+* `artifact()` accepts task as an argument, or anything accepted
+  by `Project.file(Object)`, such as `File` instance or string file path.
+* `classifier` and `extension` are supported by `Maven Publish Plugin`
+  and `IvyPublishPlugin`
+* custom artifacts need to be distinct within a publication,
+  typically via a unique combination of `classifier` and `extension`.
+
+There is one *primary artifact*, other artifacts are *secondary*.
+
 == Todo
 
 * https://docs.gradle.org/4.6/userguide/inspecting_dependencies.html
