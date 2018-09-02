@@ -39,7 +39,6 @@ $ ng g c servers //same as ng generate component
 
 ==== Creating selector an attribute
 
-
 |===
 |File|Code
 
@@ -731,6 +730,7 @@ onSubmit(form: NgForm) {
 .`email` directive
 
 [source]
+----
 <div class="form-group">
 <label for="email">Mail</label>
 <input type="email"
@@ -746,6 +746,9 @@ onSubmit(form: NgForm) {
     Please enter a valid email!
 </span>
 
+@ViewChild('email') emailModel: NgModel;
+----
+
 https://angular.io/api/forms/Validators
 
 .Disabling button when form is not valid
@@ -753,19 +756,6 @@ https://angular.io/api/forms/Validators
 <button class="btn btn-primary"
         type="submit"
         [disabled]="!signupForm.valid"
-
-[source]
-----
-<div id="user-data"
-     ngModelGroup="userData"
-     #userData="ngModelGroup">
-    ...
-</div>
-
-<p *ngIf="userData.touched && !userData.valid">
-    User data is invalid
-</p>
-----
 
 .Setting default values with ngModel property binding
 [source]
@@ -782,7 +772,25 @@ defaultQuestion = 'pet';
 </select>
 ----
 
+.Grouping content
 [source]
+----
+<div id="user-data"
+     ngModelGroup="userData"
+     #userData="ngModelGroup">
+    ...
+</div>
+
+<p *ngIf="userData.touched && !userData.valid">
+    User data is invalid
+</p>
+----
+
+.Radio buttons
+[source]
+----
+genders = ['male', 'female'];
+
 <div class="radio" *ngFor="let gender of genders">
     <label>
         <input type="radio"
@@ -793,16 +801,6 @@ defaultQuestion = 'pet';
         {{gender}}
     </label>
 </div>
-
-.Grouping content
-----
-<div id="user-data"
-     ngModelGroup="userData"
-     #userData="ngModelGroup">
-        ...
-</div>
-
-<p
 ----
 
 .Replacing values in all form fields
@@ -827,9 +825,75 @@ this.signupForm.form.patchValue({
     }
 });
 
+.Using form data
+
+[source]
+----
+@ViewChild('f') form: NgForm;
+
+user = {
+    username: '',
+    email: '',
+    secretQuestion: '',
+    answer: '',
+    gender: ''
+};
+
+onSubmit() {
+    this.user.username = this.form.value.userData.username;
+    this.user.email = this.form.value.userData.email;
+    this.user.secretQuestion = this.form.value.secret;
+    this.user.answer = this.form.value.questionAnswer;
+    this.user.gender = this.form.value.gender;
+}
+----
+
+.Resetting form
+
+[source]
+this.form.reset();
+
 == Programmatic forms
 
 Import ReactiveFormsModule in app.module.ts imports section.
+
+[source]
+----
+signupForm: FormGroup;
+
+ngOnInit(): void {
+  this.signupForm = new FormGroup({
+    'username': new FormControl(null),
+    'email': new FormControl(null),
+    'gender': new FormControl('male')
+  });
+}
+
+<form [formGroup]="signupForm">
+  ...
+  <input ...
+     formControlName="username"
+     ...
+
+----
+
+.Adding validators
+
+[source]
+new FormControl(null, Validators.required)
+
+[source]
+new FormControl(null, [Validators.required, Validators.email])
+
+.Error messages
+
+[source]
+<span *ngIf="signupForm.get('username').touched && !signupForm.get('username').valid"
+      class="help-block">
+  Please enter a valid username!
+</span>
+
+.Grouping controls
 
 [source,typescript]
 ----
@@ -846,10 +910,45 @@ this.signupForm = new FormGroup({
     'hobbies': new FormArray([])
 });
 
+<div formGroupName="userData">
+    <input type="text"
+           formControlName='username'
+           ...>
+    <span *ngIf="signupForm.get('userData.username').touched
+                 && !signupForm.get('userData.username').valid"
+          class="help-block">
+        Please enter a valid username!
+    </span>
+
+<div>
+----
+
+.Arrays of controls
+
+[source]
+----
+this.signupForm = new FormGroup({
+    'hobbies': new FormArray([])
+});
+
 onAddHobby() {
     const control = new FormControl(null, Validators.required);
     (<FormArray>this.signupForm.get('hobbies')).push(control);
 }
+
+<div formArrayName="hobbies">
+    <div class="form-group"
+         *ngFor="let hobbyControl of signupForm.get('hobbies').controls; let i = index">
+        <input type="text" class="form-control" [formControlName]="i">
+    </div>
+</div>
+----
+
+.Adding own validators
+
+[source]
+----
+forbiddenUsernames = ['Chris', 'Anna'];
 
 forbiddenNames(control: FormControl): { [s: string]: boolean } {
     if (this.forbiddenUsernames.indexOf(control.value) >= 0) {
@@ -858,6 +957,13 @@ forbiddenNames(control: FormControl): { [s: string]: boolean } {
     return null;
 }
 
+this.signupForm = new FormGroup({
+    'username': new FormControl('Jacek', [Validators.required, this.forbiddenNames])
+});
+----
+
+[source]
+----
 forbiddenEmails(control: FormControl): Promise<any> | Observable<any> {
     return new Promise<any>(((resolve) => {
         setTimeout(() => {

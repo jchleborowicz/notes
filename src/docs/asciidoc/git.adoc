@@ -62,7 +62,7 @@ Main branch is named `master`.
  $ git branch -u origin/serverfix
 
 .Fetching remote changes from all remotes:
- $ git fetch --all_
+ $ git fetch --all
 
 .Branch info:
  $ git branch -vv
