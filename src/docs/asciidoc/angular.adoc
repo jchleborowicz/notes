@@ -9,7 +9,7 @@ $ npm install -g @angular/cli@latest
 
 === Updating npm and Angular CLI
 
-[sgource,bash]
+[source,bash]
 $ sudo npm install -g npm
 $ sudo npm uninstall -g angular-cli @angular/cli
 $ npm cache clean
@@ -958,8 +958,20 @@ forbiddenNames(control: FormControl): { [s: string]: boolean } {
 }
 
 this.signupForm = new FormGroup({
-    'username': new FormControl('Jacek', [Validators.required, this.forbiddenNames])
+    'username': new FormControl('Jacek', [Validators.required, this.forbiddenNames.bind(this)])
 });
+
+<span *ngIf="signupForm.get('userData.username').touched
+&& !signupForm.get('userData.username').valid"
+      class="help-block">
+  <span *ngIf="signupForm.get('userData.username')
+  && signupForm.get('userData.username').errors['nameIsForbidden']">
+    Name is forbidden!
+  </span>
+  <span *ngIf="signupForm.get('userData.username').errors['required']">
+   This field is required!
+  </span>
+</span>
 ----
 
 [source]
