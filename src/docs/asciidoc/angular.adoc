@@ -974,6 +974,8 @@ this.signupForm = new FormGroup({
 </span>
 ----
 
+Asynchronous validators:
+
 [source]
 ----
 forbiddenEmails(control: FormControl): Promise<any> | Observable<any> {
@@ -989,10 +991,21 @@ forbiddenEmails(control: FormControl): Promise<any> | Observable<any> {
 }
 ----
 
+Monitoring changes:
+
+[source]
+this.signupForm.valueChanges.subscribe(value => {
+  console.log(value);
+});
+this.signupForm.statusChanges.subscribe(value => {
+  console.log(value);
+});
+
+
 Two observables:
 
-*FormGroup.statusChanges
-*FormGroup.valueChanges
+* FormGroup.statusChanges
+* FormGroup.valueChanges
 
 == Pipes
 
