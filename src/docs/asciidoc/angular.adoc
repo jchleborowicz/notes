@@ -1007,6 +1007,13 @@ Two observables:
 * FormGroup.statusChanges
 * FormGroup.valueChanges
 
+Pattern validator:
+[source]
+<input
+    type="number"
+    required
+    [pattern]="'\\d+'">
+
 == Pipes
 
 .Example:
