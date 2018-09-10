@@ -1,0 +1,524 @@
+= Ansible
+
+.Setting up virtual machine:
+
+[source]
+$ vagrant init ubuntu/trusty64
+$ vagrant up
+$ vagrant ssh-config
+
+.Trying to ssh to virtual machine:
+
+[source]
+$ ssh vargant@127.0.0.1 -p 2222 -i private_key
+
+.Telling Ansible about virtual machine:
+
+Edit _hosts_ file (everything should be on one line):
+
+[source]
+testserver ansible_host=127.0.0.1 ansible_port=2222 ansible_user=vagrant ansible_private_key_file=private_key
+
+Testing connection:
+
+ $ ansible testserver -i hosts -m ping
+
+Testing conection with verbose output:
+
+ $ ansible testserver -i hosts -m ping -vvvv
+
+==== ansible.cfg file
+
+Locations:
+
+. Specified in ANSIBLE_CONFIG environment variable.
+. ./ansible.cfg
+. ~/.ansible.cfg
+. /etc/ansible/ansible.cfg
+
+.Sample ansible.cfg
+
+[source]
+----
+[defaults]
+inventory = hosts
+remote_user = vagrant
+private_key_file = private_key
+host_key_checking = False
+----
+
+ $ ansible -m command -a uptime
+
+* -m - module to execute
+* -a - module args
+
+[source]
+$ ansible testserver -m command -a 'tail /var/log/dmesg'
+
+.Becoming another user
+
+* -b - becoming root user
+* --become-user=BECOME_USER - becoming specified user
+
+[source]
+$ ansible testserver -b -a 'tail /var/log/syslog'
+
+.Installing nginx on Ubuntu
+
+[source]
+$ ansible testserver -b -m apt -a name=nginx
+
+[source]
+$ ansible testserver -b -m apt -a "name=nginx update_cache=yes"
+
+.Restarting nginx
+
+[source]
+$ ansible testserver -b -a "name=nginx state=restarted"
+
+==== Exposing ports through Vagrant
+
+[source]
+----
+VAGRANT_API_VERSION = "2"
+
+Vagrant.configure(VAGRANT_API_VERSION) do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 443, host: 8443
+end
+----
+
+[source]
+$ vagrant reload
+
+=== Simple playbook
+
+[source,yaml]
+----
+- name: Configure webserver with nginx
+  hosts: webservers
+  become: True
+  tasks:
+    - name: Install nginx
+      apt: name=nginx update_caches=yes
+
+    - name: Copy nginx config file
+      copy: >
+        src=files/nginx.conf
+        dest=/etc/nginx/sites-available/default
+
+    - name: Enable configuration
+      file: >
+        dest=/etc/nginx/sites-enabled/default
+        src=/etc/nginx/sites-available/default
+        state=link
+
+    - name: Copy index.html
+      template: >
+        src=templates/index.html.j2
+        dest=/usr/share/nginx/html/index.html
+        mode=0644
+
+    - name: Restart nginx
+      service: name=nginx state=restarted
+----
+
+.files/nginx.conf
+
+[source]
+----
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server ipv6only=on;
+
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        server_name localhost;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+}
+----
+
+Jinja 2 template:
+
+.templates/index.html.j2
+
+[source]
+----
+<html>
+<head>
+    <title>Welcome to ansible</title>
+</head>
+<body>
+<h1>nginx, configured by Ansible</h1>
+<p>If you can see this, Ansible successfully installed nginx.</p>
+<p>Running on {{ inventory_hostname }}</p>
+</body>
+</html>
+----
+
+.Running the playbook:
+
+[source]
+$ ansible-playbook web-notls.yml
+
+==== Disabling cowsay
+
+[source]
+$ export ANSIBLE_NOCOWS=1
+
+or
+
+.ansible.cfg
+[source]
+----
+[defaults]
+nocows = 1
+----
+
+==== Executable playbooks
+
+shebang:
+
+[source]
+#/usr/bin/env ansible-playbook
+
+== Playbooks
+
+Playbook elements:
+
+* a set of _hosts_ to configure
+* a list of _tasks_ to execute
+
+A task consists of:
+
+* name - optional comment
+* become - if true, tasks are executed by root user
+* vars - a list of variables and values
+
+Sample task:
+
+[source,yaml]
+- name: install nginx
+  apt: name=nginx update_cache=yes
+
+.Modules:
+
+* apt
+* copy
+* file - sets the attribute of a file, symlink, or directory
+* service - starts, stops, or restarts a service
+* template - generates a file from a template and copies it to a host
+
+.Ansible documentation:
+
+[source]
+$ ansible-doc <module-name>
+
+.Terms relationship:
+
+. Every Playbook executes list of Plays
+. Every Play executes on one or more Hosts
+. Every Play defines list of one or more Tasks
+. Every Task uses one Module
+
+=== Web server with tls
+
+.web-tls.yml
+
+[source,yaml]
+----
+- name: Configure webserver with nginx and tls
+  hosts: webservers
+  become: True
+  vars:
+    key_file: /etc/nginx/ssl/nginx.key
+    cert_file: /etc/nginx/ssl/nginx.crt
+    conf_file: /etc/nginx/sites-available/default
+    server_name: localhost
+  tasks:
+    - name: Install nginx
+      apt: >
+        name=nginx
+        update_cache=yes
+        cache_valid_time=3600
+
+    - name: Create directories for ssl certificates
+      file: >
+        path=/etc/nginx/ssl
+        state=directory
+
+    - name: Copy TSL key
+      copy: >
+        src=files/nginx.key
+        dest={{ key_file }}
+        owner=root
+        mode=0600
+      notify: Restart nginx
+
+    - name: Copy TLS certificate
+      copy: >
+        src=files/nginx.crt
+        dest={{ cert_file }}
+      notify: Restart nginx
+
+    - name: Copy nginx config file
+      template: >
+        src=templates/nginx.conf.j2
+        dest={{ conf_file }}
+      notify: Restart nginx
+
+    - name: Enable configuration
+      file: >
+        dest=/etc/nginx/sites-enabled/default
+        src={{ conf_file }}
+        state=link
+      notify: Restart nginx
+
+    - name: Copy index.html
+      template: >
+        src=templates/index.html.j2
+        dest=/usr/share/nginx/html/index.html
+        mode=0644
+
+  handlers:
+    - name: Restart nginx
+      service: >
+        name=nginx
+        state=restarted
+----
+
+Generating a TLS Certificate
+
+[source]
+$ openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+  -subj /CN=localhost -keyout files/nginx.key -out files/nginx.crt
+
+.templates/nginx.conf.j2
+
+[source]
+----
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on;
+
+    listen 443 ssl;
+
+    root /usr/share/nginx/html;
+    index index.html index.htm;
+
+    server_name {{ server_name }};
+    ssl_certificate {{ cert_file }};
+    ssl_certificate_key {{ key_file }};
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+----
+
+==== Handlers
+
+. Usually run after all of the tasks are run at the end of the play.
+. Always run in the order that they are defined.
+. Run once even if notified more than once
+
+=== Multiple Vagrant hosts
+
+[source]
+----
+VAGRANT_API_VERSION = "2"
+
+ssh_pub_key = File.readlines("#{Dir.home}/.ssh/id_rsa.pub").first.strip
+
+Vagrant.configure(VAGRANT_API_VERSION) do |config|
+  # Use the same key for each machine
+  config.ssh.insert_key = false
+
+  config.vm.define "vagrant1" do |vagrant1|
+    vagrant1.vm.box = "ubuntu/trusty64"
+    vagrant1.vm.network "forwarded_port", guest: 80, host: 8081
+    vagrant1.vm.network "forwarded_port", guest: 443, host: 8441
+    vagrant1.vm.provision "shell" do |s|
+      s.inline = <<-SHELL
+         echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+         sudo bash -c "echo #{ssh_pub_key} > /root/.ssh/authorized_keys"
+      SHELL
+    end
+  end
+  config.vm.define "vagrant2" do |vagrant2|
+    vagrant2.vm.box = "ubuntu/trusty64"
+    vagrant2.vm.network "forwarded_port", guest: 80, host: 8082
+    vagrant2.vm.network "forwarded_port", guest: 443, host: 8442
+    vagrant2.vm.provision "shell" do |s|
+      s.inline = <<-SHELL
+         echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+         sudo bash -c "echo #{ssh_pub_key} > /root/.ssh/authorized_keys"
+      SHELL
+    end
+  end
+  config.vm.define "vagrant3" do |vagrant3|
+    vagrant3.vm.box = "ubuntu/trusty64"
+    vagrant3.vm.network "forwarded_port", guest: 80, host: 8083
+    vagrant3.vm.network "forwarded_port", guest: 443, host: 8443
+    vagrant3.vm.provision "shell" do |s|
+      s.inline = <<-SHELL
+         echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+         sudo bash -c "echo #{ssh_pub_key} > /root/.ssh/authorized_keys"
+      SHELL
+    end
+  end
+end
+----
+
+== Behavioral inventory parameters
+
+Parameters for hosts in inventory file.
+
+[options="header",cols="1,2,7"]
+|==========
+|Name               |Default        |Description
+|ansible_host       |name of host   |hostname or IP
+|ansible_port       |22             |
+|ansible_user       |root           |User to ssh as
+|ansible_password   |(none)         |
+|ansible_connection |smart          |How Ansible will connect to host
+|ansible_private_key|(none)         |
+|ansible_shell_type |sh             |Shell to use for commands
+|ansible_python_interpreter|/usr/bin/python|
+|ansible_*_interpreter|(none)       |
+|==========
+
+.ansible_connection
+
+Trasports:
+
+* `smart` - the default transport, uses locally installed SSH client if it supports
+  a feature called _ControlPersist_.
+* if _ControlPersist_ is not supported by SSH client, then Ansible usues Python-based SSH client
+  library called _Paramiko_.
+
+=== Changing behavioral parameters defaults
+
+You can override some of the behavioral parameter default values in the _defaults_ section
+of the _ansible.cfg_:
+
+[options=header]
+|=======
+|Behavioral inventory parameter|ansible.cfg option
+|ansible_port                  |remote_port
+|ansible_user                  |remote_user
+|ansible_private_key           |private_key_file
+|ansible_shell_type            |executable
+|=======
+
+== Groups
+
+Ansible automatically defines a group called `all`.
+
+[source]
+$ ansible all -a date
+
+Host might appear in more than one group.
+
+.Group of groups:
+
+[source]
+----
+[group3:children]
+group1
+group2
+----
+
+
+.Multiple hosts name pattern
+
+[source]
+----
+[web]
+web[1:20].example.com
+----
+
+With leading zeros:
+
+[source]
+----
+[web]
+web[01:20].example.com
+----
+
+With letters:
+
+[source]
+----
+[web]
+web-[a-t].example.com
+----
+
+==== Group variables
+
+Specifying group variables in inventory:
+
+[source]
+----
+[all:vars]
+ntp_server=ntp.ubuntu.com
+
+[production:vars]
+db_primary_host=prod-db.example.com
+
+[staging:vars]
+db_primary_host=staging-db.example.com
+----
+
+==== Host and group variables in their own files
+
+Ansible looks for:
+
+* host variable files in a directory called _host_vars_.
+* group variable files in a directory called _group_vars_.
+
+Ansible expects these directories to be either in the directory that contains playbooks or in the directory adjancent
+to the inventory file.
+
+== Dynamic inventory
+
+If the inventory file is an executable file, then Ansible will assume it is a dynamic inventory script and will execute
+the file instead of reading it.
+
+Dynamic inventory script must support two command-line arguments:
+
+* --host=<hostname> - fro showing host details
+* --list - for listing groups
+
+When ansible runs dynamic inventory script:
+
+[source]
+$ ./dynamic.py --host=vagrant2
+
+then output should contain JSON:
+
+[source,json]
+{ "ansible_host": "127.0.0.1", "ansible_port": 2200, "ansible_user": "vagrant" }
+
+When:
+
+[source]
+$ ./dynamic.py --list
+
+then output should be something like this:
+
+[source,json]
+----
+{
+    "_meta": {
+        "hostvars":
+    },
+    "production": ["host1", "host2"],
+    "staging": ["host3", "host3"]
+}
+----

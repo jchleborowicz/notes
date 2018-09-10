@@ -14,6 +14,8 @@ Use at your own risk.
 
 link:angular.html[Angular]
 
+link:ansible.html[Ansible]
+
 link:docker.html[Docker]
 
 link:git.html[Git]
