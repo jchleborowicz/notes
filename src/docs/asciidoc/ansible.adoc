@@ -27,7 +27,7 @@ Testing conection with verbose output:
 
  $ ansible testserver -i hosts -m ping -vvvv
 
-==== ansible.cfg file
+== ansible.cfg file
 
 Locations:
 
@@ -76,7 +76,7 @@ $ ansible testserver -b -m apt -a "name=nginx update_cache=yes"
 [source]
 $ ansible testserver -b -a "name=nginx state=restarted"
 
-==== Exposing ports through Vagrant
+== Exposing ports through Vagrant
 
 [source]
 ----
@@ -92,7 +92,7 @@ end
 [source]
 $ vagrant reload
 
-=== Simple playbook
+== Simple playbook
 
 [source,yaml]
 ----
@@ -166,7 +166,7 @@ Jinja 2 template:
 [source]
 $ ansible-playbook web-notls.yml
 
-==== Disabling cowsay
+=== Disabling cowsay
 
 [source]
 $ export ANSIBLE_NOCOWS=1
@@ -180,7 +180,7 @@ or
 nocows = 1
 ----
 
-==== Executable playbooks
+=== Executable playbooks
 
 shebang:
 
@@ -459,7 +459,7 @@ With letters:
 web-[a-t].example.com
 ----
 
-==== Group variables
+=== Group variables
 
 Specifying group variables in inventory:
 
@@ -475,7 +475,7 @@ db_primary_host=prod-db.example.com
 db_primary_host=staging-db.example.com
 ----
 
-==== Host and group variables in their own files
+=== Host and group variables in their own files
 
 Ansible looks for:
 
@@ -522,3 +522,5 @@ then output should be something like this:
     "staging": ["host3", "host3"]
 }
 ----
+
+===

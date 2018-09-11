@@ -9,7 +9,7 @@ Main challenges:
 * security
 * certification
 
-= General
+== General
 
 Introduced by Solomon Hykes, founder and CEO of dotCloud.
 
@@ -397,11 +397,11 @@ CoreOS Rocket - open source container runtime
 * docker create
 * docker start
 
-==== Naming a container:
+=== Naming a container:
 
  $ docker create --name="awesome-service" ubuntu:latest
 
-==== Labels
+=== Labels
 
  $ docker run -d --name labels -l deployer=Ahmed -l tester=Asako ubuntu:latest sleep 1000
 
@@ -428,17 +428,17 @@ nameserver 8.8.4.4
 search example.com example2.com
 ----
 
-==== MAC address (Media Access Control)
+=== MAC address (Media Access Control)
 
 By default MAC address starts with _02:42:ac:11_ prefix
 
  $ docker run -it --rm --mac-address="a2:11:aa:22:bb:33" ubuntu:latest /bin/bash
 
-==== Storage volumes
+=== Storage volumes
 
  $ docker run -it --rm -v /mnt/session_data:/data ubuntu:latest /bin/bash
 
-===== Running read-only
+==== Running read-only
 
  $ docker run -it --rm --read-only -v /mnt/session_data:/data ubuntu:latest /bin/bash
 
@@ -557,59 +557,42 @@ NOTE: each RUN creates new image
 
 Links:
 
-$ docker run -p 8000:8000 -d --name django --link postgres:db --link memcached:cache
+ $ docker run -p 8000:8000 -d --name django --link postgres:db --link memcached:cache
 
 todo AWS beanstalk !!!
 
-Interesting projects:
+.Interesting projects:
 
-Flynn
-
-Deis
+* Flynn
+* Deis
 
 Volumes:
 
-* ________________________________________
-VOLUME instruction inside Dockerfile, or
-________________________________________
-* _____________________________
--v flag to docker run command
-_____________________________
+* VOLUME instruction inside Dockerfile, or
+* -v flag to docker run command
 
 VOLUME /data
 
-$ docker run -v /data test/webserver
+ $ docker run -v /data test/webserver
 
-$ docker run -v /host/dir:/container/dir test/webserver
+ $ docker run -v /host/dir:/container/dir test/webserver
 
 [[underlying-technologies]]
 == Underlying technologies
 
 Docker uses _runc_ driver:
 
-* ________________________________________________________________________________________________________________________________
-cgroups - managing resources used by a container (CPU and memory usage). Responsible also for freezing and unfreezing containers
-________________________________________________________________________________________________________________________________
-* ___________________________________________________________________________________________________________
-namespaces are responsible for isolating containers (filesystem, hostname, users, networking and processes)
-___________________________________________________________________________________________________________
+* cgroups - managing resources used by a container (CPU and memory usage). Responsible also for freezing and unfreezing containers
+* namespaces are responsible for isolating containers (filesystem, hostname, users, networking and processes)
 
 Lib container also supports SElinux and AppArmor, which can be enabled for tighter security.
 
 UFS - Union File System:
 
-* ____
-AUFS
-____
-* ____________
-devicemapper
-____________
-* _____
-BTRFS
-_____
-* _______
-Overlay
-_______
+* AUFS
+* devicemapper
+* BTRFS
+* Overlay
 
 The build context:
 
@@ -630,12 +613,8 @@ The build context is the set of local files and directories that can be referenc
 [[caching]]
 == Caching
 
-* ___________________________________________________
-when same parent image and exactly same instruction
-___________________________________________________
-* ________________________________________________________________________________________________________________________________
-in case of COPY and ADD instructions, the cache will be invalidated if the checksum or metadata for any of the files has changed
-________________________________________________________________________________________________________________________________
+* when same parent image and exactly same instruction
+* in case of COPY and ADD instructions, the cache will be invalidated if the checksum or metadata for any of the files has changed
 
 [[dockerfile-commands]]
 === Dockerfile commands
@@ -691,85 +670,54 @@ To prevent containers that haven’t been linked from communicating:
 
 Docker volumes are directories that are not part of the container’s UFS.
 
-$ docker inspect -f \{\{.Mounts}} PROCESS
+$ docker inspect -f {{.Mounts}} PROCESS
 
 Three way to set up volumes:
 
-1.  ____________________________
-docker run *-v /data* debian
-____________________________
-2.  ________________
-in Dockerfile: +
+1. docker run *-v /data* debian
+2. in Dockerfile:
++
+[source]
 VOLUME /data
-________________
-3.  ______________________________________
-docker run *-v HOST_DIR:CONTAINER_DIR*
-______________________________________
+3.  docker run parameter: *-v HOST_DIR:CONTAINER_DIR*
 
 [[sharing-data]]
-==== Sharing data
+=== Sharing data
 
-$ docker run -it -h NEWCONTAINER *--volumes-from container-test* debian /bin/bash
+ $ docker run -it -h NEWCONTAINER *--volumes-from container-test* debian /bin/bash
 
 All volumes from container container-test will be visible in new container.
 
-#initializing data container:
+.initializing data container:
 
-$ docker run --name dbdata postgres echo "Data-only container for postgres"
+ $ docker run --name dbdata postgres echo "Data-only container for postgres"
 
-$ docker run -d --volumes-from dbdata --name db1 postgres
+ $ docker run -d --volumes-from dbdata --name db1 postgres
 
 [[deleting-volumes]]
 === Deleting volumes
 
-* ______________________________________________
-container was deleted with *docker rm -v* , or
-______________________________________________
-* ________________________________________
-the --rm flag was provided to docker run
-________________________________________
+* container was deleted with *docker rm -v* , or
+* the --rm flag was provided to docker run
 
 and:
 
-* _________________________________________
-no existing container links to the volume
-_________________________________________
-* ______________________________________________
-no host directory was specified for the volume
-______________________________________________
+* no existing container links to the volume
+* no host directory was specified for the volume
 
 docker run parameters:
 
-* ____________
--a, --attach
-____________
-* ____________
--d, --detach
-____________
-* _________________
--i, --interactive
-_________________
-* _____________________
---restart parameters:
-_____________________
-** ______________________________________________
-no - will never attempt to restart a container
-______________________________________________
-** ______
-always
-______
-** _______________________________________________________________________________________________________________________________
-on-failure - takes optional number of times to attempt to restart before giving up: docker run --restart on-failure:10 postgres
-_______________________________________________________________________________________________________________________________
-* ______________________________________________________________________________
---rm automatically removes the container when it exits. cannot be used with -d
-______________________________________________________________________________
-* __________________________________
--t, --tty - allocates a pseudo-TTY
-__________________________________
-* ___________________________________________________
--e, --env +
-$ docker run -e var1=val -e var2="val 2" debian env
+* -a, --attach
+* -d, --detach
+* -i, --interactive
+* --restart parameters:
+    ** no - will never attempt to restart a container
+    ** always
+    ** on-failure - takes optional number of times to attempt to restart before giving up: docker run --restart on-failure:10 postgres
+* --rm automatically removes the container when it exits. cannot be used with -d
+* -t, --tty - allocates a pseudo-TTY
+* -e, --env +
+ $ docker run -e var1=val -e var2="val 2" debian env
 ___________________________________________________
 * __________
 --env-file
@@ -953,33 +901,18 @@ _____________
 
 Commands:
 
-* __
-up
-__
-* _____
-build
-_____
-* __
-ps
-__
-* ___
-run
-___
-* ____
-logs
-____
-* ____
-stop
-____
-* __
-rm
-__
+* up
+* build
+* ps
+* run
+* logs
+* stop
+* rm
 
 [[docker-swarm]]
 === Docker swarm
 
-* _________________
-docker swarm init
+* docker swarm init
 _________________
 * ______________________________________________________
 docker stack deploy -c docker-compose.yml _stack-name_

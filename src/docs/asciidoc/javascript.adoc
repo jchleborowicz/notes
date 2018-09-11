@@ -736,7 +736,7 @@ for (let property in object) {
     ...
 }
 
-===== Short cirtuit
+==== Short cirtuit
 
 [source,javascript]
 var name = o && o.getName();
