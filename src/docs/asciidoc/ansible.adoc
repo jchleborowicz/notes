@@ -1,4 +1,5 @@
 = Ansible
+:icons: font
 
 .Setting up virtual machine:
 
@@ -485,7 +486,9 @@ Ansible looks for:
 Ansible expects these directories to be either in the directory that contains playbooks or in the directory adjancent
 to the inventory file.
 
-== Dynamic inventory
+== Inventories
+
+=== Dynamic inventory
 
 If the inventory file is an executable file, then Ansible will assume it is a dynamic inventory script and will execute
 the file instead of reading it.
@@ -523,4 +526,183 @@ then output should be something like this:
 }
 ----
 
-===
+=== Breaking the inventory into multiple files
+
+Parameter inventory set to directory in ansible cfg:
+
+[source]
+----
+[defaults]
+inventory=inventory
+----
+
+You can also use -i flag in command line.
+
+=== Adding entries at Runitme with add_host and group_by
+
+[source:yaml]
+----
+- name: Provision a vagrant machine
+  hosts: localhost
+  vars:
+    box: trusty64
+  tasks:
+    - name: create a Vagrantfile
+      command: vagrant init {{ box }} creates=Vagrantfile
+
+    - name: Bring up a vagrant machine
+      command: vagrant up
+
+    - name: add the vagrant machine to the inventory
+      add_host: >
+            name=vagrant
+            ansible_host=127.0.0.1
+            ansible_port=2222
+            ansible_user=vagrant
+            ansible_private_key_file=/Users/lorin/.vagrant.d/
+            insecure_private_key
+
+- name: Do something to the vagrant machine
+  hosts: vagrant
+  become: yes
+  tasks:
+    # The list of tasks would go here
+    - ...
+----
+
+NOTE: creates=Vargant file above is a way of achieving idempotence.
+
+=== group_by module
+
+[source]
+----
+- name: Group hosts by distribution
+  hosts: vagrant
+  gather_facts: true
+  tasks:
+    - name: create groups based on distro
+      group_by: key={{ansible_distribution}}
+
+    - debug: msg="groups={{groups}}"
+      run_once: true
+----
+
+== Variables and Facts
+
+=== Defining Variables
+
+[source]
+----
+vars:
+    key_file: nginx.key
+    cert_file: nginx.cert
+----
+
+or
+
+[source]
+----
+vars_files:
+  - nginx.yml
+----
+
+Showing the value of a variable:
+
+[source]
+- debug: var=myvarname
+
+[source]
+----
+- name: show registered variable
+  hosts: vagrant1
+  tasks:
+    - command: whoami
+      register: login
+    - debug:
+        var: login
+    - debug:
+        msg: "Logged in as user {{login.stdout}}"
+----
+
+Output:
+----
+TASK [debug] ****************************
+ok: [vagrant1] => {
+    "login": {
+        "changed": true,
+        "cmd": [
+            "whoami"
+        ],
+        "delta": "0:00:00.002135",
+        "end": "2018-09-11 21:17:14.334920",
+        "failed": false,
+        "rc": 0,
+        "start": "2018-09-11 21:17:14.332785",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "vagrant",
+        "stdout_lines": [
+            "vagrant"
+        ]
+    }
+}
+----
+
+The value of the variable used in `register` is always a dictionary
+but the specific keys of the dictionary are different.
+
+==== Ignoring errors
+
+[source]
+----
+- name: Run myprog
+  command: /opt/myprog
+  register: result
+  ignore_errors: True
+- debug: var=result
+----
+
+WARNING: If playbook use registered variables, make sure you know the content
+  of the variables bor all scenarios (normal, error, etc.)
+
+=== Facts
+
+Printing distro:
+
+[source,yaml]
+----
+- name: prints out operating system
+  hosts: all
+  tasks:
+    - debug:
+        var: ansible_distribution
+----
+
+Links:
+
+* https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#information-discovered-from-systems-facts
+* https://github.com/lorin/ansible-quickref/blob/master/facts.rst
+
+Printing facts:
+
+[source]
+$ ansible host1 -m setup
+
+Filtering facts:
+
+[source]
+$ ansible host1 -m setup -a 'filter=ansible_eth*'
+
+Any module can return facts: if a module returns a dictionary
+that contains _ansible_facts_ as a key, Ansible will create variable names in the environment with those values
+and associate them with the active host.
+
+Getting facts from ec2:
+
+[source]
+----
+- name: get ec2 facts
+  ec2_facts:
+
+- debug: var=ansible_ec2_instance_id
+----
