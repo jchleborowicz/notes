@@ -662,7 +662,7 @@ but the specific keys of the dictionary are different.
 - debug: var=result
 ----
 
-WARNING: If playbook use registered variables, make sure you know the content
+WARNING: If playbook uses registered variables, make sure you know the content
   of the variables bor all scenarios (normal, error, etc.)
 
 === Facts
