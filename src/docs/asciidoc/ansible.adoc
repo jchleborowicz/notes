@@ -663,7 +663,7 @@ but the specific keys of the dictionary are different.
 ----
 
 WARNING: If playbook uses registered variables, make sure you know the content
-  of the variables bor all scenarios (normal, error, etc.)
+  of the variables for all scenarios (normal, error, etc.)
 
 === Facts
 
@@ -706,3 +706,50 @@ Getting facts from ec2:
 
 - debug: var=ansible_ec2_instance_id
 ----
+
+==== Local facts
+
+You can associate facts with a host:
+
+* files in `/etc/ansible/facts.d` directory
+* formats:
+    * ini
+    * json
+    * executable that takes no arguments and outputs JSON on stdout
+
+These facts are available as keys of variable `ansible_local`.
+
+[source]
+----
+- name: print ansible_local
+  debug:
+    var: ansible_local
+- name: print book title
+  debug:
+    msg: "the title of the book is {{ansible_local.example.book}}"
+----
+
+==== set_fact
+
+[source]
+----
+- name: get snapshot id
+  shell: >
+    aws ec2 describe-snapshots --filters
+    Name=tag:Name,Values=my-snapshot
+    | jq --raw-output ".Snapshots[].SnapshotId"
+  register: snap_result
+
+- set_fact: snap={{ snap_result.stdout }}
+
+- name: delete old snapshot
+  command: aws ec2 delete-snapshot --snapshot-id "{{ snap }}"
+----
+
+==== Built-in Variables
+
+[options="header",cols="2,8"]
+|====
+|Parameter  |Description
+|hostvars   |
+|====
