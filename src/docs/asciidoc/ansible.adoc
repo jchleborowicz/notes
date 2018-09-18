@@ -1,6 +1,8 @@
 = Ansible
 :icons: font
 
+Sample code: https://github.com/ansiblebook/ansiblebook
+
 .Setting up virtual machine:
 
 [source]
@@ -750,6 +752,379 @@ These facts are available as keys of variable `ansible_local`.
 
 [options="header",cols="2,8"]
 |====
-|Parameter  |Description
-|hostvars   |
+|Parameter                  |Description
+|hostvars                   |
+|inventory_hostname         |Fully qualified domain name
+|inventory_hostname_short   |Name without domain name
+|group_names                |A list of all groups that the current host is member of
+|groups                     |Maps group name to array of host names.
+|ansible_check_mode         |Boolean
+|ansible_play_batch         |A list of the inventory hostnames that are active in the
+                             current batch.
+|ansible_play_hosts         |A list of all hosts active in the current play.
+|ansible_version            |Dict with version info.
 |====
+
+*hostvars* sample usage:
+
+[source]
+{{ hostvars['db.example.com'].ansible_eth1.ipv4.address }}
+
+*groups* sample usage:
+
+[source]
+----
+backend web-backend
+{% for host in groups.web %}
+  server {{ hostvars[host].inventory_hostname }} \
+  {{ hostvars[host].ansible_default_ipv4.address }}:80
+{% endfor %}
+----
+
+==== Setting Variables on the Command Line
+
+[source]
+$ ansible-playbook example.yml -e token=1234546
+
+Variables set by `-e` have the highest precedence.
+
+Passing a variables file on command line:
+
+[source]
+$ ansible-playbook greet.yml -e @greetvars.yml
+
+
+== Building comlex app
+
+.Listing tasks:
+
+[source]
+$ ansible-playbook --list-tasks file.yml
+
+Directory structure:
+
+* logs
+* mezzanine
+    ** mezzanine_example
+* .virtualenvs
+    ** mezzanine_example
+
+=== Using iteration
+
+[source,yaml]
+----
+    - name: install apt packages
+      apt:
+        pkg: "{{item}}"
+        update_caches: true
+        cache_valid_time: 3600
+      become: True
+      with_items:
+        - git
+        - libjpeg-dev
+        - libpq-dev
+        - memcached
+----
+
+SSH options:
+
+* -f - go to background
+* -N - don't execute any command
+* -o <option> - available options:
+    ** ExitOnForwardFailure=yes
+    ** ControlMaster - values
+
+==== Enabling SSH forwarding
+
+Add ssh key to ssh agent:
+
+ $ ssh-add
+
+List agent keys:
+
+ $ ssh-add -l
+
+ansible.cfg:
+
+[source]
+----
+[ssh_connection]
+ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o ForwardAgent=yes
+----
+
+.Running Mezzanine in development mode
+
+[source,bash]
+----
+$ sudo apt install git libjpeg-dev libpq-dev memcached nginx postgresql \
+  python-dev python-pip python-psycopg2 python-setuptools python-virtualenv supervisor -y
+$ sudo pip install pip virtualenv virtualenvwrapper
+
+
+$ virtualenv venv
+$ source venv/bin/activate
+$ pip install mezzanine
+$ mezzanine-project myproject
+$ cd myproject
+$ sed -i.bak 's/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = ["127.0.0.1"]/' myproject/settings.py
+$ python manage.py createdb
+$ python manage.py runserver
+----
+
+===== Creating Postgres database
+
+[source,yaml]
+----
+- name: create project locale
+  locale_gen: name={{ locale }}
+  become: True
+
+- name: create a DB user
+  postgresql_user:
+    name: "{{ database_user }}"
+    password: "{{ db_pass }}"
+  become: True
+  become_user: postgres
+
+- name: create the database
+  postgresql_db:
+    name: "{{ database_name }}"
+    owner: "{{ database_user }}"
+    encoding: UTF8
+    lc_ctype: "{{ locale }}"
+    lc_collate: "{{ locale }}"
+    template: template0
+  become: True
+  become_user: postgres
+----
+
+===== nginx
+
+Cnovention with configuration files:
+
+. Put configuration files in /etc/nginx/conf/sites-available
+. symlink to /etc/nginx/sites-enabled
+
+
+== Roles
+
+Basic structure of a role:
+
+* /roles/database
+    ** tasks/main.yml
+    ** templates
+    ** handlers/main.yml
+    ** defaults/main.yml - default variables
+    ** vars/main.yml - variables that should not be overridden
+    ** meta/main.yml - dependency information about a role
+
+Role locations:
+
+* `roles` dir next to playbook file
+* `/etc/ansible/roles` - systemwide roles
+
+Sample roles:
+
+[source,yaml]
+----
+- name: deploy mezzanine on vagrant
+  hosts: web
+  vars_files:
+    - secrets.yml
+
+  roles:
+    - role: database
+      database_name: "{{ mezzanine_proj_name }}"
+      database_user: "{{ mezzanine_proj_name }}"
+
+    - role: mezzanine
+      live_hostname: 192.168.33.10.xip.io
+      domains:
+        - 192.168.33.10.xip.io
+        - www.192.168.33.10.xip.io
+----
+
+Using pre-tasks and post-tasks
+
+[source,yaml]
+----
+- name: deploy mezzanine on vagrant
+  hosts: web
+  vars_files:
+    - secrets.yml
+  pre_tasks:
+    - name: update the apt cache
+      apt: update_cache=yes
+  roles:
+    - role: mezzanine
+      database_host: "{{ hostvars.db.ansible_eth1.ipv4.address }}"
+      live_hostname: 192.168.33.10.xip.io
+      domains:
+        - 192.168.33.10.xip.io
+        - www.192.168.33.10.xip.io
+  post_tasks:
+    - name: notify Slack that the servers have been updated
+      local_action: >
+        slack
+        domain=acme.slack.com
+        token={{ slack_token }}
+        msg="web server {{ inventory_hostname }} configured"
+----
+
+Variable precedence (least to highest):
+
+* role's defaults/main.yml
+* play vars section
+* role's vars/main.yml
+* specified as an argument to a role
+
+Including tasks:
+[source,yaml]
+----
+- name: install apt packages
+  apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
+  become: True
+  with_items:
+    - git
+    - nginx
+- include: django.yml
+- include: nginx.yml
+----
+
+Conditional task execution - `when`:
+
+[source,yaml]
+----
+- name: create ssl certificates
+  command: >
+    openssl req -new -x509 -nodes -out {{ mezzanine_proj_name }}.crt
+    -keyout {{ mezzanine_proj_name }}.key -subj '/CN={{ domains[0] }}' -days 3650
+    chdir={{ mezzanine_conf_path }}
+    creates={{ mezzanine_conf_path }}/{{ mezzanine_proj_name }}.crt
+  become: True
+  when: tls_enabled
+  notify: restart nginx
+----
+
+When invoking `copy` Ansible will check the `rolename/files/` directory first.
+When invoking `template` Ansible will check the `rolename/templates/` directory first.
+
+=== ansible-galaxy
+
+ansible-galaxy creates scaffolding:
+
+[source]
+$ ansible-galaxy init roles/web
+
+== Random ansible features
+
+Controlling failure or changes:
+
+* failed_when
+* chanded_when
+
+=== Jinja filters
+
+[source]
+{{ hostname|default('localhost') }}
+
+Task filters:
+
+* failed - true if a registered value is a task that failed
+* changed
+* success
+* skipped
+
+File paths filters:
+
+* basename
+* dirname
+* expanduser - ~ replaced by home directory
+* realpath - canonical file path, resolves symbolic links
+
+=== Lookups
+
+* file - file contents
+* password - randomly generate a password
+* pipe - output of locally executed command
+* env - environment variable
+* template - Jinja2 template evaluation
+* csvfile - entry in a .csv file.
+* dnstxt - DNS TXT record
+* redis_kv - Redis key lookup
+* etcd - etcd key lookup
+
+Example:
+
+----
+lookup('file', '/path/to/file.txt')
+----
+
+=== Lookups
+
+[options="header",cols="1,3,9"]
+|====
+|Name               |Input              |Looping strategy
+|with_items         |List               |
+|with_lines         |Comand to execute  |Loop over lines in command output
+|with_fileglob      |Glob               |Loop over filenames
+|with_first_found   |List of paths      |
+|with_dict          |Dictionary         |Loop over dictionary elements
+|with_flattened     |List of lists      |
+|with_indexed_items |List               |
+|with_nested        |List               |Nested loop
+|with_random_choice |List               |
+|with_sequence      |Sequence of ints   |Loop over sequence
+|with_subelements   |List of dictionaries|Nested loop
+|with_together      |List of lists      |Loop over zipped list
+|with_inventory_hostnames|Host pattern  |Loop over matching hosts
+|====
+
+=== Loop control
+
+[source,yaml]
+----
+- name: run a set of tasks in one loop
+  include: vhosts.yml
+  with_items:
+    - { domain: www1.example.com }
+    - { domain: www2.example.com }
+    - { domain: www3.example.com }
+  loop_control:
+    loop_var: vhost
+----
+
+=== Ansible vault
+
+Commands:
+
+* encrypt
+* decrypt
+* view
+* create
+* edit
+* rekey
+
+== Customizing Hosts, Runs and Handlers
+
+Host definition patterns:
+
+[options="header",cols="3,7"]
+|===
+|Value          | Example usage
+|All hosts      |all
+|All hosts      |*
+|Union          |dev:staging
+|Intersetction  |staging:&database
+|Exclusion      |dev:!queue
+|Wildcard       |*.example.com
+|Range of numbered servers|web[5:10]
+|Regular expression|~web\d+\.example\.(com\|org)
+|===
+
+Limiting which hosts to run
+
+----
+$ ansible-playbook -l hosts playbook.yml
+$ ansible-playbook --limit hosts playbook.yml
+----
