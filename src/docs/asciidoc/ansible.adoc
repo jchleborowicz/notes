@@ -542,7 +542,7 @@ You can also use -i flag in command line.
 
 === Adding entries at Runitme with add_host and group_by
 
-[source:yaml]
+[source,yaml]
 ----
 - name: Provision a vagrant machine
   hosts: localhost
