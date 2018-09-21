@@ -350,6 +350,39 @@ publishing {
 
 There is one *primary artifact*, other artifacts are *secondary*.
 
+== Writing plugins
+
+.Packaging a plugin:
+
+* build script - directly in the build script.
+* `buildSrc` project
+* standalone project
+
+=== Writing a simple plugin
+
+* implement `Plugin` interface.
+* when the plugin is applied to the project Gradle calls
+  `Plugin.apply()` method.
+
+[source,groovy]
+----
+class GreetingPlugin implements Plugin<Project> {
+    void apply(Project project) {
+        project.task('hello') {
+            doLast {
+                println 'Hello from the GreetingPlugin'
+            }
+        }
+    }
+}
+----
+
+Plugin can be configured for:
+* Project class
+* Settings class
+* Gradle class
+
+
 == Todo
 
 * https://docs.gradle.org/4.6/userguide/inspecting_dependencies.html
