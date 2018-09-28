@@ -28,6 +28,8 @@ link:java8-lambdas.html[Java 8 lambdas]
 
 link:javascript.html[JavaScript]
 
+link:kotlin.html[Kotlin]
+
 link:kubernetes.html[Kubernetes]
 
 link:prototype-js.html[prototype.js]

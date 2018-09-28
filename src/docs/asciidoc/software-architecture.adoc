@@ -1,0 +1,8 @@
+= Software architecture
+
+Software Architecture Fundamentials:
+https://www.safaribooksonline.com/videos/software-architecture-fundamentals/9781491998991/9781491998991-video316989
+
+
+TODO:
+- Consumer Driven Contracts

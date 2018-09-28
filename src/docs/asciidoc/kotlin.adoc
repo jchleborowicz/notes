@@ -1,0 +1,397 @@
+= Kotlin
+
+== Basics
+
+[source,kotlin]
+----
+fun main(args: Array<String>) {
+    println("Hello world!")
+}
+----
+
+=== Functions
+
+[source,kotlin]
+----
+fun sum(a: Int, b: Int): Int {
+    return a + b
+}
+----
+
+Inferred return type
+
+[source,kotlin]
+----
+fun sum(a: Int, b: Int) = a + b
+----
+
+String interpolation
+
+[source,kotlin]
+----
+fun printSum(a: Int, b: Int): Unit {
+    println("sum of $a and $b is ${a + b}")
+}
+----
+
+=== Defining variables
+
+Constants:
+
+[source,kotlin]
+----
+val a: Int = 1  // immediate assignment
+val b = 2   // `Int` type is inferred
+val c: Int  // Type required when no initializer is provided
+c = 3       // deferred assignment
+----
+
+Variable:
+
+[source,kotlin]
+----
+var x = 5 // Int type is inferred
+x += 1
+----
+
+=== Comments
+
+[source,kotlin]
+----
+// single line comment
+/*
+Block comment
+*/
+----
+
+Block comments can be nested.
+
+=== Using string templates
+
+[source,kotlin]
+----
+var a = 1
+val s1 = "a = $a"
+
+a = 2
+val s2 = "${s1.replace("is", "was")}, but now is $a"
+----
+
+=== Using conditional expressions
+
+[source,kotlin]
+----
+fun maxOf(a: Int, b: Int): Int = if (a > b) a else b
+----
+
+=== Using nullable values and checking for null
+
+A reference must be explicitly marked as nullable when `null` value is possible.
+
+[source,kotlin]
+----
+fun parseInt(str: String): Int? {
+   // ...
+}
+----
+
+[source,kotlin]
+----
+fun parseInt(str: String): Int? {
+    return str.toIntOrNull()
+}
+
+fun printProduct(arg1: String, arg2: String) {
+    val x: Int? = parseInt(arg1)
+    val y: Int? = parseInt(arg2)
+
+    if (x != null && y != null) {
+        print(x * y)
+    } else {
+        println("either '$arg1' or '$arg2' is not a number")
+    }
+}
+----
+
+=== Using type checks and automatic casts
+
+[source,kotlin]
+----
+fun getStringLength(obj: Any): Int? {
+    if (obj is String) {
+        // `obj` is automatically cast to `String` in this branch
+        return obj.length
+    }
+
+    // `obj` is still of type `Any` outside of the type-checked branch
+    return null
+}
+----
+
+[source,kotlin]
+----
+fun getStringLength(obj: Any): Int? {
+    if (obj !is String) return null
+
+    // `obj` is automatically cast to `String` in this branch
+    return obj.length
+}
+----
+
+[source,kotlin]
+----
+fun getStringLength(obj: Any): Int? {
+    // `obj` is automatically cast to `String` on the right-hand side of `&&`
+    if (obj is String && obj.length > 0) {
+        return obj.length
+    }
+
+    return null
+}
+----
+
+=== for loop
+
+[source,kotlin]
+----
+val items: List<String> = listOf("apple", "banana", "kiwifruit")
+
+for (item in items) {
+    println(item)
+}
+
+for (index in items.indices) {
+    println("item at ${index} is ${items[index]}")
+}
+----
+
+=== while loop
+
+[source,kotlin]
+----
+val items: List<String> = listOf("apple", "banana", "kiwifruit")
+
+var index = 0
+while (index < items.size) {
+    println("item at ${index} is ${items[index]}"}
+    index++
+}
+----
+
+=== when expression
+
+[source,kotlin]
+----
+fun describe(obj: Any): String =
+        when (obj) {
+            1 -> "One"
+            "Hello" -> "Greeting"
+            is Long -> "Long"
+            !is String -> "Not a string"
+            else -> "Unknown"
+        }
+----
+
+=== Ranges
+
+[source,kotlin]
+----
+val x = 10
+val y = 9
+if (x in 1..y + 1) {
+    println("Fits in range")
+}
+----
+
+[source,kotlin]
+----
+val list = listOf("a", "b", "c")
+
+if (-1 !in 0..list.lastIndex) {
+    println("-1 is out of range")
+}
+
+if (list.size !in list.indices) {
+    println("list size is out of valid list indices range too")
+}
+----
+
+Iterating over range:
+
+[source,kotlin]
+----
+for (x in 1..5) {
+    print(x)
+}
+----
+
+[source,kotlin]
+----
+for (x in 1..10 step 2) {
+    println(x)
+}
+----
+
+[source,kotlin]
+----
+for (x in 9 downTo 0 step 3) {
+    println(x)
+}
+----
+
+[source,kotlin]
+----
+(9 downTo 0 step 3).forEach(::println)
+----
+
+=== Using collections
+
+Iterating over collection
+
+[source,kotlin]
+----
+for (item in items) {
+    println(item)
+}
+----
+
+Checking if a collection contains an object:
+
+[source,kotlin]
+----
+when {
+    "orange" in items -> println("juicy")
+    "apple" in items ->println("apple is fine too")
+}
+----
+
+Using lambda expressions to filter and map a collection:
+
+[source,kotlin]
+----
+val fruits = listOf("banana", "avocado", "apple", "kiwifruit")
+
+fruits
+        .filter { it.startsWith("a") }
+        .sortedBy { it }
+        .map { it.toUpperCase() }
+        .forEach(::println)
+----
+
+=== Creating basic classes and their instances
+
+[source,kotlin]
+----
+val rectangle = Rectangle(5.0, 2.0)
+val triangle = Triangle(3.0, 4.0, 5.0)
+----
+
+== Idioms
+
+=== DTOs
+
+[source,kotlin]
+----
+data class Customer(val name: String, val email: String)
+----
+
+Provides Customer class with:
+
+* getters (and setters for vars)
+* equals()
+* hashCode()
+* toString()
+* copy()
+* component1(), component212, ..., for all properties
+
+=== Default values for function parameters
+
+[source,kotlin]
+----
+fun foo(a: Int = 0, b: String = "") { ... }
+----
+
+=== Filtering a list
+
+[source,kotlin]
+----
+val positives = list.filter { x -> x > 0 }
+----
+
+[source,kotlin]
+----
+val positives = list.filter { it > 0 }
+----
+
+=== Traversing map or list of pairs
+
+[source,kotlin]
+----
+for ((k, v) in map) {
+    println("$k -> $v")
+}
+----
+
+=== Using ranges
+
+[source,kotlin]
+----
+for (i in 1..100) { ... }  // closed range: includes 100
+for (i in 1 until 100) { ... } // half-open range: does not include 100
+for (x in 2..10 step 2) { ... }
+for (x in 10 downTo 1) { ... }
+----
+
+=== Read-only list
+
+[source,kotlin]
+----
+val list = listOf("a", "b", "c")
+----
+
+=== Read-only map
+
+[source,kotlin]
+----
+val map = mapOf("a" to 1, "b" to 2, "c" to 3)
+----
+
+=== Accessing a map
+
+[source,kotlin]
+----
+println(map["key"])
+map["key"] = value
+----
+
+=== Lazy property
+
+[source,kotlin]
+----
+val p: String by lazy {
+    // compute the string
+}
+----
+
+=== Extension functions
+
+[source,kotlin]
+----
+fun String.toCamelCase(): String {
+    return this.split("\\s+".toRegex())
+            .map { it.capitalize() }
+            .joinToString("")
+}
+
+"Convert this to camelcase".spaceToCamelCase()
+----
+
+=== Creating a singleton
+
+[source,kotlin]
+----
+object Resource {
+    val name = "Name"
+}
+----
+
