@@ -1027,21 +1027,55 @@ Pipes:
 
 === Pipe parameters
 
- {{aDate | date:’fullDate’}}
+ {{ aDate | date:’fullDate’}}
+
+=== Combining pipes
+
+ {{ aDate | date:’fullDate’ | uppercase }}
 
 === Implementing custom pipe
 
 [source,typescript]
+----
 @Pipe({name: 'shorten'})
 export class ShortenPipe implements PipeTransform {
-    transform(value: any): any {
-        return value.substr(0, 10);
+  transform(value: any, ...args: any[]): any {
+    const maxLength = (args.length === 0 ? 10 : args[0]);
+
+    if (value.length <= maxLength) {
+      return value;
+    } else {
+      return value.substr(0, maxLength - 3) + '...';
     }
+  }
+
 }
+----
 
 Then add the pipe class to *declarations* in app module.
 
 To reflect data changes in arrays and object for the pipe, use *pure: false* in @Pipe declaration.
+
+=== Filter pipe
+
+Generate stub code for the pipe from command line:
+
+ $ ng g p --no-spec filter
+
+[source,typescript]
+----
+import {Pipe, PipeTransform} from '@angular/core';
+
+@Pipe({name: 'filter'})
+export class FilterPipe implements PipeTransform {
+  transform(value: any, filterString: string, propName: string): any {
+    if (value.length === 0 || filterString === '') {
+      return value;
+    }
+    return value.filter(item => item[propName] === filterString);
+  }
+}
+----
 
 == Using firebase sdk
 
