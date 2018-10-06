@@ -2,6 +2,8 @@
 :Author: Jacek Chleborowicz
 :Email: <j.chleborowicz@gmail.com>
 
+:sectnums!:
+
 == Disclaimer
 
 This site contains learning notes.
@@ -17,6 +19,8 @@ link:angular.html[Angular]
 link:ansible.html[Ansible]
 
 link:docker.html[Docker]
+
+link:cxf.html[CXF]
 
 link:git.html[Git]
 
