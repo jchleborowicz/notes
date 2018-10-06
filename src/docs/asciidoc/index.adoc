@@ -34,4 +34,4 @@ link:kubernetes.html[Kubernetes]
 
 link:prototype-js.html[prototype.js]
 
-link:tc-server.html[tc-server.js]
+link:tc-server.html[tc-server]

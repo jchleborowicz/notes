@@ -1,4 +1,9 @@
 = Ansible
+:doc-root: https://jdata.pl/notes
+:toc: left
+:toclevels: 4
+:tabsize: 4
+:docinfo1:
 :icons: font
 
 Sample code: https://github.com/ansiblebook/ansiblebook

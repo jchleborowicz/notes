@@ -1,4 +1,9 @@
 = Software architecture
+:doc-root: https://jdata.pl/notes
+:toc: left
+:toclevels: 4
+:tabsize: 4
+:docinfo1:
 
 Software Architecture Fundamentials:
 https://www.safaribooksonline.com/videos/software-architecture-fundamentals/9781491998991/9781491998991-video316989
