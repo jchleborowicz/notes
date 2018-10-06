@@ -395,3 +395,44 @@ object Resource {
 }
 ----
 
+=== If not null shorthand
+
+[source,kotlin]
+----
+val files = File("Test").listFiles()
+
+println(files?.size)
+----
+
+=== If not null and else shorthand
+
+[source,kotlin]
+----
+val files = File("Test").listFiles()
+
+println(files?.size ?: "empty")
+----
+
+=== Executing a statement if null
+
+[source,kotlin]
+----
+val values = ...
+
+val email = values["email"] ?: throw IllegalStateException("Email is missing!")
+----
+
+=== Get first item of possibly empty collection
+
+[source,kotlin]
+----
+val emails = ... // might be empty
+val mainEmail = emails.firstOrNull() ?: ""
+----
+
+=== Execute if not null
+
+[source,kotlin]
+----
+val values = ...
+----

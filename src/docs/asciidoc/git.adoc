@@ -80,4 +80,5 @@ Main branch is named `master`.
  $ git branch -d <branch-name>
 
 .Deleting remote branch:
+ $ git push --delete <remote-name> <branch-name>
  $ git push -d <remote-name> <branch-name>
