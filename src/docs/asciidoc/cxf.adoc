@@ -1,1 +1,38 @@
 = CXF
+
+== Basics
+
+Artifact `org.apache.cxf:cxf-rt-frontend-jaxws:3.2.6`:
+
+* provides JAX-WS implementation to replace the built-in JDK one
+* contains `META-INF/services/javax.xml.ws.spi.Provider` file
+
+Artifact `org.apache.cxf:cxf-rt-transports-http-jetty:3.2.6`:
+
+* if you don't use a servlet container.
+
+=== Arcornyms
+
+SOAP::
+ Simple Object Access Protocol - XML-based standard protocol
+ for web services.
+
+WSDL::
+ Web Service Description Language - service description: method
+ names, port types, service endpoint, binding, method params etc.
+
+UDDI::
+ Universal Description, Discovery and Integration - directory
+ of web services where clien applications can lookup for web
+ services. Web services can register to the UDDI server and make
+ them available to client applications.
+
+JAX-WS::
+ Java API for XML Web Services. Part of standard Java API.
+
+=== wsimport
+
+Use `wsimport` utility to generate client stubs.
+
+ $ ws import -s . http://localhost:8888/ws/person?wsdl
+
