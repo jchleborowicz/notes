@@ -17,7 +17,7 @@ Artifact `org.apache.cxf:cxf-rt-transports-http-jetty:3.2.6`:
 
 * if you don't use a servlet container.
 
-=== Arcornyms
+=== Acronyms
 
 SOAP::
  Simple Object Access Protocol - XML-based standard protocol
