@@ -1082,6 +1082,79 @@ export class FilterPipe implements PipeTransform {
 }
 ----
 
+=== Making a pipe react to data changes:
+
+[source,typescript]
+----
+@Pipe({
+  name: 'filter',
+  pure: false
+})
+----
+
+This might cause performance issues since pipe is applied after every data change.
+
+=== Async pipes
+
+[source,typescript]
+----
+appStatus = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve('stable');
+  }, 2000);
+});
+----
+
+ <h2>App Status: {{ appStatus | async }}</h2>
+
+
+== HTTP
+
+[source,typescript]
+----
+private http: Http
+
+const data = { ... }
+const headers = new Headers({'Content-Type': 'applcation/json'});
+return this.http.post('http://url', data, {
+  headers: headers
+});
+----
+
+To get map() method:
+
+----
+import 'rxjs-compat/add/operator/map';
+
+return this.http.get(this.dbUrl)
+  .map(
+    (response: Response) => {
+      return response.json();
+    }
+  );
+----
+
+To catch():
+
+----
+import {Observable, throwError} from 'rxjs';
+import 'rxjs-compat/add/operator/map';
+import 'rxjs-compat/add/operator/catch';
+
+return this.http.get(this.dbUrl)
+  .map(
+    (response: Response) => {
+      return response.json();
+    }
+  )
+  .catch(
+    (error: Response) => {
+      console.log(error);
+      return throwError(error);
+    }
+  );
+----
+
 == Using firebase sdk
 
  $ npm install --save firebase
