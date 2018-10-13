@@ -4,3 +4,106 @@
 :toclevels: 4
 :tabsize: 4
 :docinfo1:
+
+[source,python]
+---
+try:
+    abc
+except IndexError:
+    println(“error”)
+---
+
+Encoding:
+
+ _# -*- coding: encoding -*-_
+
+ _# -*- coding: cp-1252 -*-_
+
+Types:
+
+* int
+* float
+
+python3 - division returns `float` (python2 - returns `int`)
+
+to divide to int result use `//`
+
+Remainder operator::
+ 8 % 3
+
+powers::
+ 2 ** 8
+
+In repl use _ to reference last result.
+
+built-in support for complex numbers:
+
+ >>> 5+10j
+
+Strings::
+ Single or double quotes, escaping with `\`
+
+Raw strings::
+ `r”C:\some\name”`
+
+Repeating strings::
+ `3 * ‘um’`
+
+There’s no separate char type - a character is a string of size one.
+
+String operations:
+|=====
+|last character             |word[-1]
+|substring                  |word[2:5]
+|string without first char  |word[1:]
+|string without last char   |word[:-1]
+|length of string           |len(s)
+|=====
+
+Python strings cannot be changed.
+
+=== Lists
+
+[source,python]
+squares = [1, 4, 9, 16, 25]
+
+|=====
+|a copy of the list     |squares[:]
+|concatenating lists    |squares + [36, 49]
+|appending              |squares.append(64)
+|replace slice          |squares[2:5] = [3, 4]
+|remove slice           |squares[2:5] = []
+|reset list             |squares[:] = []
+|list length            |len(squares)
+|=====
+
+Evaluating predicates:
+
+* true is:
+** any non-zero number
+** non-zero length string or list
+
+When printing use end= to override new line:
+
+[source,python]
+print(i, end=’,’)
+
+=== Functions
+
+[source,python]
+----
+def fib(n):
+    """Print a Fibonacci serries up to n."""
+    a, b = 0, 1
+    while a < n:
+        print(a, end=' ')
+        a, b = b, a + b
+    print()
+fib(2000)
+----
+
+The first statement in the body of the function can optionally
+be a string literal - this string literal is the function’s
+documentation string, or _docstring_.
+
+Functions without return statement return None value.
