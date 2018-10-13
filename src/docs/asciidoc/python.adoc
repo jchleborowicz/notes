@@ -1,0 +1,6 @@
+= Python
+:doc-root: https://notes.jdata.pl
+:toc: left
+:toclevels: 4
+:tabsize: 4
+:docinfo1:

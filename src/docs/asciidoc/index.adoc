@@ -38,6 +38,8 @@ link:kotlin.html[Kotlin]
 
 link:kubernetes.html[Kubernetes]
 
+link:python.html[Python]
+
 link:prototype-js.html[prototype.js]
 
 link:tc-server.html[tc-server]
