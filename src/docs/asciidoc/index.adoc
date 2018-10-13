@@ -22,6 +22,8 @@ link:docker.html[Docker]
 
 link:cxf.html[CXF]
 
+link:elasticstack.html[Elastic Stack]
+
 link:git.html[Git]
 
 link:gradle.html[Gradle]

@@ -1,0 +1,86 @@
+= Elastic Stack
+:doc-root: https://jdata.pl/notes
+:toc: left
+:toclevels: 4
+:tabsize: 4
+:docinfo1:
+:icons: font
+
+== Basics
+
+Compontents:
+
+* Core Services:
+    ** Elasticsearch
+    ** Logstash
+    ** Kibana
+    ** Beats
+* X-Pack:
+    ** Security
+    ** Alerting
+    ** Monitoring
+    ** Reporting
+    ** Graph
+    ** Machine Learning
+* Elastic Cloud
+* Elastic Cloud Enterprise (ECE)
+
+Purpose:
+
+* monitoring
+
+Flow:
+
+. Web Access log
+. *Filebeat* - Web Aspect Prospector
+. *Logstash* - Web Access Pipeline
+. **Elastisearch cluster**
+. *Kibana* - search and visualisation
+
+=== Beats
+
+Beat types:
+
+* Filebeat
+    ** multiline
+    ** include/exclude filters
+    ** backpressure tolerant
+    ** container ready
+* Metricbeat
+    ** one client, many modules (ex. system, docker, mongodb, kubernetes,
+       nginx, mysql, postgresql)
+    ** container ready
+* Packetbeat
+    ** decodes network protocols (icmp, dns, http, amqp, cassandra, mysql, postgresq,
+       thrift-rpc, mongodb, memcache, tls)
+    ** correlates requests with responses
+* Heartbeat
+    ** pings via icmp, tcp and http
+    ** supports tls, authentication and proxies
+    ** simple dns resolution
+* Winlogbeat
+    ** attach to windows event log channels
+* Auditbeat
+    ** auditd module:
+        *** linux only
+        *** attaches to linux kernel's audit framework
+        *** combines multiple audit messages into a single event
+        *** configure what syscalls to monitor
+    ** file integrity module:
+        *** compatible with linux, macos, windows
+        *** hashes specified files and monitors changes in real-time
+        *** compare to known malicious file hashes
+
+Libbeat - common library, foundation of every beat
+
+=== Logstash
+
+Designed for log processing.
+
+Data pipelines:
+
+* inputs - ingest from multiple sources
+* filters - parse events into structured fields, enrich events dynamically.
+* outputs - stash the processed events, output to multiple destinations
+
+
