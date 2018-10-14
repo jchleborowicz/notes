@@ -62,33 +62,7 @@ String operations:
 
 Python strings cannot be changed.
 
-=== Lists
-
-[source,python]
-squares = [1, 4, 9, 16, 25]
-
-|=====
-|a copy of the list     |squares[:]
-|concatenating lists    |squares + [36, 49]
-|appending              |squares.append(64)
-|replace slice          |squares[2:5] = [3, 4]
-|remove slice           |squares[2:5] = []
-|reset list             |squares[:] = []
-|list length            |len(squares)
-|=====
-
-Evaluating predicates:
-
-* true is:
-** any non-zero number
-** non-zero length string or list
-
-When printing use end= to override new line:
-
-[source,python]
-print(i, end=’,’)
-
-=== Functions
+== Functions
 
 [source,python]
 ----
@@ -107,3 +81,98 @@ be a string literal - this string literal is the function’s
 documentation string, or _docstring_.
 
 Functions without return statement return None value.
+
+=== Tools
+
+Compilation:
+
+[source,python]
+python3 -m py_compile <file-name>
+
+== Variables
+
+traceback - stacktrace for python
+
+string methods:
+
+* title()
+* upper()
+* lower()
+* strip(), rstrip(), lstrip()
+
+ints:
+
+* exponent: `2 ** 3`
+
+converting to string:
+
+[source,python]
+----
+print("It's " + str(43))
+----
+
+Division:
+
+* python3: 3 / 2 == 1.5
+* python2: 3 / 2 == 1
+
+Zen of Python display after typing:
+
+[source,python]
+----
+>>> import this
+----
+
+== Lists
+
+[source,python]
+squares = [1, 4, 9, 16, 25]
+
+|=====
+|a copy of the list     |squares[:]
+|concatenating lists    |squares + [36, 49]
+|appending              |squares.append(64)
+|inserting              |squares.insert(0, 1)
+|delete single element  |del squares[0]
+|delete and return element |squares.pop(0)
+|remove item by value   |squares.remove(4)
+|replace slice          |squares[2:5] = [3, 4]
+|remove slice           |squares[2:5] = []
+|reset list             |squares[:] = []
+|list length            |len(squares)
+|sorting                |squares.sort()
+|=====
+
+Evaluating predicates:
+
+* true is:
+** any non-zero number
+** non-zero length string or list
+
+When printing use end= to override new line:
+
+[source,python]
+print(i, end=’,’)
+
+[source,python]
+----
+names = ['Jack', 'Jim', 'Johhny']
+
+for name in names:
+    print(name)
+----
+
+=== Sorting
+
+[source,python]
+----
+list.sort()
+list.sort(reverse=True)
+----
+
+To maintain original list:
+
+[source,python]
+----
+sorted(list)
+----
