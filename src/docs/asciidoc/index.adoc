@@ -12,6 +12,8 @@ The notes might be out of date or might contain invalid information.
 
 Use at your own risk.
 
+The notes are maintained on github: https://github.com/jchleborowicz/notes
+
 == Contents
 
 link:angular.html[Angular]
