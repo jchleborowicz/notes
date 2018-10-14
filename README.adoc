@@ -18,17 +18,17 @@ $ ./gradlew openLocal
 [source,bash]
 $ ./gradlew openRemote
 
-== Updating s3 folder
+== Configuring S3 upload
 
-To update generated files to s3:
+To change how files are uploaded to S3:
 
 . Configure custom project properties:
 +
-  .. Copy _gradle.properties_ file to _custom.gradle.properties_. Do not commit _custom.gradle.properties_
-     file.
+  .. Copy _gradle.properties_ file to _custom.gradle.properties_.
+     Do not commit _custom.gradle.properties_ file.
   .. Set _awsProfile_ and _awsTarget_ in _custom.gradle.properties_ file.
 +
-. Run update task:
+. Run upload task:
 +
 [source,bash]
-$ ./gradlew update
+$ ./gradlew upload
