@@ -15,8 +15,9 @@ description = 'Learning notes'
 version = '0.0.1'
 
 //loading custom properties
-if(new File('custom.gradle.properties').exists()){
-    apply from: 'custom.gradle.properties'
+final String customPropertiesFileName = 'custom.gradle.properties'
+if(new File(customPropertiesFileName).exists()){
+    apply from: customPropertiesFileName
 }
 
 asciidoctor {
