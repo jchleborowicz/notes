@@ -590,7 +590,7 @@ export class AuthGuard implements CanActivate {
                 if (authenticated) {
                     return true;
                 } else {
-                    this.*outer.navigate(['/']);
+                    this.router.navigate(['/']);
                 }
             });
     }
@@ -1121,44 +1121,41 @@ return this.http.post('http://url', data, {
 });
 ----
 
-To get map() method:
+To map() and catch():
 
 ----
-import 'rxjs-compat/add/operator/map';
+import {catchError, map} from 'rxjs/operators';
+import {throwError} from 'rxjs';
 
-return this.http.get(this.dbUrl)
-  .map(
-    (response: Response) => {
-      return response.json();
-    }
-  );
-----
 
-To catch():
+private http: HttpClient
 
-----
-import {Observable, throwError} from 'rxjs';
-import 'rxjs-compat/add/operator/map';
-import 'rxjs-compat/add/operator/catch';
-
-return this.http.get(this.dbUrl)
-  .map(
-    (response: Response) => {
-      return response.json();
-    }
-  )
-  .catch(
-    (error: Response) => {
-      console.log(error);
+this.http.get(this.serviceUrl)
+  .pipe(catchError(error => {
+      alert('Error when saving recipes: ' + error);
       return throwError(error);
     }
-  );
+  ))
+  .subscribe((data) => {
+    alert('Data has been loaded');
+  });
 ----
 
-== Using firebase sdk
+== Authentication with firebase
 
  $ npm install --save firebase
 
 In the app.component.ts:
 
- ngOnInit()
+[source,typescript]
+----
+import * as firebase from 'firebase';
+
+ngOnInit(): void {
+  const config = {
+    apiKey: 'AIzaSXCUbQzq0SBkjODl4',
+    authDomain: 'ng-recipe-book-2357.firebaseapp.com',
+  };
+  firebase.initializeApp(config);
+}
+----

@@ -83,4 +83,84 @@ Data pipelines:
 * filters - parse events into structured fields, enrich events dynamically.
 * outputs - stash the processed events, output to multiple destinations
 
+=== Elasticsearch
 
+* the heart of the elastic stack
+* distributed, RESTful search and analytics engine
+* highly scalable adn fault tolerant
+* near real time (NRT)
+* common use cases:
+    ** product search with autocomplete for websites
+    ** mine log or transaction data for trends, statisticts or anomalies
+    ** quickly investigate, analyze, visualize, and ask ad-hoc questions on huge datasets
+
+==== Important terms
+
+* Cluster
+    ** collection of one or more nodes
+    ** federated searching and indexing across all nodes
+    ** identified by unique name
+* Node
+    ** single server in the cluster
+    ** identified by name
+* Index
+    ** collection of documents
+* Document
+    ** basic unit of information
+    ** expressed in JSON
+* Shard
+    ** piece of an index
+    ** horizontally splits an index for scalability
+    ** replication via replica shards:
+        *** replicas are never allocated on the same node
+            as the primary shard
+        *** allows for fault tollerance
+        *** scale search throughoutput
+
+==== Cluster states
+
+* Green:
+    ** all primary shards are allocated
+    ** all replica shards are allocated
+* Yellow:
+    ** all primary shards are allocated
+    ** one or more replicas are unallocated
+* Red:
+    ** one or more primary shards are unallocated
+
+==== Node types
+
+* Master-Eligible Node:
+    ** Responsible for cluster management:
+        *** Creating/deleting indexes
+        *** Tracking cluster members
+        *** Shard allocation
+* Data Node:
+    ** contains shards
+    ** handles CRUD, search and aggregation operations
+* Ingest Node:
+    ** Executes pre-processing pipelines
+* Coordinating-Only Node:
+    ** smart load balancer:
+        *** routes requests
+        *** handles search deducing
+        *** distributes bulk indexing
+* Machine Learning Node:
+    * X-Pack machine learning plugin
+    * runs machine learning jobs
+    * handles machine learning API requests
+
+==== Best practices
+
+* dedicated nodes for each role
+* data node sizing:
+    ** 32GB max heap
+    ** at least as much free memory as heap memory
+    ** solid-state drives
+    ** more cores are always better than faster clock speeds
+* search and index against coordinating-only nodes
+* size to YOUR use case:
+    ** load test yoru specific use case and make sizing adjustments
+       as necessary
+    ** every use case has its own requirements
+    ** there is no one-size-fits-all elasticsearch cluster
