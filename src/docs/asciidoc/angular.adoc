@@ -1149,7 +1149,7 @@ In the app.component.ts:
 
 [source,typescript]
 ----
-import * as firebase from 'firebase';
+import * as firebase from 'firebase';'
 
 ngOnInit(): void {
   const config = {

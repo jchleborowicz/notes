@@ -8,22 +8,24 @@
 
 == Basics
 
-Compontents:
+Components:
 
-. Core Services:
-    .. Elasticsearch
-    .. Logstash
-    .. Kibana
-    .. Beats
-. X-Pack:
-    .. Security
-    .. Alerting
-    .. Monitoring
-    .. Reporting
-    .. Graph
-    .. Machine Learning
-. Elastic Cloud
-. Elastic Cloud Enterprise (ECE)
+[options="header",cols="6,4a",width="50%"]
+|====
+|Service            |Components
+|Core Services      |* Elasticsearch
+                     * Logstash
+                     * Kibana
+                     * Beats
+|X-Pack             |* Security
+                     * Alerting
+                     * Monitoring
+                     * Reporting
+                     * Graph
+                     * Machine Learning
+|Elastic Cloud      |
+|Elastic Cloud Enterprise (ECE) |
+|====
 
 Purpose:
 
@@ -39,37 +41,33 @@ Flow:
 
 === Beats
 
-Beat types:
-
-. Filebeat
-    .. multiline
-    .. include/exclude filters
-    .. backpressure tolerant
-    .. container ready
-. Metricbeat
-    .. one client, many modules (ex. system, docker, mongodb, kubernetes,
-       nginx, mysql, postgresql)
-    .. container ready
-. Packetbeat
-    .. decodes network protocols (icmp, dns, http, amqp, cassandra, mysql, postgresq,
-       thrift-rpc, mongodb, memcache, tls)
-    .. correlates requests with responses
-. Heartbeat
-    .. pings via icmp, tcp and http
-    .. supports tls, authentication and proxies
-    .. simple dns resolution
-. Winlogbeat
-    .. attach to windows event log channels
-. Auditbeat
-    .. auditd module:
-        ... linux only
-        ... attaches to linux kernel's audit framework
-        ... combines multiple audit messages into a single event
-        ... configure what syscalls to monitor
-    .. file integrity module:
-        ... compatible with linux, macos, windows
-        ... hashes specified files and monitors changes in real-time
-        ... compare to known malicious file hashes
+[cols="1d,8a",options="header",grid="cols",width="100%"]
+|========================================================================================
+|Type           |Features
+|Filebeat       |* multiline
+                 * include/exclude filters
+                 * backpressure tolerant
+                 * container ready
+|Metricbeat     |* one client, many modules (ex. system, docker, mongodb, kubernetes,
+                   nginx, mysql, postgresql)
+                 * container ready
+|Packetbeat     |* decodes network protocols (icmp, dns, http, amqp, cassandra,
+                   mysql, postgresq, thrift-rpc, mongodb, memcache, tls)
+                 * correlates requests with responses
+|Heartbeat      |* pings via icmp, tcp and http
+                 * supports tls, authentication and proxies
+                 * simple dns resolution
+|Winlogbeat     |* attach to windows event log channels
+|Auditbeat      |* auditd module:
+                     ** linux only
+                     ** attaches to linux kernel's audit framework
+                     ** combines multiple audit messages into a single event
+                     ** configure what syscalls to monitor
+                 * file integrity module:
+                     ** compatible with linux, macos, windows
+                     ** hashes specified files and monitors changes in real-time
+                     ** compare to known malicious file hashes
+|========================================================================================
 
 Libbeat - common library, foundation of every beat
 
@@ -77,11 +75,14 @@ Libbeat - common library, foundation of every beat
 
 Designed for log processing.
 
-Data pipelines:
+[options="header",cols="1,6"]
+|========================================================================================
+|Pipeline   |Description
 
-. inputs - ingest from multiple sources
-. filters - parse events into structured fields, enrich events dynamically.
-. outputs - stash the processed events, output to multiple destinations
+|inputs     |Ingest from multiple sources.
+|filters    |Parse events into structured fields, enrich events dynamically.
+|outputs    |Stash the processed events, output to multiple destinations
+|========================================================================================
 
 === Elasticsearch
 
@@ -96,59 +97,69 @@ Data pipelines:
 
 ==== Important terms
 
-. Cluster
-    .. collection of one or more nodes
-    .. federated searching and indexing across all nodes
-    .. identified by unique name
-. Node
-    .. single server in the cluster
-    .. identified by name
-. Index
-    .. collection of documents
-. Document
-    .. basic unit of information
-    .. expressed in JSON
-. Shard
-    .. piece of an index
-    .. horizontally splits an index for scalability
-    .. replication via replica shards:
-        ... replicas are never allocated on the same node
-            as the primary shard
-        ... allows for fault tollerance
-        ... scale search throughoutput
+[options="header",cols="1,8a"]
+|========================================================================================
+|Term       |Description
+
+|Cluster    |* collection of one or more nodes
+             * federated searching and indexing across all nodes
+             * identified by unique name
+
+|Node       |* single server in the cluster
+             * identified by name
+
+|Index      |* collection of documents
+
+|Document   |* basic unit of information
+             * expressed in JSON
+
+|Shard      |* piece of an index
+             * horizontally splits an index for scalability
+             * replication via replica shards:
+                 ** replicas are never allocated on the same node as the primary shard
+                 ** allows for fault tolerance
+                 ** scale search throughput
+|========================================================================================
 
 ==== Cluster states
 
-. Green:
-    .. all primary shards are allocated
-    .. all replica shards are allocated
-. Yellow:
-    .. all primary shards are allocated
-    .. one or more replicas are unallocated
-. Red:
-    .. one or more primary shards are unallocated
+[options="header",cols="1,6a"]
+|========================================================================================
+|State      |Description
+
+|Green      |* all primary shards are allocated
+             * all replica shards are allocated
+
+|Yellow     |* all primary shards are allocated
+             * one or more replicas are unallocated
+
+|Red        |* one or more primary shards are unallocated
+|========================================================================================
 
 ==== Node types
 
-. Master-Eligible Node:
-    .. Responsible for cluster management:
-        ... Creating/deleting indexes
-        ... Tracking cluster members
-        ... Shard allocation
-. Data Node:
-    .. contains shards
-    .. handles CRUD, search and aggregation operations
-. Ingest Node:
-    .. Executes pre-processing pipelines
-. Coordinating-Only Node:
-    .. smart load balancer:
-        ... routes requests
-        ... handles search deducing
-        ... distributes bulk indexing
-. Machine Learning Node:
-    .. X-Pack machine learning plugin
-    .. runs machine learning jobs
-    .. handles machine learning API requests
+[options="header",cols="1,8a"]
+|========================================================================================
+|Node type              | Description
+
+|Master-Eligible Node   |* Responsible for cluster management:
+                             ** Creating/deleting indexes
+                             ** Tracking cluster members
+                             ** Shard allocation
+
+|Data Node              |* contains shards
+                         * handles CRUD, search and aggregation operations
+
+|Ingest Node            |* Executes pre-processing pipelines
+
+|Coordinating-Only Node |* smart load balancer:
+                            ** routes requests
+                            ** handles search deducing
+                            ** distributes bulk indexing
+|Machine Learning Node  |* X-Pack machine learning plugin
+                         * runs machine learning jobs
+                         * handles machine learning API requests
+|========================================================================================
 
 ==== Best practices
 
@@ -201,41 +212,120 @@ Needs license.
 
 Plugins:
 
-. Security:
-    .. Active Directory, LDAP, and SAML authentication
-    .. manage user and roles
-    .. entcrypt cluster communication with SSL/TSL
-    .. index, document and even field level restriction
-    .. audit log
-. Alerting:
-    .. identify and alert on changes in the data
-    .. notifications by email, PagerDuty, Slack, HipChat or
-       webhook
-. Monitoring:
-    .. track ES performance and usage at the cluster,
-       node and index level
-    .. track Kibana usage and request performance
-    .. monitor Logstash throughput and pipeline performance
-    .. multi-stack support to centralize ES monitoring
-. Reporting:
-    .. generate, schedule and share reports
-    .. export raw documents, searches, visualizations
-       and whole dashboards
-    .. send reports on a schedule or trigger a report
-       when certain conditions are met
-. Graph:
-    .. discover relations in the data
-    .. integrate with your apps using the API
-    .. visualize in Kibana
-    .. filter relevant relationships from popular ones
-. Machine Learning:
-    .. unsupervised anomaly detection
-    .. visualize and analyze anormalies quickly
-    .. prepare for the future with on-demand forecasting
-    .. intuitive UI for easy job creation
+[options="header",cols="1,8a"]
+|========================================================================================
+|Plugin         |Description
+
+|Security       |* Active Directory, LDAP, and SAML authentication
+                 * manage user and roles
+                 * entcrypt cluster communication with SSL/TSL
+                 * index, document and even field level restriction
+                 * audit log
+
+|Alerting       |* identify and alert on changes in the data
+                 * notifications by email, PagerDuty, Slack, HipChat or webhook
+
+|Monitoring     |* track ES performance and usage at the cluster, node and index level
+                 * track Kibana usage and request performance
+                 * monitor Logstash throughput and pipeline performance
+                 * multi-stack support to centralize ES monitoring
+
+|Reporting      |* generate, schedule and share reports
+                 * export raw documents, searches, visualizations
+                   and whole dashboards
+                 * send reports on a schedule or trigger a report
+                   when certain conditions are met
+
+|Graph          |* discover relations in the data
+                 * integrate with your apps using the API
+                 * visualize in Kibana
+                 * filter relevant relationships from popular ones
+
+|Machine Learning   |* unsupervised anomaly detection
+                     * visualize and analyze anormalies quickly
+                     * prepare for the future with on-demand forecasting
+                     * intuitive UI for easy job creation
+
+|========================================================================================
 
 === Hosting options
 
-. Elastic Cloud:
-    .. Hosted ES and Kibana on AWS and GCP
-    .. Automated scaling and upg
+[options="header",cols="1,6a"]
+|========================================================================================
+|Option                 |Description
+|Elastic Cloud          |* Hosted ES and Kibana on AWS and GCP
+                         * Automated scaling and upg
+                         * includes X-Pack
+                         * cluster backups every 30 minutes
+                         * monitored 24/7
+
+|Elastic Cloud Enterprise |* build and manage ES, Kibana and X-Pack
+                             on any infrastructure from one console
+                           * manage multiple use cases with separate stacks
+                           * offer ES and Kibana as a service to your organization
+                           * control your infrastructure
+
+|========================================================================================
+
+== Installing ES on CentOS
+
+[source,bash]
+----
+$ sudo yum install java-1.8.0-openjdk -y
+$ sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.3.rpm
+$ sudo rpm --install elasticsearch-6.2.3.rpm
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable elasticsearch.service
+----
+
+Edit `/etc/elasticsearch/elasticsearch.yml`:
+
+[source,yaml]
+----
+node.name: master1
+node.data: false
+
+network.host: ["localhost", "172.31.100.201"]
+----
+
+[source,bash]
+----
+$ sudo systemctl start elasticsearch
+$ sudo systemctl status elasticsearch
+----
+
+Logs - `/var/log/elasticsearch/`:
+
+* elasticsearch_deprecation.log
+* elasticsearch_index_indexing_slowlog.log
+* elasticsearch_index_search_slowlog.log
+* elasticsearch.log
+
+Configuring data node (elasticsearch.yml):
+
+[source,yaml]
+----
+node.name: data1
+node.master: false
+----
+
+Diagnosing:
+
+----
+$ curl localhost:9200
+$ curl localhost:9200/_cluster/health
+----
+
+Installing logstash on master node:
+
+----
+$ wget https://artifacts.elastic.co/downloads/logstash/logstash-6.2.3.rpm
+$ sudo rpm --install logstash-6.2.3.rpm
+$ sudo systemctl enable logstash
+----
+
+Configuration in `/etc/logstash/`:
+
+* conf.d - directory for pipeline configuration files
+
