@@ -10,20 +10,20 @@
 
 Compontents:
 
-* Core Services:
-    ** Elasticsearch
-    ** Logstash
-    ** Kibana
-    ** Beats
-* X-Pack:
-    ** Security
-    ** Alerting
-    ** Monitoring
-    ** Reporting
-    ** Graph
-    ** Machine Learning
-* Elastic Cloud
-* Elastic Cloud Enterprise (ECE)
+. Core Services:
+    .. Elasticsearch
+    .. Logstash
+    .. Kibana
+    .. Beats
+. X-Pack:
+    .. Security
+    .. Alerting
+    .. Monitoring
+    .. Reporting
+    .. Graph
+    .. Machine Learning
+. Elastic Cloud
+. Elastic Cloud Enterprise (ECE)
 
 Purpose:
 
@@ -41,35 +41,35 @@ Flow:
 
 Beat types:
 
-* Filebeat
-    ** multiline
-    ** include/exclude filters
-    ** backpressure tolerant
-    ** container ready
-* Metricbeat
-    ** one client, many modules (ex. system, docker, mongodb, kubernetes,
+. Filebeat
+    .. multiline
+    .. include/exclude filters
+    .. backpressure tolerant
+    .. container ready
+. Metricbeat
+    .. one client, many modules (ex. system, docker, mongodb, kubernetes,
        nginx, mysql, postgresql)
-    ** container ready
-* Packetbeat
-    ** decodes network protocols (icmp, dns, http, amqp, cassandra, mysql, postgresq,
+    .. container ready
+. Packetbeat
+    .. decodes network protocols (icmp, dns, http, amqp, cassandra, mysql, postgresq,
        thrift-rpc, mongodb, memcache, tls)
-    ** correlates requests with responses
-* Heartbeat
-    ** pings via icmp, tcp and http
-    ** supports tls, authentication and proxies
-    ** simple dns resolution
-* Winlogbeat
-    ** attach to windows event log channels
-* Auditbeat
-    ** auditd module:
-        *** linux only
-        *** attaches to linux kernel's audit framework
-        *** combines multiple audit messages into a single event
-        *** configure what syscalls to monitor
-    ** file integrity module:
-        *** compatible with linux, macos, windows
-        *** hashes specified files and monitors changes in real-time
-        *** compare to known malicious file hashes
+    .. correlates requests with responses
+. Heartbeat
+    .. pings via icmp, tcp and http
+    .. supports tls, authentication and proxies
+    .. simple dns resolution
+. Winlogbeat
+    .. attach to windows event log channels
+. Auditbeat
+    .. auditd module:
+        ... linux only
+        ... attaches to linux kernel's audit framework
+        ... combines multiple audit messages into a single event
+        ... configure what syscalls to monitor
+    .. file integrity module:
+        ... compatible with linux, macos, windows
+        ... hashes specified files and monitors changes in real-time
+        ... compare to known malicious file hashes
 
 Libbeat - common library, foundation of every beat
 
@@ -79,88 +79,163 @@ Designed for log processing.
 
 Data pipelines:
 
-* inputs - ingest from multiple sources
-* filters - parse events into structured fields, enrich events dynamically.
-* outputs - stash the processed events, output to multiple destinations
+. inputs - ingest from multiple sources
+. filters - parse events into structured fields, enrich events dynamically.
+. outputs - stash the processed events, output to multiple destinations
 
 === Elasticsearch
 
-* the heart of the elastic stack
-* distributed, RESTful search and analytics engine
-* highly scalable adn fault tolerant
-* near real time (NRT)
-* common use cases:
-    ** product search with autocomplete for websites
-    ** mine log or transaction data for trends, statisticts or anomalies
-    ** quickly investigate, analyze, visualize, and ask ad-hoc questions on huge datasets
+. the heart of the elastic stack
+. distributed, RESTful search and analytics engine
+. highly scalable adn fault tolerant
+. near real time (NRT)
+. common use cases:
+    .. product search with autocomplete for websites
+    .. mine log or transaction data for trends, statisticts or anomalies
+    .. quickly investigate, analyze, visualize, and ask ad-hoc questions on huge datasets
 
 ==== Important terms
 
-* Cluster
-    ** collection of one or more nodes
-    ** federated searching and indexing across all nodes
-    ** identified by unique name
-* Node
-    ** single server in the cluster
-    ** identified by name
-* Index
-    ** collection of documents
-* Document
-    ** basic unit of information
-    ** expressed in JSON
-* Shard
-    ** piece of an index
-    ** horizontally splits an index for scalability
-    ** replication via replica shards:
-        *** replicas are never allocated on the same node
+. Cluster
+    .. collection of one or more nodes
+    .. federated searching and indexing across all nodes
+    .. identified by unique name
+. Node
+    .. single server in the cluster
+    .. identified by name
+. Index
+    .. collection of documents
+. Document
+    .. basic unit of information
+    .. expressed in JSON
+. Shard
+    .. piece of an index
+    .. horizontally splits an index for scalability
+    .. replication via replica shards:
+        ... replicas are never allocated on the same node
             as the primary shard
-        *** allows for fault tollerance
-        *** scale search throughoutput
+        ... allows for fault tollerance
+        ... scale search throughoutput
 
 ==== Cluster states
 
-* Green:
-    ** all primary shards are allocated
-    ** all replica shards are allocated
-* Yellow:
-    ** all primary shards are allocated
-    ** one or more replicas are unallocated
-* Red:
-    ** one or more primary shards are unallocated
+. Green:
+    .. all primary shards are allocated
+    .. all replica shards are allocated
+. Yellow:
+    .. all primary shards are allocated
+    .. one or more replicas are unallocated
+. Red:
+    .. one or more primary shards are unallocated
 
 ==== Node types
 
-* Master-Eligible Node:
-    ** Responsible for cluster management:
-        *** Creating/deleting indexes
-        *** Tracking cluster members
-        *** Shard allocation
-* Data Node:
-    ** contains shards
-    ** handles CRUD, search and aggregation operations
-* Ingest Node:
-    ** Executes pre-processing pipelines
-* Coordinating-Only Node:
-    ** smart load balancer:
-        *** routes requests
-        *** handles search deducing
-        *** distributes bulk indexing
-* Machine Learning Node:
-    * X-Pack machine learning plugin
-    * runs machine learning jobs
-    * handles machine learning API requests
+. Master-Eligible Node:
+    .. Responsible for cluster management:
+        ... Creating/deleting indexes
+        ... Tracking cluster members
+        ... Shard allocation
+. Data Node:
+    .. contains shards
+    .. handles CRUD, search and aggregation operations
+. Ingest Node:
+    .. Executes pre-processing pipelines
+. Coordinating-Only Node:
+    .. smart load balancer:
+        ... routes requests
+        ... handles search deducing
+        ... distributes bulk indexing
+. Machine Learning Node:
+    .. X-Pack machine learning plugin
+    .. runs machine learning jobs
+    .. handles machine learning API requests
 
 ==== Best practices
 
-* dedicated nodes for each role
-* data node sizing:
-    ** 32GB max heap
-    ** at least as much free memory as heap memory
-    ** solid-state drives
-    ** more cores are always better than faster clock speeds
-* search and index against coordinating-only nodes
-* size to YOUR use case:
-    ** load test yoru specific use case and make sizing adjustments
+. dedicated nodes for each role
+. data node sizing:
+    .. 32GB max heap
+    .. at least as much free memory as heap memory
+    .. solid-state drives
+    .. more cores are always better than faster clock speeds
+. search and index against coordinating-only nodes
+. size to YOUR use case:
+    .. load test yoru specific use case and make sizing adjustments
        as necessary
-    ** every use case has its own requirements
-    ** there is no one-size-fits-all elasticsearch cluster
+    .. every use case has its own requirements
+    .. there is no one-size-fits-all elasticsearch cluster
+
+=== Kibana
+
+. search, view and interact with data stored in elasticsearch
+. discover:
+    .. interactively explore data
+    .. search and filter the data to view specific documents
+    .. save searches for quick use later or to embed in dashboards
+. visualize:
+    .. visual representation of the data
+    .. create dashboards
+    .. charts, data tables, markdown, gauges, maps and more
+. Timelion:
+    .. Time series data visualizer
+    .. Simple expression language
+. Dev tools:
+    .. console
+        ... UI to interact with the REST API
+    .. profiler
+        ... visualize API
+        ... inspect and analyze seach queries
+        ... debug and diagnese performance issues
+    .. Grok Debugger:
+        ... build and debug grok patterns
+        ... same grok implementation as ingest node and Logstash
+. Management:
+    .. configure index patterns to connect ES indexes to Kibana
+    .. manage fields by adding intelligent formatting
+    .. configure advanced Kibana options
+    .. manage saved searches, visualisations and dashboards
+
+=== X-Pack
+
+Needs license.
+
+Plugins:
+
+. Security:
+    .. Active Directory, LDAP, and SAML authentication
+    .. manage user and roles
+    .. entcrypt cluster communication with SSL/TSL
+    .. index, document and even field level restriction
+    .. audit log
+. Alerting:
+    .. identify and alert on changes in the data
+    .. notifications by email, PagerDuty, Slack, HipChat or
+       webhook
+. Monitoring:
+    .. track ES performance and usage at the cluster,
+       node and index level
+    .. track Kibana usage and request performance
+    .. monitor Logstash throughput and pipeline performance
+    .. multi-stack support to centralize ES monitoring
+. Reporting:
+    .. generate, schedule and share reports
+    .. export raw documents, searches, visualizations
+       and whole dashboards
+    .. send reports on a schedule or trigger a report
+       when certain conditions are met
+. Graph:
+    .. discover relations in the data
+    .. integrate with your apps using the API
+    .. visualize in Kibana
+    .. filter relevant relationships from popular ones
+. Machine Learning:
+    .. unsupervised anomaly detection
+    .. visualize and analyze anormalies quickly
+    .. prepare for the future with on-demand forecasting
+    .. intuitive UI for easy job creation
+
+=== Hosting options
+
+. Elastic Cloud:
+    .. Hosted ES and Kibana on AWS and GCP
+    .. Automated scaling and upg
