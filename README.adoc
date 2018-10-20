@@ -6,6 +6,8 @@ This project contains learning notes.
 
 Use at your own risk.
 
+Generated notes can be accessed at http://notes.jdata.pl
+
 == Opening local files with browser
 
 To open locally generated notes run:
