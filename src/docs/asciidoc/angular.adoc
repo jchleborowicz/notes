@@ -1159,3 +1159,46 @@ ngOnInit(): void {
   firebase.initializeApp(config);
 }
 ----
+
+Auth service:
+
+[source,typescript]
+----
+import * as firebase from 'firebase';
+
+export class AuthService {
+  signupUser(email: string, password: string) {
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+      .catch(error => {
+        console.log(error);
+        alert('There was an error when signing up: ' + error);
+      });
+  }
+
+  signinUser(email: string, password: string) {
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .catch(error => {
+        console.log(error);
+        alert('There was an error when signing up: ' + error);
+      });
+  }
+}
+----
+
+Firebase rules:
+
+[source,json]
+----
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
+----
+
+Attaching token to the request:
+
+----
+
+----

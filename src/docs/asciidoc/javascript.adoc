@@ -983,3 +983,22 @@ call(obj, ...args)
 
 * obj is object to use as `this`
 * args are list of arguments
+
+== Browser capabilities
+
+=== IndexedDb
+
+Concepts:
+
+* key-value pairs.
+* transactions
+* asynchronous
+* uses DOM events
+* object-oriented
+* does not use SQL
+* adheres to same-origin policy
+
+==== Definitions
+
+database::
+ repository of info
