@@ -1243,3 +1243,69 @@ export class RecipesRoutingModule {
 }
 
 ----
+
+=== Lazy loding
+
+Use "loadChildren" attribute:
+
+----
+const appRoutes: Routes = [
+  {path: '', component: HomeComponent},
+  {path: 'recipes', loadChildren: './recipes/recipes.module#RecipesModule'},
+  {path: '**', redirectTo: ''}
+];
+----
+
+==== Lazy loading and canLoad
+
+Use canLoad instead of canActivate for lazy modules:
+
+----
+{
+    path: 'recipes',
+    loadChildren: './recipes/recipes.module#RecipesModule',
+    canLoad: [AuthGuard]
+}
+----
+
+In this example, the `AuthGuard` should implement the `CanLoad` interface.
+
+==== Lazy modules and service injection
+
+Angular creates child injector for lazily loaded module.
+
+WARNING: Don't provide Services in a shared module.
+
+==== Understanding the core module
+
+Core Module - for root functionality.
+
+==== Ahead of time compilation
+
+Concerns templates.
+
+* just-in-type compilation - templates compiled in the
+  browser
+* ahead of time compilation - templates compiled at
+  compilation stage.
+
+----
+$ ng build --prod --aot
+----
+
+==== Preloading lazy modules
+
+Use `preloadingStrategy`.
+
+----
+@NgModule({
+  imports: [
+    RouterModule.forRoot(appRoutes, {preloadingStrategy: PreloadAllModules})
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class AppRoutingModule {
+}
+----
