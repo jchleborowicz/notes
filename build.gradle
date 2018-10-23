@@ -63,8 +63,8 @@ task upload() {
     }
 }
 
-def browse(String uriString) {
-    java.awt.Desktop.desktop.browse uriString.toURI()
+def browse(File file) {
+    java.awt.Desktop.desktop.browse file.toURI()
 }
 
 task openLocal() {
@@ -74,7 +74,7 @@ task openLocal() {
     dependsOn asciidoctor
 
     doLast {
-        browse("file://$buildDir/asciidoc/html5/index.html")
+        browse(new File("$buildDir/asciidoc/html5/index.html"))
     }
 }
 

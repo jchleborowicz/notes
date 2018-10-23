@@ -1198,7 +1198,48 @@ Firebase rules:
 ----
 
 Attaching token to the request:
+----
+const serviceUrl = baseUrl + '?auth=' + token;
+----
+
+== Modules
+
+Module:
+
+* declarations: what compontents does the module use
+* imports: what other modules does the module use
+* providers: which services we may use in the module
+* bootstrap: defines root component
+
+=== Feature Modules
+
+Import `CommonModule` in other modules.
+
+Child routes module:
 
 ----
+const recipesRoutes: Routes = [
+  {
+    path: 'recipes',
+    component: RecipesComponent,
+    children: [
+      {path: '', component: RecipeStartComponent},
+      {path: 'new', component: RecipeEditComponent, canActivate: [AuthGuard]},
+      {path: ':id', component: RecipeDetailComponent},
+      {path: ':id/edit', component: RecipeEditComponent, canActivate: [AuthGuard]}
+    ]
+  }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(recipesRoutes)
+  ],
+  exports: [
+    RouterModule
+  ]
+})
+export class RecipesRoutingModule {
+}
 
 ----
