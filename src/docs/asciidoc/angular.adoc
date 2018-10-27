@@ -17,7 +17,7 @@ $ npm install -g @angular/cli@latest
 [source,bash]
 $ sudo npm install -g npm
 $ sudo npm uninstall -g angular-cli @angular/cli
-$ npm cache clean
+$ npm cache verify
 $ sudo npm install -g @angular/cli
 
 === Create project
