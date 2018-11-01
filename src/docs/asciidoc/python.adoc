@@ -5,6 +5,8 @@
 :tabsize: 4
 :docinfo1:
 
+== Basics
+
 [source,python]
 ---
 try:
@@ -40,14 +42,15 @@ built-in support for complex numbers:
 
  >>> 5+10j
 
-Strings::
- Single or double quotes, escaping with `\`
+=== Strings
+
+Single or double quotes, escaping with `\`
 
 Raw strings::
  `r”C:\some\name”`
 
 Repeating strings::
- `3 * ‘um’`
+ `3 * 'um'`
 
 There’s no separate char type - a character is a string of size one.
 
@@ -61,6 +64,26 @@ String operations:
 |=====
 
 Python strings cannot be changed.
+
+Methods:
+
+[options="header"]
+|====
+|Name           |Descritpion
+
+|title()        |Uppercases every word.
+|upper()        |
+|lower()        |
+|rstrip()       |Trim right whitespaces
+|lstrip()       |Trim left whitespaces
+|strip()        |Trim whitespaces
+|
+|====
+
+Concatenation with `+`
+
+Whitespaces: `\t`, `\n`
+
 
 == Functions
 
@@ -129,18 +152,18 @@ Zen of Python display after typing:
 squares = [1, 4, 9, 16, 25]
 
 |=====
-|a copy of the list     |squares[:]
-|concatenating lists    |squares + [36, 49]
-|appending              |squares.append(64)
-|inserting              |squares.insert(0, 1)
-|delete single element  |del squares[0]
-|delete and return element |squares.pop(0)
-|remove item by value   |squares.remove(4)
-|replace slice          |squares[2:5] = [3, 4]
-|remove slice           |squares[2:5] = []
-|reset list             |squares[:] = []
-|list length            |len(squares)
-|sorting                |squares.sort()
+|a copy of the list         |squares[:]
+|concatenating lists        |squares + [36, 49]
+|appending                  |squares.append(64)
+|inserting                  |squares.insert(0, 1)
+|delete single element      |del squares[0]
+|delete and return element  |squares.pop(0)
+|remove item by value       |squares.remove(4)
+|replace slice              |squares[2:5] = [3, 4]
+|remove slice               |squares[2:5] = []
+|reset list                 |squares[:] = []
+|list length                |len(squares)
+|sorting                    |squares.sort()
 |=====
 
 Evaluating predicates:
@@ -228,4 +251,482 @@ List comprehensions:
 squares = [value ** 2 for value in range(1, 11)]
 print(squares)
 ----
+
+=== Tuples
+
+[source,python]
+----
+dimensions = (200, 50)
+print(dimensions[0])
+print(dimensions[1])
+----
+
+== if statement
+
+[source,python]
+----
+cars = ['audi', 'bmw', 'subaru', 'toyota']
+
+for car in cars:
+    if car == 'bmw':
+        print(car.upper())
+    else:
+        print(car.title())
+----
+
+Logical operators: `and`, `or`
+
+Checking if value is in the list:
+
+[source,python]
+----
+toppings = ['onions', 'mushrooms', 'pineapple']
+
+if 'mushrooms' in toppings:
+    print('Hurray!!!')
+----
+
+Checking if value is not in the list:
+
+[source,python]
+----
+if user not in banned_users:
+       print(user.title() + ", you can post a response if you wish.")
+----
+
+elif statement:
+
+[source,python]
+----
+age = 12
+
+if age < 4:
+    print("Your admission cost is $0.")
+elif age < 18:
+    print("Your admission cost is $5.")
+else:
+    print("Your admission cost is $10.")
+----
+
+Checking if list is empty:
+
+[source,python]
+----
+requested_toppings = []
+
+if not requested_toppings:
+    print("Requested toppings is empty")
+requested_toppings = []
+----
+
+== Dictionaries
+
+[source,python]
+----
+alien = {'color': 'green', 'points': 5}
+
+print(alien['color'])
+print(alien['points'])
+----
+
+Defining new key in dictionary:
+
+[source,python]
+----
+alien['x-position'] = 250
+----
+
+Removing key-value
+
+[source,python]
+----
+del alien['points']
+----
+
+Looping through dictionary
+
+[source,python]
+----
+alien = {'color': 'green', 'points': 5}
+
+for key, value in alien.items():
+    print(str(key) + " : " + str(value))
+----
+
+Looping through keys:
+
+[source,python]
+----
+for name in favorite_languages.keys():
+    print(name.title())
+
+# same as:
+
+for name in favorite_languages:
+    print(name.title())
+----
+
+Dictionary methods:
+
+* items()
+* keys()
+* values()
+
+Set construction:
+
+set(favorite_languages.values())
+
+== User input
+
+[source,python]
+----
+message = input("Tell me something, and I will repeat it back to you: ")
+print(message)
+----
+
+== while loop
+
+[source,python]
+----
+current_number = 1
+
+while current_number <= 5:
+    print(current_number)
+    current_number += 1
+----
+
+break statement:
+
+[source,python]
+----
+while True:
+    city = input(prompt)
+
+    if city == 'quit':
+        break
+    else:
+        print("I'd love to go to " + city.title() + "!")
+----
+
+You can also use `continue` statement.
+
+Removing all instances of specific value from a list:
+
+[source,python]
+----
+pets = ['dog', 'cat', 'dog', 'goldfish', 'cat', 'rabbit', 'cat']
+print(pets)
+
+while 'cat' in pets:
+    pets.remove('cat')
+
+print(pets)
+----
+
+== Functions
+
+[source,python]
+----
+def greet_user(username):
+    """Display a simple greeting."""
+    print("Hello, " + username.title() + "!")
+
+greet_user('jesse')
+----
+
+docstrings are enclosed in triple quotes
+
+=== Keyword argements
+
+[source,python]
+----
+describe_pet(animal_type='dog', pet_name='willie')
+----
+
+=== Default values
+
+[source,python]
+----
+def describe_pet(pet_name, animal_type='dog'):
+    print("My " + animal_type + "'s name is " + pet_name.title() + ".")
+
+describe_pet('harry')
+----
+
+=== Returning value and arbitrary number of arguments.
+
+[source,python]
+----
+def avg(*args):
+    return sum(args) / len(args)
+
+print(avg(1, 2, 3))
+----
+
+The arguments of `*args` argument are packed into tuple.
+
+==== Using arbitrary keyword arguments
+
+[source,python]
+----
+def build_profile(first, last, **user_info):
+    profile = {
+        'first_name': first.title(),
+        'last_name': last.title()
+    }
+
+    for key, value in user_info.items():
+        profile[key] = value
+
+    return profile
+
+
+profile = build_profile('albert', 'einstein',
+                        location='princeton',
+                        field='physics')
+----
+
+=== Modules
+
+First file: `pizza.py`
+
+[source,python]
+----
+def make_pizza(size, *toppings):
+    """Summarize the pizza we are about to make."""
+    print("\nMaking a " + str(size) +
+          "-inch pizza with the following toppings:")
+    for topping in toppings:
+        print("- " + topping)
+----
+
+Second file:
+
+[source,python]
+----
+import pizza
+
+pizza.make_pizza(16, 'pepperoni')
+pizza.make_pizza(12, 'mushrooms', 'green peppers', 'extra cheese')
+----
+
+Imported functions are available in format:
+
+****
+__module_name.function_name__()
+****
+
+Importing specific functions:
+
+****
+from _module_name_ import _function_name_
+****
+
+****
+from _module_name_ import _function_name_1_, _function_name_2_
+****
+
+Giving an alias to a function
+
+[source,python]
+----
+from pizza import make_pizza as mp
+
+mp(16, 'pepperoni')
+----
+
+Give an alias to a module
+
+[source,python]
+----
+import pizza as p
+
+p.make_pizza(16, 'pepperoni')
+----
+
+Importing all functions
+
+[source,python]
+----
+from pizza import *
+
+make_pizza(16, 'pepperoni')
+----
+
+== Classes
+
+[source,python]
+----
+class Dog():
+    """A simple attempt to model a dog."""
+
+
+    def __init__(self, name, age):
+        """Initialize named and age attributes"""
+        self.name = name
+        self.age = age
+
+
+    def sit(self):
+        """Simulate a dog sitting in response to a command."""
+        print(self.name.title() + " is now sitting.")
+
+
+    def roll_over(self):
+        """Simulate rolling over in response to a command."""
+        print(self.name.title() + " rolled over!")
+
+
+my_dog = Dog('willie', 6)
+
+my_dog.sit()
+my_dog.roll_over()
+----
+
+Creating classes in python 2:
+
+[source,python]
+----
+class Dog(object):
+    --snip--
+----
+
+=== Inheritance
+
+[source,python]
+----
+class Car():
+
+    def __init__(self, param1):
+        --snip--
+
+
+class ElectricCar(Car):
+    def __init__(self, param1):
+        super().__init__(param1)
+----
+
+In python2:
+
+[source,python]
+----
+class ElectricCar(Car):
+    def __init__(self, param1):
+        super(ElectricCar, self).__init__(param1)
+----
+
+=== Python stdlib
+
+[source,python]
+----
+from collections import OrderedDict
+----
+
+== Files
+
+Opening a file
+
+[source,python]
+----
+with open('pi_digits.txt') as file_object:
+    contents = file_object.read()
+    print(contents)
+----
+
+reading line by line:
+
+[source,python]
+----
+with open('text_files/pi_digits.txt') as file_object:
+    for line in file_object:
+        print(line.rstrip())
+----
+
+file object methods:
+
+* read()
+* readlines()
+
+=== Writing to a file
+
+[source,python]
+----
+filename = 'programming.txt'
+
+with open(filename, "w") as file_object:
+    file_object.write("I love programming.")
+----
+
+File opening modes:
+* w - replaces file contents
+* r+ - read-write
+* a - append
+* r - read (default)
+
+=== Storing data as json
+
+[source,python]
+----
+import json
+
+filename = 'numbers.json'
+numbers = [1, 2, 3]
+
+with open(filename, "w") as file_object:
+    json.dump(numbers, file_object)
+----
+
+[source,python]
+----
+import json
+
+filename = "numbers.json"
+
+with open(filename, "r") as file_object:
+    print(json.load(file_object))
+----
+
+== Exceptions
+
+[source,python]
+----
+try:
+    print(5 / 0)
+except ZeroDivisionError:
+    print('You can\'t divide by zero')
+else:
+    print('Success')
+----
+
+Failing silently
+
+[source,python]
+----
+try:
+    print(5 / 0)
+except ZeroDivisionError:
+    pass
+else:
+    print('Success')
+----
+
+== Unit tests
+
+[source,python]
+----
+import unittest
+from name_function import get_formatted_name
+
+class NamesTestCase(unittest.TestCase):
+    """Tests for 'name_function.py'."""
+
+    def test_first_last_name(self):
+        """Do names like 'Janis Joplin' work?"""
+        formatted_name = get_formatted_name('janis', 'joplin')
+        self.assertEqual(formatted_name, 'Janis Joplin')
+
+unittest.main()
+----
+
+The method name must start with `test_`
 
