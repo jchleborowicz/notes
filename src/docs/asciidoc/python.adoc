@@ -730,3 +730,494 @@ unittest.main()
 
 The method name must start with `test_`
 
+Assert methods:
+
+* assertEqual(a, b)
+* assertNotEqual(a, b)
+* assertTrue(x)
+* assertFalse(x)
+* assertIn(item, list)
+* assertNotIn(item, list)
+
+== Packages and virtual environments
+
+Location of third party packages:
+
+[source,python]
+----
+import site
+site.getsitepackages()
+----
+
+virtual environments - to create an isolated environment
+on Python projects.
+
+Installing on ubuntu:
+
+----
+$ sudo apt install python3-venv
+----
+
+Created directory structure:
+
+* bin - files that interact with virtual environment
+    ** activate
+    ** pip
+    ** python
+* include - C headers that compile the Python packages
+* lib - a copy of the Python version along with a site-packages
+    folder where each dependency is installed
+    ** python3.5
+        *** site-packages
+* pyvenv.cfg
+
+Activate virtual env:
+
+----
+$ . env/bin/activate
+----
+
+Deactivating:
+
+----
+$ deactivate
+----
+
+When python is starting up, it looks at the path of its binary.
+
+It then sets the location of `sys.prefix` and `sys.exec_prefix`
+based on this location.
+
+`sys.prefix` - used for locating the site-packages directory
+
+`sys.path` - array which contains all of the locations where
+package can reside.
+
+virtualenvwrapper::
+    * organizes virtual environments in one location
+    * provides methods to help you easily create, delete
+      and copy environments
+    * single command to switch between environments
+
+Installing virtualenvwrapper:
+
+----
+$ pip install virtualenvwrapper
+$ which virtualenvwrapper.sh
+----
+
+Modify ~/.bashrc
+
+----
+
+----
+
+== Method decorators
+
+Normal decorator:
+
+[source,python]
+----
+def get_text(name):
+    return "lorem ipsum, {0} dolor sit amet".format(name)
+
+def p_decorate(func):
+    def func_wrapper(name):
+        return "<p>{0}</p>".format(func(name))
+    return func_wrapper
+
+my_get_text = p_decorate(get_text)
+
+print(my_get_text("Michael"))
+----
+
+With python decorator:
+
+[source,python]
+----
+def p_decorate(func):
+    def func_wrapper(name):
+        return "<p>{0}</p>".format(func(name))
+    return func_wrapper
+
+@p_decorate
+def get_text(name):
+    return "lorem ipsum, {0} dolor sit amet".format(name)
+
+print(get_text("Michael"))
+----
+
+Method decorator:
+
+[source,python]
+----
+def p_decorate(func):
+    def func_wrapper(self):
+        return "<p>{0}</p>".format(func(self))
+    return func_wrapper
+
+class Person:
+    def __init__(self):
+        self.name = "John"
+        self.family = "Doe"
+
+    @p_decorate
+    def get_fullname(self):
+        return self.name + " " + self.family
+
+my_person = Person()
+
+print(my_person.get_fullname())
+----
+
+== pip
+
+Checking if pip is installed
+
+----
+$ python -m pip --version
+----
+
+Installing pip
+
+----
+$ python get-pip.py
+----
+
+=== Installing pygame on linux
+
+python 2:
+
+----
+$ sudo apt-get install python-pygame
+----
+
+python 3:
+
+
+== Flask
+
+Main dependencies:
+
+* Werkzeug - routing, debugging, Web Server Gateway Interface (WSGI)
+* Jinja2 - templates
+* Click - command-line integration
+
+Create virtual env:
+
+----
+$ python3 -m venv venv
+$ . venv/bin/activate
+$ pip install flask
+$ pip freeze
+----
+
+Simplest route:
+
+[source,python]
+----
+@app.route("/")
+def index():
+    return "<h1>Hello World!</h1>"
+----
+
+Route params:
+
+[source,python]
+----
+@app.route("/user/<name>")
+def user(name):
+    return "<h1>Hello, {}!</h1>".format(name)
+----
+
+Example parameterized route with type:
+
+`/user/<int:id>`
+
+Flask supports params of type: string, int, float and path.
+
+To run Flask dev server:
+
+----
+$ export FLASK_APP=first.py
+$ flask run
+----
+
+Enabling debug mode:
+
+----
+$ export FLASK_DEBUG=1
+----
+
+Listening on all interfaces:
+
+----
+$ flask run --host 0.0.0.0
+----
+
+Getting reguest attributes:
+
+[source,python]
+----
+from flask import request
+
+@app.route("/")
+def index():
+    user_agent = request.headers.get('User-Agent')
+----
+
+=== Contexts
+
+There are two contexts in Flask:
+
+* application context
+* request context
+
+Context global variables:
+
+* current_app
+* g - temporary storage during request handling. Reset with each
+  request
+* request
+* session
+
+Request object attributes and methods:
+
+* form - a dictionary with all the form fields
+* args - query string dictionary
+* values - dictionary - args and form
+* cookies - dictionary
+* headers - dictionary
+* files - dictionary
+* get_data() - buffered request body
+* get_json() - parsed json body
+* blueprint - Flask blueprint handling the request
+* endpoint - Flask endpoint handling the request
+* method - HTTP method
+* scheme - http or https
+* is_secure() - True if https connection
+* host - host defined in the request
+* path - the path portion of the url
+* query_string
+* full_path
+* url - complete url
+* base_url - url without query string
+* remote_addr - ip addr of the client
+* environ - raw WSGI environment dictionary for the request
+
+=== Request hooks
+
+* before_request
+* before_first_request
+* after_request - run only when no unhandled exceptions
+* teardown_request - run always
+
+=== Responses
+
+Returning status code:
+
+[source,python]
+----
+@app.route("/bad")
+def bad():
+    return "<h1>Bad request</h1>", 400
+----
+
+Response object:
+
+* status_code - numeric
+* headers - dictionary-like object
+* set_cookie()
+* delete_cookie()
+* content_length
+* content_type
+* set_data() - response body
+* get_data() - response body
+
+Redirecting:
+
+[source,python]
+----
+from flask import redirect
+
+@app.route("/red")
+def red():
+    return redirect("/user")
+----
+
+Aborting:
+
+[source,python]
+----
+from flask import abort
+
+@app.route('/user/<id>')
+def get_user(id):
+    user = load_user(id)
+    if not user:
+        abort(404)
+    return '<h1>Hello, {}</h1>'.format(user.name)
+----
+
+=== Templates
+
+[source,python]
+----
+from flask import render_template
+
+@app.route("/user/<name>")
+def user(name):
+    return render_template("user.html", name=name)
+----
+
+Filters:
+
+----
+Hello, {{ name|capitalize }}!
+----
+
+* safe - renders the value without applying escaping
+* capitalize
+* lower
+* upper
+* title
+* striptags
+
+==== Control structures
+
+If:
+
+----
+{% if user %}
+    Hello, {{ user }}!
+{% else %}
+    Hello, Stranger!
+{% endif %}
+----
+
+Loop:
+
+----
+<ul>
+    {% for comment in comments %}
+        <li>{{ comment }}</li>
+    {% endfor %}
+</ul>
+----
+
+Macros:
+
+----
+{% macro render_comment(comment) %}
+    <li>{{ comment }}</li>
+{% endmacro %}
+
+<ul>
+    {% for comment in comments %}
+        {{ render_comment(comment) }}
+    {% endfor %}
+</ul>
+----
+
+Importing macros:
+
+----
+{% import 'macros.html' as macros %}
+<ul>
+    {% for comment in comments %}
+        {{ macros.render_comment(comment) }}
+    {% endfor %}
+</ul>
+----
+
+Including other file:
+
+----
+{% include 'common.html' %}
+----
+
+===== Blocks
+
+"base.html" file:
+
+----
+<html>
+<head>
+    {% block head %}
+    <title>{% block title %}{% endblock %} - My Application</title>
+    {% endblock %}
+</head>
+<body>
+    {% block body %}
+    {% endblock %}
+</body>
+</html>
+----
+
+Extending template:
+
+----
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style>
+    </style>
+{% endblock %}
+{% block body %}
+<h1>Hello, World!</h1>
+{% endblock %}
+----
+
+=== Bootstrap integration
+
+----
+$ pip install flask-bootstrap
+----
+
+[source,python]
+----
+from flask_bootstrap import Bootstrap
+
+app = Flask(__name__)
+bootstrap = Bootstrap(app)
+----
+
+Sample bootstrap-basing template:
+
+[source,html]
+----
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Flasky{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle"
+             data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Flasky</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Hello, {{ name }}!</h1>
+    </div>
+</div>
+{% endblock %}
+----

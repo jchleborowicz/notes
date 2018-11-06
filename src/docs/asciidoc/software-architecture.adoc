@@ -11,3 +11,40 @@ https://www.safaribooksonline.com/videos/software-architecture-fundamentals/9781
 
 TODO:
 - Consumer Driven Contracts
+- GraphQL
+- togglz library
+
+Tools for software analysis:
+
+* eclipse - xray
+* jdepend
+* nDepend
+* code crawler
+
+Microservices - frontends
+* BFF - Backends for frontend
+* micro-front ends
+
+Service based architectures as comparing to microservices:
+- Larger service granularity
+- database scope
+- use of a service bus as integration hub
+
+Canary releasing
+
+Building Evolutionary Architectures - book
+
+fitness function?
+
+Evolutionary architecture:
+
+* guided
+* inctermental
+* multiple dimensions
+
+Use jdepend!!!
+
+ArchUnit
+
+Read "Move Fast and Fix Things" blog from github
+
