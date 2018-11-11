@@ -1,0 +1,33 @@
+= Regex
+:doc-root: https://notes.jdata.pl
+:toc: left
+:toclevels: 4
+:tabsize: 4
+:docinfo1:
+
+
+stackoverflow regular expressions faq:
+https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean/22944075#22944075
+
+[cols="1,10"]
+|==================================
+|\d         | digit
+|\D         | non-digit
+|.          | any character
+|\w         | alpha
+|\W         | non-alpha
+|{m}        | m repetitions
+|{m,n}      | m to n repetitions
+|*          | zero or more
+|+          | one or more
+|?          | optional character
+|\s         | any whitespace
+|\S         | any non-whitespace
+|^...$      | starts and ends
+|(..)       | capture group
+|(a(bc))    | capture sub-group
+|(.*)       | capture all
+|(abc\|def) | matches abc or def
+|\b         | boundary between word and non-word character
+|==================================
+

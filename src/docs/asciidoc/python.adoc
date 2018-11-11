@@ -7,6 +7,8 @@
 
 == Basics
 
+Python tutorial: https://docs.python.org/3/tutorial/
+
 [source,python]
 ---
 try:
@@ -658,6 +660,7 @@ with open(filename, "w") as file_object:
 ----
 
 File opening modes:
+
 * w - replaces file contents
 * r+ - read-write
 * a - append
@@ -806,12 +809,6 @@ $ pip install virtualenvwrapper
 $ which virtualenvwrapper.sh
 ----
 
-Modify ~/.bashrc
-
-----
-
-----
-
 == Method decorators
 
 Normal decorator:
@@ -883,17 +880,6 @@ Installing pip
 ----
 $ python get-pip.py
 ----
-
-=== Installing pygame on linux
-
-python 2:
-
-----
-$ sudo apt-get install python-pygame
-----
-
-python 3:
-
 
 == Flask
 
@@ -1220,4 +1206,84 @@ Sample bootstrap-basing template:
     </div>
 </div>
 {% endblock %}
+----
+
+Flask-Botstrap's base template blocks:
+
+* doc - entire document
+* html_attribs - attributes inside <html> tag
+* html - the contents of the <html> tag
+* head - the contents of the <head> tag
+* title - the contents of the <title> tag
+* metas - the list of <meta> tags
+* styles - css definitions
+* body_attribs - <body> attributes
+* body - contents of <body> tag
+* navbar - user defined navigation bar
+* content - user-defined page content
+* scripts - JavaScript declarations at the bottom
+  of the document.
+
+Custom error page
+
+[source,python]
+----
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+----
+
+=== Generating urls
+
+[source,python]
+----
+url_for('user', name='john', _external=True)
+----
+
+`_external=True` generates full url.
+
+Favicon definition:
+
+----
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon"
+    href="{{ url_for('static', filename='favicon.ico') }}"
+    type="image/x-icon">
+<link rel="icon"
+    href="{{ url_for('static', filename='favicon.ico') }}"
+    type="image/x-icon">
+{% endblock %}
+----
+
+=== moment.js
+
+Moment.js is JavaScript library that renders dates and times
+in the browser.
+
+Installing flask-moment:
+
+----
+$ pip install flask-moment
+----
+
+Including moment.js in base template:
+
+[source,jinja2]
+----
+{% block scripts %)
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock %}
+----
+
+Wokring with timestamps:
+
+[source,python]
+----
+
 ----
