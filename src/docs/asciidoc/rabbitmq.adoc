@@ -7,7 +7,117 @@
 
 == Basics
 
+RabbitMQ is a message broker: it accepts and forwards messages.
+
+=== AMQ Components
+
+Exchange::
+    the component of the message broker that routes
+    messages to queues
+
+Queue::
+    a data structure on disk or in memory that
+    stores messages
+
+Binding::
+    a rule that tels the exchange which queue the messages
+    should be stored in
+
+=== Jargon
+
+* producing a message - sending
+* producer - a message recipient
+* consumer - a message receiver
+
+
 === Exchanges
 
 The producer sends messages to an exchange.
+
+=== Client
+
+Producer
+
+[source,java]
+----
+ConnectionFactory factory = new ConnectionFactory();
+    factory.setHost("localhost");
+    try (Connection connection = factory.newConnection();
+         Channel channel = connection.createChannel()) {
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        String message = "Hello World!";
+        channel.basicPublish("", QUEUE_NAME, null, message.getBytes("UTF-8"));
+        System.out.println(" [x] Sent '" + message + "'");
+    }
+----
+
+Receiver
+
+[source,java]
+----
+ConnectionFactory factory = new ConnectionFactory();
+factory.setHost("localhost");
+Connection connection = factory.newConnection();
+Channel channel = connection.createChannel();
+
+channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+    String message = new String(delivery.getBody(), "UTF-8");
+    System.out.println(" [x] Received '" + message + "'");
+};
+channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+----
+
+=== Frames
+
+Frame components:
+
+* frame type
+* channel number
+* frame size in bytes
+* frame payload
+* end-byte marker (ASCII value 206)
+
+Frame types:
+
+* protocol header frame - used only once when connecting
+* method frame
+* content header frame - size and properties for the message
+* body frames - contain the content of messages
+* heartbeat frame
+
+When sending message:
+
+. method frame - for example _Basic.Publish_ command,
+  request argument contains:
+    * numeric representation of _Basic_ class and _Publish_ method
+    * exchange name
+    * routing key
+    * mandatory flag - message must be routed or _Basic.Return_
+      frame should be sent
+. content header frame - uses _Basic.Properties_ data structure
+. body frames
+
+=== Exchanges
+
+**Declaring the exchange**: _Exchange.Declare_ command.
+
+Responses: _Exchange.DeclareOk_ or _Channel.Close_ command.
+
+**Declaring a queue**: _Queue.Declare_ command.
+
+Responses: _Queue.DeclareOK_
+
+**Binding the queue to the exchange**: _Queue.Bind_ command.
+
+Response: _Queue.BindOk_
+
+== Todo
+
+* http://www.rabbitmq.com/confirms.html
+* http://www.rabbitmq.com/production-checklist.html
+* http://www.rabbitmq.com/monitoring.html
+* http://www.rabbitmq.com/confirms.html
 

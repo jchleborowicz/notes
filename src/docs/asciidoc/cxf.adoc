@@ -42,3 +42,20 @@ Use `wsimport` utility to generate client stubs.
 
  $ ws import -s . http://localhost:8888/ws/person?wsdl
 
+== Implementing web service
+
+Maven:
+
+[source,xml]
+<dependencies>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        <version>3.1.6</version>
+    </dependency>
+</dependencies>
+
+`cxf-rt-frontend-jaxws` jar contains
+`META-INF/services/javax.xml.ws.spi.Provider` file, which
+determine the JAX-WS implementation.
+

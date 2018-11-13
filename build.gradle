@@ -1,48 +1,70 @@
+import java.awt.Desktop
+
 buildscript {
     repositories {
         jcenter()
     }
 
     dependencies {
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.9'
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.6.0'
+        classpath 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.15'
     }
 
 }
 
+plugins {
+    id 'com.github.jruby-gradle.base' version '1.4.0'
+}
 apply plugin: 'org.asciidoctor.convert'
+
+repositories {
+    maven { url "http://rubygems-proxy.torquebox.org/releases" }
+}
 
 description = 'Learning notes'
 version = '0.0.1'
 
 //loading custom properties
 final String customPropertiesFileName = 'custom.gradle.properties'
-if(new File(customPropertiesFileName).exists()){
+if (new File(customPropertiesFileName).exists()) {
     apply from: customPropertiesFileName
 }
 
+dependencies {
+    gems 'rubygems:asciidoctor-diagram:1.5.4'
+}
+
 asciidoctor {
+    dependsOn jrubyPrepare
+    requires = ['asciidoctor-diagram']
+    gemPath = jrubyPrepare.outputDir
+
     sources {
         include '*.adoc'
     }
+
     resources {
         from(sourceDir) {
-            include 'images/*', 'stylesheets/*', 'tocbot-3.0.2/*'
+            include 'images/**/*', 'stylesheets/*', 'tocbot-3.0.2/*'
         }
     }
+
     logDocuments = true
-    backends = ["html5"]
+    backends = ["html5", "pdf"]
 
     options doctype: 'book', eruby: 'erubis'
-    attributes  'icons': 'font',
-            'idprefix': '',
-            'idseparator': '-',
-            docinfo: '',
-            sectanchors: '',
-            sectnums: '',
+    attributes = [
+            'icons'             : 'font',
+            'idprefix'          : '',
+            'idseparator'       : '-',
+            docinfo             : '',
+            sectanchors         : '',
+            sectnums            : '',
             'source-highlighter': 'coderay@', // TODO switch to 'rouge' once supported by the html5 backend
-            stylesdir: 'stylesheets/',
-            stylesheet: 'main.css',
-            'spring-version': project.version
+            stylesdir           : 'stylesheets/',
+            stylesheet          : 'main.css',
+            'spring-version'    : project.version
+    ]
 }
 
 build.dependsOn asciidoctor
@@ -63,8 +85,12 @@ task upload() {
     }
 }
 
-def browse(File file) {
-    java.awt.Desktop.desktop.browse file.toURI()
+static def openFile(File file) {
+    Desktop.desktop.browse file.toURI()
+}
+
+static def openUrl(String file) {
+    Desktop.desktop.browse file.toURI()
 }
 
 task openLocal() {
@@ -74,7 +100,7 @@ task openLocal() {
     dependsOn asciidoctor
 
     doLast {
-        browse(new File("$buildDir/asciidoc/html5/index.html"))
+        openFile(new File("$buildDir/asciidoc/html5/index.html"))
     }
 }
 
@@ -83,6 +109,6 @@ task openRemote() {
     description 'Opens remote (uploaded) html index page.'
 
     doLast {
-        browse(notesUrl)
+        openUrl(notesUrl)
     }
 }

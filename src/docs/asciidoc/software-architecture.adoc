@@ -48,3 +48,337 @@ ArchUnit
 
 Read "Move Fast and Fix Things" blog from github
 
+== Presentation "Architecture by Example"
+
+by Neal Ford and Mark Richards
+
+2018-11-14
+
+Everything is a trade off.
+
+Architecture characteristics:
+
+* reliability
+* scalability
+* performance
+* availability
+
+* feasibility
+* agility
+* elasticity
+* scalability
+
+Auction house example:
+
+Core aspects:
+
+* availability
+* reliability
+* performance
+* scalability
+* elasticity
+
+Architecture mostly adresses non-functional requirements.
+
+
+Sandwich service:
+
+* performance
+* availability
+* reliability
+* scalability
+* elasticity
+* i18n
+* l10n
+* customizability:
+    ** location
+    ** sales
+    ** recipe
+
+zero downtime - catch phrase
+
+Primary vs secondary architectural characteristics
+
+Building evolutionary architectures
+
+* evolvability - when system changes over time, the performance
+  do not degrade
+* governance -
+
+Evolutionary architecture - supports guided,
+incremental change across multiple dimensions.
+
+evolutionary computing fitness function::
+  a particular type of objective punction that is used to summarize how close
+
+
+architectural fitness function::
+    provides
+
+incremental changes
+
+cyclomatic complexity
+naming conventinos
+Postel's Law
+conctrolled afferent/efferent coupling
+
+crap4j - java library measuring cyclomatic complexity
+
+ArchUnit - https://www.archunit.org
+
+Components
+
+Compontent::
+    building block of the application well defined
+    set of operations well defined role and responsibility
+
+Steps:
+
+. identify initial core components
+. repeat:
+    .. assign user stories to components
+    .. analyze roles and responsibility statements
+    .. analyze non-functional aspects
+    .. refactor components as needed
+
+place orders
+fullfil orders
+ship orders
+
+user story: check inventory
+
+Components:
+
+* order placement
+* order fullfilment
+* order shipping
+
+Worflow approach:
+
+create auction -> find auction -> sign up -> watch auction ->
+place bid
+
+Actor/action approach:
+
+We take actors (bidder, auctioneer, system).
+
+What does the bidder do? view live video stream,
+
+=== Architectural patterns and styles
+
+architectural quantum::
+    an architectual quantum is an independently
+    deployable component with high
+    functional cohesion, which includes all the
+    structural elements required for the system to function
+    properly.
+
+architecture patterns:
+
+* microservices architecture
+* service-based architecture
+* layered architecture
+* event-driven architecture
+* pipeline architecture
+* microkernel architecture
+* space-based architecture
+
+==== Microservices architecture
+
+clients, api layer, service components
+
+no choreography
+
+single service captures a bounded context
+
+User interface options:
+
+* monolithic UI
+* partitioned UI
+* micro front-ends
+
+Drivers for microservices:
+
+* modularity
+* agility
+* fault-tolerance
+* scalability
+* testability
+* deployability
+* evolvability
+
+Side-car component:
+
+==== Service based architecture
+
+Pragmatic nature
+
+Looks a little like microservices.
+
+Client requests go into user interface layer.
+
+Several service components.
+
+Components share database.
+
+Drivers:
+
+* modularity
+* agility
+* fault-tolerance
+* scalability
+* testability
+* deployability
+* simplicity / cost
+* evolvability
+
+==== Monolith
+
+Layered architecture:
+
+* presentation layer
+* business layer
+* services layer
+* persistence layer
+* database rayel.
+
+Drivers:
+
+* simplicity
+* cost
+
+Two flawors of monoliths:
+
+* layered architecture - technical partitioning
+* modular monolith - domain partitioning
+
+==== Event-driven architecture
+
+. Broker topology
+
+. Mediator topology
+
+==== Pipeline architecture
+
+==== Microkernel architecture
+
+==== Space-based architecturce
+
+Solves elasticity and extreme scalability.
+
+* processing units
+    ** contain cached memory
+* virtualized middleware
+
+hazelcast
+infinispan
+datastax cassandra
+
+Diagraming:
+
+C4 model:
+
+* context diagram
+* container diagram
+* component diagram
+* class diagram
+
+
+
+
+Todo:
+
+* https://samnewman.io/patterns/architectural/bff/
+* load balancing with nginx and haproxy
+* https://www.developertoarchitect.com/lessons/lesson1.html
+* Sagas: https://microservices.io/patterns/data/saga.html
+* look up "domain isomorphism" +
+http://c4model.com/ +
+**Structurizr for java**
+* Simon Brown - Diagraming architecture for developers
+
+http://www.opengroup.org/archimate-forum/archimate-overview
+
+http://pubs.opengroup.org/architecture/archimate3-doc/toc.html
+
+http://nealford.com/katas
+
+ATAM, CBAM
+
+
+=== Architecture Decision Records
+
+Title::
+    short noun phrase
+
+Context::
+    forces at play
+
+Decision:
+    response to forces
+
+Status::
+    proposed, accepted, superseded
+
+Consequences::
+    context after decision is applied
+
+
+Factors:
+
+* cost?
+* impacts other teams?
+* impacts security?
+
+== Messaging
+
+=== Request/reply messaging
+
+* request queue
+* reply queue
+
+Request/reply pattern techniques:
+
+. using correlation id: correlation id
+  is used to identify responses.
+. using temporary queues: the message contains temporary
+  queue name
+
+=== Kafka vs standard messaging
+
+Standard messaging: ActiveMQ, RabbitMQ
+
+[options="header",cols=",a,a"]
+|===========
+|           |Kafka                  | Standard messaging
+|payload
+|very small key-value pairs of atomic values
+|very large payloads
+
+|data flow
+|unbounded continous flow of data
+|distinct bounded message
+
+|throughput
+|up to 1 million messages/sec
+|up to 4k/10k messages/sec
+
+|purpose
+|operational data (metrics, audit, logging)
+|transactional data (for example: placing an order)
+
+|topology
+|only pub/sub
+|
+three options:
+
+* point-to-point (queues)
+* pub/sub
+* exchange (AMQP)
+
+|===========
+
+Payloads: typically key-value pairs of atomic string.
+
+
+

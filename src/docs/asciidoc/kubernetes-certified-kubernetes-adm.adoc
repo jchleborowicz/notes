@@ -1,0 +1,339 @@
+== Certified Kubernetes Administrator course
+
+Course by Linux Academy.
+
+=== Installing Kubernetes cluster
+
+Add the Docker Repository on all three servers.
+
+[source,bash]
+----
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+----
+
+Add the Kubernetes repository on all three servers.
+
+[source,bash]
+----
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+----
+
+Install Docker, Kubeadm, Kubelet, and Kubectl on all three servers.
+
+[source,bash]
+----
+sudo apt-get update
+sudo apt-get install -y docker-ce=18.06.1~ce~3-0~ubuntu kubelet=1.12.2-00 kubeadm=1.12.2-00 kubectl=1.12.2-00
+sudo apt-mark hold docker-ce kubelet kubeadm kubectl
+----
+
+Enable net.bridge.bridge-nf-call-iptables on all three nodes.
+
+[source,bash]
+----
+echo "net.bridge.bridge-nf-call-iptables=1" | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+----
+
+On only the Kube Master server, initialize the cluster and configure kubectl.
+
+[source,bash]
+----
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+----
+
+Install the flannel networking plugin in the cluster
+by running this command on the Kube Master server.
+
+[source,bash]
+----
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
+----
+
+The kubeadm init command that you ran on the master
+should output a kubeadm join command containing a token and hash.
+
+You will need to copy that command from the master
+and run it on both worker nodes with sudo.
+
+[source,bash]
+----
+sudo kubeadm join $controller_private_ip:6443 --token $token --discovery-token-ca-cert-hash $hash
+----
+
+Now you are ready to verify that the cluster is up and running.
+
+On the Kube Master server, check the list of nodes.
+
+[source,bash]
+----
+kubectl get nodes
+----
+
+=== Lab: manually deploying the cluster
+
+[source,bash]
+----
+$ sudo apt update
+$ sudo apt upgrade
+
+$ sudo docker pull k8s.gcr.io/kube-scheduler-amd64:v1.10.1
+$ sudo docker pull k8s.gcr.io/etcd-amd64:3.1.12
+$ sudo docker pull k8s.gcr.io/kube-apiserver-amd64:v1.10.1
+$ sudo docker pull k8s.gcr.io/kube-controller-manager-amd64:v1.10.1
+
+$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+----
+
+=== Architecture
+
+Node types:
+
+* master node
+    ** kube-apiserver - based on etcd
+    ** kube-scheduler
+    ** cloud-controller manager - for the cloud
+    ** kube-controller manager
+* worker node (minions)
+    ** kubelet
+    ** kube proxy
+    ** pod
+        *** contains container
+        *** is replacable
+
+==== Setting up Kubernentes on CentOS
+
+[source,bash]
+----
+sudo swapoff -a
+sudo vi /etc/fstab
+----
+
+Look for the line in /etc/fstab that says /root/swap
+and add a # at the start of that line,
+so it looks like: `#/root/swap`.
+
+Install and configure Docker:
+
+[source,bash]
+----
+sudo yum -y install docker
+sudo systemctl enable docker
+sudo systemctl start docker
+----
+
+Add the Kubernetes repo:
+
+[source,bash]
+----
+cat << EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+----
+
+Turn off selinux.
+
+[source,bash]
+----
+sudo setenforce 0
+sudo vi /etc/selinux/config
+----
+
+Change the line that says SELINUX=enforcing to SELINUX=permissive and save the file.
+
+Install Kubernetes Components:
+
+[source,bash]
+----
+sudo yum install -y kubelet kubeadm kubectl
+sudo systemctl enable kubelet
+sudo systemctl start kubelet
+----
+
+Configure sysctl:
+
+[source,bash]
+----
+cat << EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+
+sudo sysctl --system
+----
+
+Initialize the Kube Master. Do this only on the master node.
+
+[source,bash]
+----
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+----
+
+Install flannel networking:
+
+[source,bash]
+----
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
+----
+
+The kubeadm init command that you ran on the master
+should output a kubeadm join command containing a token
+and hash. You will need to copy that command from the master
+and run it on all worker nodes with sudo.
+
+[source,bash]
+----
+sudo kubeadm join $controller_private_ip:6443 --token $token --discovery-token-ca-cert-hash $hash
+----
+
+Now you are ready to verify that the cluster is up and running:
+
+[source,bash]
+----
+kubectl get nodes
+----
+
+=== API primitives and cluster architecture
+
+API primitives:
+
+* persistent entities in the Kubernetes System
+* represent the state of the cluster:
+    ** apps running
+    ** nodes
+    ** policies for apps
+
+Object Spec - describes desired state of objects
+
+Object Status - describes the actual state of the object.
+
+Kubernetes YAML:
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+    name: busybox
+spec:
+    containers:
+        - name: busybox
+          image: busybox
+          command:
+            - sleep
+            - "3600"
+----
+
+Common Kubernentes objects:
+
+* nodes
+* pods
+* deployments
+* services
+* config maps
+
+Names:
+
+* all objects have a unique name
+* client provided
+* can be reused
+* maximum length of 253 chars
+* lowercase alphanum chars, - .
+
+UIDs
+
+* all objects have a unique UID
+* generated by Kubernetes
+* spatially and temporally unique
+
+Namespaces:
+
+* virtual clusters
+* scope for names
+* easy way to divide cluster resources
+* allows for resource quotas
+* special "kube-system" namespace
+    ** used to differentiate system pods from user pods
+
+Nodes:
+
+* might be a VM or a physical machine
+* services necessary to run pods
+* managed by the master
+* services necessary:
+    ** container runtime
+    ** kubelet
+    ** kube-proxy
+* not inherently created by Kubernetes, but by the Cloud Provider
+* Kubernetes checks for node validity
+
+Cloud Controller Managers
+
+* route controller (gce clusters only)
+* service controller
+* PersistentVolumeLabels controller
+
+Node Controller
+
+* assigns CIDR block to a newly registered node
+* keeps track of the nodes
+* monitors the node health
+* evicts pods from unhealthy nodes
+* can taint nodes based on current conditions in more recent
+  versions
+
+Kubernetes Services:
+
+* deployment specifications
+* image
+* number of replicas
+
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: nginx
+    labels:
+        app: nginx
+spec:
+    replicas: 3
+    sector:
+        matchLabels:
+            app: nginx
+----
+
+* containers are run in pods
+* pods are managed by deployments
+* services expose deployments
+* third parties handle load balancing or port forwarding to
+  those services, though Ingress objects (along with an
+  appropriate ingress controller) are needed to do that work
+
+kubectl operations:
+
+[source,bash]
+----
+kubectl create -f pi-job.yml
+kubectl describe job pi
+kubectl logs pi-8dd20
+----
+

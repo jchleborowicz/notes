@@ -1,0 +1,15 @@
+= JHipster
+:doc-root: https://notes.jdata.pl
+:toc: left
+:toclevels: 4
+:tabsize: 4
+:docinfo1:
+
+
+== Intro
+
+At its core, JHipster is a Yeoman generator.
+
+Yeoman is a code generator.
+
+Yarn - a package manager for the code.
