@@ -31,3 +31,51 @@ https://stackoverflow.com/questions/22937618/reference-what-does-this-regex-mean
 |\b         | boundary between word and non-word character
 |==================================
 
+Back referencing:
+
+* \0 - full matched text
+* \1 - first group
+* \2 - second group
+* etc.
+
+Literal matching:
+
+`\Q...\S` - everything between \Q and \S is matched literally.
+
+== Line breaks
+
+`\R` - matches CR, LF and CRLF
+
+== Regex engines
+
+Kinds:
+
+* text-directed
+* regex-directed - based on backtracing:
+    ** lazy qualifiers
+    ** backreferences
+    ** atomic grouping
+    ** possessive qualifiers
+
+== Character classes
+
+`[A-Za-z_0-9]`
+
+`[^A-Za-z_0-9]` - matches line break characters
+
+Metacharacters inside a character class: `]`, `\`, `^`, `-`
+
+=== Character class intersection
+
+`[a-z&&[^aeiou]]` - any letter that is not a vowel
+
+=== Shorthand character classes
+
+`\d` - digits
+`\w` - matches `[A-Za-z0-9_]`
+`\s` - matches `[ \t\r\n\f]`
+
+== Anchors
+
+`^` - beginning of the line
+`$` - end of the line

@@ -44,6 +44,8 @@ link:python.html[Python]
 
 link:prototype-js.html[prototype.js]
 
+link:rabbitmq.html[RabbitMQ]
+
 link:regex.html[regex]
 
 link:tc-server.html[tc-server]

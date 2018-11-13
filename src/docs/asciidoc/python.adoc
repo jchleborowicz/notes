@@ -1285,5 +1285,30 @@ Wokring with timestamps:
 
 [source,python]
 ----
+from datetime import datetime
+from flask_moment import Moment
+
+moment = Moment(app)
+@app.route('/')
+def hello_world():
+    return render_template('index.html',
+                           current_time=datetime.now())
+----
+
+Template:
+
+[source,html]
+----
+<p>The local date and time is {{  moment(current_time).format('LLL') }}.</p>
+<p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>
+<a href="{{ url_for('user', name='jacek') }}">User</a>
+----
+
+=== WTForms
+
+Installing:
 
 ----
+$ pip install flask-wtf
+----
+

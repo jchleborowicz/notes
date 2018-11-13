@@ -1,0 +1,13 @@
+= RabbitMQ
+:doc-root: https://notes.jdata.pl
+:toc: left
+:toclevels: 4
+:tabsize: 4
+:docinfo1:
+
+== Basics
+
+=== Exchanges
+
+The producer sends messages to an exchange.
+
