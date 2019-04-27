@@ -46,6 +46,8 @@ link:python.html[Python]
 
 link:prototype-js.html[prototype.js]
 
+link:rxjs.html[RxJS]
+
 link:rabbitmq.html[RabbitMQ]
 
 link:regex.html[regex]

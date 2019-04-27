@@ -1244,7 +1244,7 @@ export class RecipesRoutingModule {
 
 ----
 
-=== Lazy loding
+=== Lazy loading
 
 Use "loadChildren" attribute:
 
@@ -1309,3 +1309,39 @@ Use `preloadingStrategy`.
 export class AppRoutingModule {
 }
 ----
+
+== RxJS
+
+Redux:
+* application state
+* actions
+* reducers
+* services
+* components
+
+[source]
+----
+$ npm install --save @ngrx/store
+
+    StoreModule.forRoot(reducers),
+
+$ npm install --save @ngrx/effects
+
+    EffectsModule.forRoot([AuthEffects]),
+
+$ npm install --save @ngrx/router-store
+
+    StoreRouterConnectingModule
+
+$ npm install --save @ngrx/store-devtools
+----
+
+== Angular material
+
+CDK - Component Development Kit
+
+----
+$ ng generate @angular/material:material-table --name=data-table
+----
+
+Tutorial: https://appdividend.com/2018/09/07/angular-material-example-tutorial-from-scratch/

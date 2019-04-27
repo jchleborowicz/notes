@@ -1,0 +1,48 @@
+= RxJS
+
+Promise - can track one thing
+
+Observable - can handle an arbitrary number of events.
+
+An observer is any object that has the following methods:
+
+* next
+* error
+* complete
+
+[source,typescript]
+----
+import {fromEvent, interval} from 'rxjs';
+import {map, takeUntil} from "rxjs/operators";
+
+let startButton = document.querySelector('#start-button');
+let stopButton = document.querySelector('#stop-button');
+let resultsArea = document.querySelector<HTMLElement>('.output');
+
+let tenthSecond$ = interval(100);
+let startClick$ = fromEvent(startButton, 'click');
+let stopClick$ = fromEvent(stopButton, 'click');
+
+startClick$.subscribe(() => {
+    tenthSecond$.pipe(
+        map(item => item / 10),
+        takeUntil(stopClick$)
+    )
+        .subscribe((num => resultsArea.innerText = num + 's'));
+});
+----
+
+----
+of('hello', 'world', '!')
+    .subscribe(console.log);
+----
+
+----
+Promise.all([
+​   fetch(​'/endpoint/productA'​),
+​   fetch(​'/endpoint/productB'​),
+​   fetch(​'/endpoint/productC'​)
+​ ])
+​ .then(arrayOfProducts => displayProducts(arrayOfProducts));
+----
+
