@@ -59,3 +59,81 @@ Maven:
 `META-INF/services/javax.xml.ws.spi.Provider` file, which
 determine the JAX-WS implementation.
 
+== Web service security
+
+Tutorial: https://sites.google.com/site/ddmwsst/
+
+=== Concepts
+
+Data privacy:
+
+* encryption / decryption
+* translate - to change crypto keys
+
+Data integrity, authenticity and non-repudation:
+
+* Hash (Message Digest)
+* MAC (Message Authentication Code)
+* HMAC (Hash MAC)
+
+Key management and distribution: storage, retrieval and key form
+conversions:
+
+* import operation
+* export operation
+
+==== Cryptography providers
+
+JCA - Java Cryptography Architecture
+JCE - Java Cryptography Extension
+
+Installing a provider:
+
+* dynamically at runtime
+* configure JRE to preload the provider
+* SunJCE is the default provider that is shipped with JRE
+* Bouncy Castle - well known provider
+
+Installing by configuring the JRE:
+
+. put jar files in jre/lib/ext directory
+. update jre/lib/security/java.security file:
++
+[source]
+----
+
+# List of providers and their preference orders (see above):
+#
+security.provider.1=sun.security.provider.Sun
+security.provider.2=com.sun.net.ssl.internal.ssl.Provider
+security.provider.3=com.sun.rsajca.Provider
+security.provider.4=com.sun.crypto.provider.SunJCE
+----
++
+. ueoht
+
+Installing at runtime:
+
+[source,java]
+----
+import java.security.Security;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+...
+
+Security.addProvider(new BouncyCastleProvider());
+----
+
+=== Certificates
+
+Certificate purposes:
+
+* Encryption - contains keys for encryption and decryption
+* Signature - contains keys fro signing data only
+* Signature and encryption
+* Signature and smpartcard logon - allows for initial logon with
+  a smartcard and digitally signing data, it cannot be used
+  for data encryption
+
+CA - Certificate Authority
+
