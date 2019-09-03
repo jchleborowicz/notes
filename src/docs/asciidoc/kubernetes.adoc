@@ -783,3 +783,138 @@ spec:
  $ kubectl create -f ...
 
  $ kubectl set image deployment.v1.apps/example-deployment nginx=derealmc/nginx-k8s:v2
+
+=== Pod od Minerva tutorial
+
+https://interactive.linuxacademy.com/diagrams/ThePodofMinerva.html
+
+==== Core concepts
+
+. Control plane
+  .. API Server
+  .. Scheduler
+  .. Controller manager
+  .. etcd
+. Worker
+  .. kubelet
+  .. kube-proxy
+  .. container runtime
+
+ $ kubectl get nodes
+ $ kubectl get pods --all-namespaces
+ $ kubectl get pods --all-namespaces -o wide
+ $ kubectl get namespaces
+
+.Deployment:
+
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+----
+
+ $ kubectl get componentstatus
+ $ kubectl create -f <file.yaml>
+ $ kubectl get deployment <deployment-name> -o yaml
+ $ kubectl get pods --show-labels
+ $ kubectl label pods <pod-id> <label-name>=<label-val>
+
+Show pods with given label:
+
+ $ kubectl get pods -L <label-name>
+
+Annotations - don't hold any identifying information
+
+ $ kubectl annotate deployment <deployment-name> <annot-name>=<annot-value>
+
+Field selectors:
+
+  $ kubectl get pods --field-selector status.phase=Running
+  $ kubectl get services --field-selector metadata.namespace=default
+
+Service yaml:
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nodeport
+spec:
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30080
+  selector:
+    app: nginx
+----
+
+To create busybox pod to run commands from:
+
+[source,bash]
+----
+$ cat << EOF | kubectl create -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox
+spec:
+  containers:
+  - name: busybox
+    image: radial/busyboxplus:curl
+    args:
+    - sleep
+    - "1000"
+EOF
+----
+
+Kubernetes specs:
+
+ $ kubectl get pods -o wide
+ $ kubectl delete pod <pod-name>
+ $ kubectl get services
+ $ kubectl get services <service-name>
+
+Kube proxy handles all the traffic associated with the service.
+
+Service is being assigned a virtual IP address.
+
+Add additional pod:
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox
+spec:
+  containers:
+  - name: busybox
+    image: radial/busyboxplus:curl
+    args:
+    - sleep
+    - "1000"
+----
+
+ $ kubectl get services
+ $ kubectl exec busybox -- curl <service-ip>:80
+

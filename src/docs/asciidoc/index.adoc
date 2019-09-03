@@ -20,6 +20,8 @@ link:angular.html[Angular]
 
 link:ansible.html[Ansible]
 
+link:devops.html[DevOps]
+
 link:docker.html[Docker]
 
 link:cxf.html[CXF]
