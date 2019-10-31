@@ -918,3 +918,28 @@ spec:
  $ kubectl get services
  $ kubectl exec busybox -- curl <service-ip>:80
 
+==== Install, config and validate
+
+Commands:
+
+ $ kubectl cluster-info
+ $ kubectl config view
+ $ kubectl describe nodes
+ $ kubectl describe pods
+ $ kubectl get services --all-namespaces
+ $ kubectl api-resources -o wide
+
+Picking the right solution:
+
+* custom:
+  ** install manually
+  ** configure your own network fabric
+  ** locate the release binaries
+  ** build your own images
+  ** secure cluster communication
+* prebuilt
+  ** minikube
+  ** minishift
+  ** MicroK8s
+  ** Ubuntu and LXD
+  ** AWS, Azure and Google Cloud
