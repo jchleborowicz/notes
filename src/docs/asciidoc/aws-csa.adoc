@@ -1,0 +1,868 @@
+= AWS Certified Solutions Architect - Associate
+
+https://interactive.linuxacademy.com/diagrams/AWSCSA.html
+
+== Architecture 101
+
+=== Registering
+
+Root user
+
+MFA - Multi-Factor Authentication
+Can use Authy or Google Authenticator
+
+Account types:
+
+* professional
+* personal
+
+Support plans:
+
+* free
+* developer
+  ** for early adoption, testing and development
+  ** email access to AWS Support during business hours
+  ** 1 primary contact can open an unlimited number of support cases
+  ** 12-hour response time for nonproduction systems
+* business
+  ** for production workloads and business-critical dependencies
+  ** 24/7 chat, phone, and email access to AWS Support
+  ** unlimited contacts can open an unlimited number of
+     support cases
+  ** 1-hour response time for production systems
+
+Creating a billing alarm in - cloudwatch
+
+
+== Access Management Basics
+
+* Principal - a person or application that can make an authenticated
+  or anonymous request to perform an action on system.
+* Authentication - the process of authenticating a principal against
+  an identity. This could be via username and password or API keys.
+* Identity - objects that require authentication and are authorized
+  to access resources
+* Authorization - the process of checking and allowing or denying
+  access to a resource for an identity
+
+=== Shared Responsibility Model
+
+Responsibilities:
+
+* AWS - security *OF* the cloud
+* You - security *IN* the cloud
+  ** Encryption at rest and in transit
+  ** Network protection
+  ** OS, Network and firewall config
+  ** Platform, Application, IAM
+  ** Customer Data
+
+=== Service models
+
+* IaaS - EC2
+* PaaS - only Application and Data layer
+* Saas - Netflix, Gmail
+
+System stack:
+
+* Data Center
+* Network and storage
+* Host/Servers
+* Virtualization
+* Operating System
+* Runtime
+* Application
+* Data
+
+=== High Availability and Fault Tolerance
+
+High Availability::
+  hardware, software, and configuration allowing a system to
+  *recover quickly* from failure
+
+Fault Tolerance::
+  System designed to *operate through a failure* with
+  *no user impact*. More expensive and complex to achieve.
+
+=== Disaster Recovery
+
+Recovery Point Objective (RPO)::
+  How much a business can tolerate to lose, experssed in *time*.
+  The maximum time between a failure and the last successful backup.
+
+Recovery Time Objective (RTO)::
+  The maximum amount of time a system can be *down*.
+  How long a solution takes to *recover*.
+
+=== Scaling
+
+*Vertical scaling* is achieved by adding additional resources
+in the form of CPU or memory to an existing machine.
+By doing so, the machine is able to service additional customers
+or perform compute tasks quicker. Eventually, **maximum
+machine sizes** will constrain your ability to scale - either
+**technically** or from a **cost** perspective.
+
+**Horizontal scaling** is achieved by adding additional machines
+into a pool of resources, each of which provide the same service.
+Horizontal scaling suffers none of the size limitations of
+vertical scaling and can scale to nearly infinite levels but requires
+application support to scale effectively.
+
+=== Tiered application
+
+* presentation tier
+* logic tier
+* data tier
+
+=== Encryption
+
+Types:
+
+* symmetrical
+* asymmetrical
+
+----
+echo "Cats are Amazing" > hiddenmessage.txt
+gpg -c hiddenmessage.txt
+cat hiddenmessage.txt.gpg
+
+# this clears the cached password
+echo RELOADAGENT | gpg-connect-agent
+
+gpg -o output.txt hiddenmessage.txt.gpg
+
+rm hiddenmessage.txt.gpg
+rm output.txt
+
+gpg --gen-key
+
+gpg --armor --output pubkey.txt --export 'Adrian'
+gpg --armor --output privkey.asc --export-secret-keys 'Adrian'
+
+gpg --encrypt --recipient 'Adrian' hiddenmessage.txt
+gpg --output decrypted.txt --decrypt hiddenmessage.txt.gpg
+----
+
+=== Architecture odds and ends
+
+**Cost efficient** or **cost effective**: Implementing a solution within
+AWS using products or product features that provide the required service
+for as little initial and ongoing cost as possible.
+Using your funds effectively and knowing if product X is better or worse
+than product Y for a given solution.
+
+**Secure**: In a systems architecture context, implementing a given
+solution that secures data and operations as much as possible from
+an internal or external attack.
+
+**Application session state**: data that represents what a custome is
+doing, what they have chosen, or what they have configured.
+Examples include items and quantities in a shopping cart, notes on
+an X-ray, and 3D position of a real-time heart scan. Session
+state can be stored on a server (**stateful** server) or externally
+to a server (**stateless** server).
+
+**Undifferentiated heavy lifting**: A part of an application, system,
+or platform that is not specific to your business. Allowing a vendor
+(AWS) to handle this part frees your staff to work on adding direct value
+to your customers.
+
+== AWS Architecture 101
+
+=== Accounts
+
+AWS account has single root user.
+
+Isolated blast radius.
+
+Multi-account strategies.
+
+By default only root user has rights to access
+resources in the account.
+
+Accounts can be linked and configured to allow
+**consolidated billing** where a **master** account is charged for all
+**member** account resource usage.
+
+=== AWS Physical and Networking Layer
+
+AWS Region
+* data stored in specific country.
+
+us-east-1 - US East (N. Virginia)
+us-east-2
+
+Most product operate in a region-isolated way.
+
+Region contain availability zones (AZs), which are separated and
+isolated networks. A failure in one AZ generaly **won't impact
+another**.
+
+AZs in the same region are connected with **redundant**, **high-speed**,
+**low-latency** network connections.
+
+Most AWS services run within AZs. Some services operate from one AZ,
+while other s replicated between AZs. Some services allow you to chose
+the AZ to use, and some don't.
+
+**Edge locations** are small pockets of AWS compute, storage,
+and network close to major populations and are generally used
+for **edge computing** and **content delivery**.
+
+
+=== AWS Well-Architected Framework
+
+AWS Well-Architected Framework is a set of documents.
+
+Pillars:
+
+* Security
+    ** Implement a strong identity foundation.
+    ** Enable traceability.
+    ** Apply security at all layers.
+    ** Automate security best practices.
+    ** Protect data in transit and at rest.
+    ** Prepare for security events.
+* Reliability
+    ** Test recovery procedures.
+    ** Automatically recover from failure.
+    ** Scale horizontally to increase aggregate system availability.
+    ** Stop guessing capacity.
+    ** Manage change in automation.
+* Performance Efficiency
+    ** Democratize advanced technologies.
+    ** Go global in minutes.
+    ** Use serverless architectures.
+    ** Experiment more often.
+    ** Mechanical sympathy.
+* Operational Excellence
+    ** Perform operations as code.
+    ** Annotate documentation.
+    ** Make frequent, small, reversible changes.
+    ** Refine operations procedures frequently.
+    ** Anticipate failure.
+    ** Learn form all operational failures.
+* Cost Optimization
+    ** Adopt a consumption model.
+    ** Measure overall efficiency.
+    ** Stop spending money on data center operations.
+    ** Analyze and attribute expenditure.
+    ** Use managed services to reduce cost of ownership.
+
+
+== AWS Product Fundamentals
+
+=== S3
+
+S3 is a global service.
+
+* Bucket name has to be unique globally across
+  all regions and all accounts.
+* Files are replicated across availability zones
+  in the region.
+* buckets have flat structure.
+* object names are unique within a bucket
+* file size up to 5TB
+* By default, there's a limit of 100 buckets
+
+=== CloudFormation
+
+Formats: JSON, YAML
+
+. Template - contains **logical** resources and configuration.
+. Stack - created and modified basing on templates.
+. Physical resources - stacks take **logical resources** from
+  template and create, update, or delete the **physical resource**
+  in AWS.
+
+Template sections:
+
+* AWSTemplateFormatVersion
+* Description
+* Metadata
+* Parameters
+* Mappings
+* Conditions
+* Transform
+* Resources
+* Outputs
+
+Example:
+
+[source]
+----
+{
+  "Resources": {
+     "catpics" : {
+        "Type": "AWS::S3::Bucket"
+     }
+  }
+}
+----
+
+Key points:
+
+* CFN template is written in JSON or JAML
+* a template can create up to 200 resources
+* if a stack is deleted, then by default, any resources
+  it has created are also deleted.
+* a stack can be updated by uploading new version of a template.
+* new logical resources cause new physical resources.
+* removed logical resources cause the stack to delete the
+  physical resources
+* changed logical resources update with some disruption or replace
+  physical resources.
+
+== IAM (Identity and Access Control)
+
+ARN - Amazon Resource Name
+
+ARN always begin with:
+
+ arn:partition:service:region:account-id:
+
+* partition - *aws* or *aws-cn* (for China)
+* service - the AWS service: *s3*, *ec2*, *rds*, *dynamobd*
+* region - region-code: *us-east-1*, *ap-southeast-2*
+
+Example arns:
+
+ arn:aws:iam::123456789012:user/roffle
+ arn:aws:s3:::myamazingcatpics/truffs.jpeg
+ arn:aws:dynamodb:us-east-1:123456789012:table/ratemycats
+
+Credentials:
+
+* username and password
+* access keys
+* short term credentials - used by roles
+
+By defalut IAM identity has no permissions.
+
+=== IAM policies
+
+Types:
+
+* identity policy
+* resource policy
+
+Policy has no effect until it is  attached to something.
+
+Policy document is a list of *statements*:
+
+[source]
+----
+{
+  "Version": "2019-10-17",
+  "Statement": [
+    {
+      "Sid": "SpecificTable",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:BatchGet",
+        "dynamodb:DescribeStream",
+        "dynamodb:DescribeTable",
+        "dynamodb:Get*",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:BatchWrite*",
+        "dynamodb:CreateTable",
+        "dynamodb:Delete*",
+        "dynamodb:Update*",
+        "dynamodb:PutItem"
+      ],
+      "Resource": "arn:aws:dynamodb:*:*:table/CatPics"
+    }
+  ]
+}
+----
+
+When there is no explicit permision, than there's implicit default deny.
+
+Explicit deny -> Explicit allow -> Implicit deny
+
+Exam hints:
+
+* hard limit of 5k IAM users per account.
+* 10 group memberships per IAM user
+* default maximum of 10 managed policies per user
+* no inline limit, but you cannot exceed 2048 characters for all
+  inline policies on an IAM user.
+* 1 MFA per user
+* 2 access keys per user
+
+=== Groups
+
+* Groups are admin feature to group IAM users.
+* Groups can contain many IAM users, and users can be in many groups.
+* Groups are not **true** identities, they cannot be referenced
+  from resource policies.
+* Groups have no credentials.
+
+=== Access keys
+
+Access key consist of:
+
+* Access Key ID
+* Secret Access Key
+
+Max 2 access keys per user.
+
+You cannot authenticate to management console
+with access keys.
+
+In My Account activate:
+"IAM User and Role Access to Billing Information"
+to be able to give users access to billing information.
+
+=== AWS CLI
+
+ $ aws configure
+
+To configure access keys.
+
+ $ aws configure --profile test-user
+ $ export AWS_PROFILE=test-user
+
+=== Roles
+
+Roles are *assumed* by another identity allowed
+in the *trust policy*:
+
+* IAM user
+* AWS service
+* another AWS account
+* web identity
+* anonymous identity
+
+When role is assumed, the Security Token Service
+(*STS*) generates a **time-limited** set of access
+keys (temporary security credentials).
+
+These access keys have the permissions defined in the permission policy.
+IAM roles have no long-term credentials (access keys
+or username and password).
+
+Every role has two policies:
+
+* trust policy - controls who can assume the role
+* permission policy - policy that gives the role permission on things
+
+Paterns:
+
+* to gain additional permissions only when you need it
+* service accesss
+* for granting permissions to users from another AWS account
+* multiple AWS accounts in the company - single IAM account
+
+== Multi-Account Management and Ogranizations
+
+**AWS Organizations** is a service for managing
+**multiple accounts** within a single business.
+
+All accounts within an AWS Organization can
+**consolidate bills** into a single account.
+
+Organizations can share bulk discounts and manage
+accounts and permissions and limit account usage using **service control policies**.
+
+* master account
+* member accounts
+
+Base limit is 2 accounts within an organization.
+
+FullAWSAccess - service control policy allowing access to
+all AWS services within an attached member account.
+
+== EC2 Fundamentals
+
+Instance Store Volume is not persisted in case of failure.
+
+Security Group - protocol, port
+
+CloudWatch - 5 min granularity.
+Can enable 1 min granularity with **Detailed Monitoring**,
+but associated with extra cost.
+
+Instance states:
+
+* running
+* stopped
+* pending
+* stoping
+
+Billed by the second with the minimum of 50 seconds.
+
+=== Instance types
+
+Instance families:
+
+* general purpose
+* compute optimized
+* memory optimized
+* accelerated computing
+* storage optimized
+
+Instance types:
+
+* **T2**, **T3** - low-cost with burst capability
+* **M5** - for general workloads
+* **C5** - cpu
+* **X1**, **R4** - memory
+* **I3** - fast IO
+* **P2**, **G3**, **F1** - GPU and FPGA
+
+Instance sizes:
+
+* nano
+* micro
+* small
+* medium
+* large
+* x.large
+* and larger 2xlarge, 4xlarge...
+
+Special cases:
+
+* a - AMD CPU
+* A - Arm based
+* n - higher speed networking
+* d - NVMe storage
+
+=== Storage
+
+SAN or NAS - block storage
+
+EBS (Elastic Block Storage) is a storage service that
+**creates and manages volumes**.
+
+Volumes are:
+
+* persistent
+* can be attached and removed to EC2 instances
+* are replicated within a single AZ
+
+**Instance store volumes**:
+* are attached to EC2 host.
+* Known as **ephemeral devices**.
+* Best storage perforamnce
+* when the host fails, the storage is lost
+* should be regarded as temporary
+* example: storage optimized instance types
+
+Attaching storage:
+
+----
+$ lsblk
+$ sudo mkdir /ephemeral
+$ sudo mkfs -t ext4 /dev/nvme1n1
+$ sudo mount /dev/nvme1n1 /ephemeral
+----
+
+When doing instance-level reboot emphemeral storage
+is maintained.
+
+After stopping and starting ephemeral storage is lost.
+
+Volume types:
+
+* **standard** - magnetic
+* **sc1** - Cold HDD - lowest cost, infrequent access, can't be boot volume.
+* **st1** - Throughput Optimized - low cost, throughput intensive, can't be a boot volume.
+* **gp2** - general purpose SSD - default, balance of IOPS/MiB/s - burst pool IOPS per GB
+* **io1** - Provisioned IOPS - highest performance, can adjust size and IOPS separately
+
+
+To protect against AZ failure, EBS snapshots (to S3)
+can be used.
+Data is replicated across AZs in the region and
+(optionally) internationally.
+
+IOPS - number of input and output operations that storage can
+perform in a given second.
+
+Throughput - data rate.
+
+gp2:
+
+* you get 3 IOPS per every GB of volume size
+* burst up to 3k IOPS
+* minimum 100 IOPS
+* max 16k IOPS
+* burst pull - you get 5.4 million starting credits
+
+io1:
+
+* size and IOPS set separately
+* max 64k IOPS for volumes
+* max throughptu per volume 1k MiB/s
+
+Facts:
+
+* EBS supports a maximum per-instance throughput of 1,750 MiB/s
+  and 80k IOPS.
+
+=== Snapshots
+
+Inconsistent snapshot - when the instance is runnig.
+
+Options for conistent snapshot:
+
+* flush any in-memory caches to disk
+* stop instance for root volume snapshots
+
+Sharing snapshots:
+
+* by default snapshot is private
+* you can share snapshot with specific AWS accounts
+* You can enable public access
+* you can copy the snapshot to another region
+
+Data Lifecycle Manager:
+
+* shedule and manage the creation and deletion of EBS snapshots
+
+Snapshots are stored in S3.
+
+Snapshots are stored incrementally.
+
+=== Security groups
+
+Every instance is created with its default ENI
+(Elastic Network Interface).
+
+Security groups are  software firewalls that can be attached to network interfaces
+and (by association) products in AWS.
+
+Security groups each have inbound rules and outbound rules.
+
+A rule allows traffic to or from a source (IP, network,
+named AWS entity) and protocol.
+
+Security groups have a hidden implicit/default deny rule, but
+**cannot explicitly deny traffic**.
+
+Security groups are stateful - any traffic allowed in/out,
+the return traffic is automatically allowed.
+
+Security groups can reference:
+
+* AWS resources
+* other security groups
+* themselves
+
+Max 5 security groups for every ENI.
+
+Security group belongs to VPC.
+
+=== Instance metadata
+
+http://169.254.169.254/latest/meta-data
+http://169.254.169.254/latest/meta-data/ami-id
+http://169.254.169.254/latest/meta-data/instance-id
+http://169.254.169.254/latest/meta-data/instance-type
+
+=== AMI
+
+Amazon Machine Image
+
+They store:
+
+* snapshots of EBS volumes
+* permissions
+* block device mapping
+
+AMIs can be shared, free, or paid and can be copied
+to other AWS regions.
+
+Types of AMIs:
+
+* Instance store backed AMIs
+* EBS backed AMIs
+
+Snapshots are created when creating AMI.
+
+AMI permissions:
+
+* defaults to private
+* can be public
+* can be shared with specific AWS accounts
+
+Bootstrapping:
+
+* user data script
+* cloud-init config
+
+=== EC2 Networking Fundamentals
+
+* public instance - with public IP
+* private instance - only can be communicated inside the VPC
+
+Private IP addresses don't change when instance
+is stopped.
+
+Public ip doesn't change at restart.
+
+Public ip changes when instance is stopped and started.
+
+=== EC2 Instance roles
+
+EC2 **instance roles** are IAM roles that can be assumed by EC2 using an
+intermediary called an **instance profile**.
+
+An instance profile:
+
+* is either created automatically when using the console UI
+  or manually when using the CLI.
+* is a container for the role that is associated with an EC2 instance.
+* allows applications on the EC2 instance to access the credentials
+  the role using the **instance metadata**.
+
+Credential order:
+
+. Command line options:
++
+ $ aws [commond] --profile [profile-name]
++
+. Environment variables: AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN.
++
+Recommended for temporary use in non-production
+environments.
++
+. AWS CLI credentials file
++
+  $ aws configure
++
+. container credentials
++
+IAM Roles associated with AWS Elastic Container Service (ECS)
+Task Definitions.
+Temporary credentials are available to the Task's containers.
+This is **recommended** for ECS environments.
++
+. Instance Profile Credentials
++
+IAM Roles associated with EC2 instances via
+Instance Profiles.
+This is recommended for EC2 environments.
+
+=== Lab
+
+==== To create role
+
+Create file _trust_policy_ec2.json_
+
+[source,json]
+----
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {"Service": "ec2.amazonaws.com"},
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+----
+
+To create role:
+
+ $ aws iam create-role --role-name DEV_ROLE --assume-role-policy-document file://trust_policy_ec2.json
+
+==== Create managed policy
+
+Create file _dev_s3_read_access.json_
+
+[source,json]
+----
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+          "Sid": "AllowUserToSeeBucketListInTheConsole",
+          "Action": ["s3:ListAllMyBuckets", "s3:GetBucketLocation"],
+          "Effect": "Allow",
+          "Resource": ["arn:aws:s3:::*"]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:Get*",
+                "s3:List*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<DEV_S3_BUCKET_NAME>/*",
+                "arn:aws:s3:::<DEV_S3_BUCKET_NAME>"
+            ]
+        }
+    ]
+}
+----
+
+ $ aws iam create-policy --policy-name DevS3ReadAccess --policy-document file://dev_s3_read_access.json
+
+==== Attach policy to role
+
+ $ aws iam attach-role-policy --role-name <role-name> --policy-arn <policy-arn>
+
+ $ aws iam list-attached-role-policies --role-name <role-name>
+
+ $ aws iam get-policy --policy-arn <policy-arn>
+
+ $ aws iam get-policy-version --policy-arn <policy-arn> --version-id <policy-version>
+
+==== Create instance profile
+
+ $ aws iam create-instance-profile --instance-profile-name DEV_PROFILE
+
+ $ aws iam add-role-to-instance-profile --instance-profile-name <profile-name> --role-name <role-name>
+
+ $ aws iam get-instance-profile --instance-profile-name <profile-name>
+
+==== Attach instance profile to EC2 instance
+
+----
+$ aws ec2 associate-iam-instance-profile --instance-id i-03d70110f4b012e08 --iam-instance-profile Name=DEV_PROFILE
+
+{
+    "IamInstanceProfileAssociation": {
+        "InstanceId": "i-03d70110f4b012e08",
+        "State": "associating",
+        "AssociationId": "iip-assoc-06a940e64e14b97e8",
+        "IamInstanceProfile": {
+            "Id": "AIPA367XEJHYAYVDRPIIN",
+            "Arn": "arn:aws:iam::822467643888:instance-profile/DEV_PROFILE"
+        }
+    }
+}
+----
+
+ $ aws describe-instances --instance-ids <instance-id>
+
+==== Verifying role association
+
+SSH into target host.
+
+----
+$ aws sts get-caller-identity
+
+{
+    "Account": "822467643888",
+    "UserId": "AROA367XEJHYJ6MOLSVSB:i-03d70110f4b012e08",
+    "Arn": "arn:aws:sts::822467643888:assumed-role/DEV_ROLE/i-03d70110f4b012e08"
+}
+----
+
+
+
+
+
+
+
+== Todo list
+
+* Read Well architecture framework whitepaper.
+

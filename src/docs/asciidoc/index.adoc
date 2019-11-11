@@ -20,6 +20,8 @@ link:angular.html[Angular]
 
 link:ansible.html[Ansible]
 
+link:aws-csa.html[AWS Certified Solutions Architect Associate]
+
 link:devops.html[DevOps]
 
 link:docker.html[Docker]
