@@ -856,8 +856,162 @@ $ aws sts get-caller-identity
 }
 ----
 
+=== Lab - tagging
 
+* Tag Editor: https://docs.aws.amazon.com/ARG/latest/userguide/tag-editor.html
+* Tagging Strategies: https://aws.amazon.com/answers/account-management/aws-tagging-strategies/
+* Tagging and Cost Allocation: https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html#allocation-what
+* AWS Resource Groups: https://docs.aws.amazon.com/ARG/latest/userguide/welcome.html
+* AWS Systems Manager: https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html
+* AWS Config: https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html
 
+Tagging categories:
+
+. Technical tags
+  .. Name
+  .. ApplicationId
+  .. ApplicationRole
+  .. Cluster
+  .. Environment
+  .. Version
+. Tags for Automation:
+  .. Date/Time
+  .. Opt in/Opt out - used to indicate whether a resource
+     should be automatically included in an automated activity,
+     such as starting, stopping, or resizing instances.
+  .. Security
+. Business Tags
+  .. Owner
+  .. Cost Center/Business Unit
+  .. Customer
+  .. Project
+. Security Tags
+  .. Confidentiality
+  .. Compliance
+
+== Advanced
+
+=== Volume encryption
+
+Volume encryption uses EC2 host hardware to encrypt data **at rest** and
+**in transit** between EBS and EC2 instances.
+
+Encryption generates a data encryption key (**DEK**) from a customer
+maste key (**CMK**) in each region.
+
+A unique DEK encrypts each volume.
+
+Snapshots of that volume are encrypted with the **same DEK**, as are any volumes
+created from that snapshot.
+
+KMS manages DEKs.
+
+KMS - Key Management Service
+
+KMS is regional service.
+
+Every key starting with "aws/" is AWS-managed customer master key (CMK).
+
+You cannot create unencrypted snapshot from encrypted volume.
+
+The snapshot will be encrypted with same data encryption key that was used
+in the volume. Same for volumes created from the snapshot.
+
+=== Networking
+
+Traditionally, virtual networking meant an EC2 host arranging access
+for _n_ virtual machines to access one physical card - this multitasking
+is done in software and is typically slow.
+
+**Enhanced networking** uses SR-IOV (Single Root IO Virtualization), which
+allows a single physical metwork card to appear as multiple physical devices.
+Each instance can be given one of these (fake) physical devices.
+This results in **faster transfer rates**, **lower CPU usage**, and **lower
+consistent latency**.
+
+EC2 delivers this via the Elastic Network Adapter (ENA) or Intel
+62599 Virtual Function (VF) interface.
+
+=== Placement groups
+
+**Cluster Placement Groups** place instances physically near each other in a single AZ.
+
+Every instance can talk to every other instance at the same time at
+full speed.
+
+Works with enhanced networking for peak performance.
+
+**Partition PGs** - instanced deployed into a Partinion PG (PPG) are separated
+into partitions (max of seven per AZ), each occupying
+isolated racks in AZs/regions.
+
+PPG can span multiple AZs in a region.
+
+PPGs minimize failure to a partition and give you visibility on placement.
+
+**Spread PGs** (SPG) - purely for availability.
+
+SPGs are designed for a max of seven instances per AZ that need to be
+separated.
+
+Each instance occupies a partition and has an isolated fault domain.
+
+Gread for email servers, domain controllers, file servers, and application HA pairs.
+
+=== Billing
+
+**On demand** - per second with minimum 60 seconds.
+
+**Spot instances** allow **conumption of spare AWS capacity** for a given instance type and size in a specific AZ.
+
+Instances are provided as long as your bid price is above the spot price, and you only ever pay the spot price.
+
+If your bid is exceeded, instances are terminated with a two-minute warning.
+
+Spot fleets are a container for "capacity needs." You can specify pools
+of instances of certain types/sizes aiming for a given "capacity".
+A minimum percentage of on-demand can be set to ensure the fleet is always active.
+
+Spot instances are perfect for non-critical workloads, burst workloads,
+or consistent non-functional jobs that can tolerate interruptions
+without impacting functionality.
+
+Spot is **not suitable** for long-running workloads that require
+stability and cannot tolerate interruptions.
+
+**Reserved instances** lock in a reduced rate for **one** or **three**
+years.
+
+**Zonal** reserved instances include a **capacity** reservation.
+
+**Regional** reservation doesn't have capacity reservation.
+
+Your commitment incurs costs even if instances aren't launched.
+
+Reserved purchases are used for long-running, understood, and consistent workloads.
+
+Reserved instances payment options:
+
+* No upfront
+* Partial upfront
+* All upfront
+
+**Dedicated hosts** - physical hardware reservation.
+
+You need to specify:
+
+* instance type (eg. m5d.large)
+* AZ
+* Host recovery - when checked, EC2 instances on failed hosts will be transfered
+  to new host, assuming you have one.
+
+Reasons to use dedicated host:
+
+* compliance and mandatory reasons.
+* bring your own licence (BOYL)
+* control instance placement
+
+== Serverless achitecture
 
 
 
