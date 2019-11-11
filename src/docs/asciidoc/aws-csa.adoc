@@ -1013,6 +1013,45 @@ Reasons to use dedicated host:
 
 == Serverless achitecture
 
+=== Event-driven architecture
+
+When using event-driven architecture, a system
+operates around "events" that represent **an
+action or a change of state** - e.g. a button being clicked,
+a file being uploaded, etc.
+
+* much more efficient use of resources
+
+Serverless architecture components:
+
+* BAS - backend as a service - using third-party services where possible
+  rather than runing your own. Examples: Auth0 or Cognito for
+  authentication and Firebase or DynamoDB for data storage.
+* FAS - function as a service - functions are only active (invoked)
+  when they are needed (when event is received).
+
+=== Lambda
+
+Functions are code, which run in a runtime.
+
+Functions are invoked by **events**, perform actions for up to **15 minutes**,
+and terminate.
+
+Functions are **stateless**.
+
+Function assume role when running.
+
+Event-based invocation (including time events).
+
+Lambda function needs to to have unique name in the region in the account.
+
+Minimum billed duration is 100 ms.
+
+Memory: 128MB to 3008MB.
+
+Timeout value - hard limit - max 15 minutes.
+
+
 
 
 
