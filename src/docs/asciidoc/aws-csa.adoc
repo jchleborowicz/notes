@@ -1051,11 +1051,57 @@ Memory: 128MB to 3008MB.
 
 Timeout value - hard limit - max 15 minutes.
 
+=== API Gateway
 
+Pricing is based on the number of API calls, the data transfered and any caching
+required to improve performance.
 
+API Gateway can access some AWS services directly using proxy mode:
 
+* EC2 (backed by EBS) - monolith
+* Fargate (backed by Aurora) - microservice
+* Lambda (backed by DynamoDB) - serverless
+
+You can attach DynamoDB to API gateway.
+
+API protocol:
+
+* REST
+* WebSocket
+
+Endpoint type:
+
+* Regional
+* Edge optimized
+* Private
+
+You can enable CORS support on resource level.
+
+To have API active you have to deploy it.
+
+API can belong to muliple stages (prod, dev, test, v1, v2, etc.)
+
+=== Step functions
+
+Step Functions is a **serverless visual workflow service** that provides
+**state machines**.
+
+A state machine can orchestrate other AWS services with simple logic, branching,
+and parallel execution, and it maintains a **state**.
+
+Workflow steps are known as **states**, and they can perform work via **tasks**.
+
+Step Functions allows for **long-running serverless workflows**.
+
+A state machine can be defined using Amazon States Language (**ASL**).
+
+Step Function runs for one year.
 
 == Todo list
 
 * Read Well architecture framework whitepaper.
+* Websockets:
+    ** https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
+    ** https://tools.ietf.org/html/rfc6455
+
 
