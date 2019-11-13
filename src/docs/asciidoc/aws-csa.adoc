@@ -1097,6 +1097,188 @@ A state machine can be defined using Amazon States Language (**ASL**).
 
 Step Function runs for one year.
 
+== Container-based compute and microservices
+
+To install Docker on Amazon Linux 2:
+
+ $ sudo amazon-linux-extras install docker
+ $ sudo service docker start
+ $ sudo chkconfig docker on
+ $ sudo usermod -aG docker $USER
+
+=== ECS - Elastic Container Service
+
+Based on docker.
+
+Modes:
+
+Core components:
+
+* Scheduling and Orchestration
+* Cluster Manager
+* Placement Engine
+
+ECS cluster is a container of configuration.
+
+EC2 based:
+
+* EC2 Windows + Networking
+* EC2 Linux + Networking
+
+Fargate based - serverless approach:
+
+* Networking only
+
+Components: task definitions, tasks and services.
+
+== Networking
+
+OSI networking model:
+
+1. physical (copper, fiber-optic, radio frequency)
+2. data link (MAC addresses, frames)
+3. network (ip addressing - addressing that can cross network boundaries)
+4. transport (reliability)
+5. session (response communication)
+6. presentation (tls, conversion, encryption, compression and standards)
+7. application (http, ssh, ftp)
+
+Transport layer:
+
+* TCP
+  ** aimed for reliable transport
+  ** uses *segments* to ensure data is received in the **correct order**
+  ** adds **error checking**
+  ** adds **ports** allowing different streams of communications to the same host
+* UDP - aimed for speed
+
+=== IP Addressing
+
+32-bit value
+
+x.x.x.x - four octects
+
+Two parts: network and host.
+
+Reserved IP addresses:
+
+* 0.0.0.0 & 0.0.0.0/0 - all ip addresses
+* 255.255.255.255 - breadcast address
+* 127.0.0.1 - localhost (loopback) address
+* 169.257.0.1 to 169.254.255.254 - a range of IP addresses which
+  a device can auto configure with if its using DHCP and fails
+  to automatically get an IP from a DHCP server.
+
+IP address classes:
+
+* A (/8) - 1.0.0.0 to 126.255.255.255 - 126 networks
+* B (/16) - 128.0.0.0 to 191.255.255.255 - 16 382 networks
+* C (/24) - 192.0.0.0 to 223.255.255.255 - 2 097 150 networks
+
+Private address ranges:
+
+* 10.0.0.0 to 10.255.255.255 - Class A
+* 172.16.0.0 to 172.31.255.255 - Class B
+* 192.168.0.0 to 192.168.255.255 - Class C
+
+Private address ranges cannot be used directly over internet.
+
+**CIDR** - Classless Inter-Domain Routing
+
+=== Subnetting
+
+Subnet cannot span across AZs.
+
+=== IP routing
+
+Scenario 1 - local:
+
+* devices are on the same network
+* Communication on layer 2 level
+* networking stack does ARP (address resolution protocol)
+* ARP request on local network for MAC address
+
+Scenario 2 - separate subnets:
+
+* on Layer 3 - it's single communication
+* on Layer 2 - it's communication to/from router
+* default gateway - an IP used to send data off the local network
+* A to B communication:
+** A generates L3 packet - the SRC is the IP-A, the DST is IP-B
+** A knows its default gateway IP, so it uses ARP to find the Router MAC
+** A passess the L3 packet to L2, wraps it in a L2 frame and
+   sends this to the Router -MAC addresss
+** Router receives this, strips away the L2 frame, checks the DST IP
+** it konws the network of IP-B because it's connected to it
+** R uses ARP to find the MAC of B, generates a frame to B, ptus the
+   unaltered IP packet inside and sends to MAC-B
+** B receives the frame, strips it away, and passes the packet to L3
+
+Scenario 3 - over Internet
+
+* communication over Internet uses BGP - Border Gateway Protocol
+* BGP exchanges routes
+
+==== Firewalls
+
+Firewall establish a barrier between networks of different security levels
+and historycally have been the first line of defence against
+perimeter attacks.
+
+What data a firewall can read and act on depends on the OSI Layer the firewall
+operates at:
+* Layer 3 (Network) - source/dest IP addresses or ranges
+* Layer 4 (Transport) - Protocol (TCP/UDP) and port numbers
+* Layer 5 (Session) - as layer 4, but understand response traffic
+* Layer 7 (Application) - application specifics, e.g. HTML paths, images
+
+==== Proxy server
+
+* Handles outgoing traffic.
+* can filter out content
+* acts as a web cache
+
+== VPC
+
+Types:
+
+* custom VPC
+* default VPC
+
+Default VPC:
+
+* CIDR 172.31.0.0/16
+* subnet created in every AZ - /20 subnet (4091 available addresses)
+* default DHCP option set attached
+* default SG - all from itself, all outbound
+* default NACL - all inbound and outbound
+
+Custom VPCs:
+
+* CIDR min /16, max /28
+* Tenancy: default or dedicated
+
+Special addresses:
+
+* .0 - network address
+* .1 - router address
+* .2 - DNS
+* .3 - reserved for future use
+* .X - breadcast address - last address in subnet
+
+DHCP option sets:
+
+* VPC can have only one DHCP option set associated with it
+
+You can share subnet with other AWS account:
+
+* you can share subnet within AWS organization
+* other account can only deploy resources into subnet, it cannot modify its settings
+
+
+
+
+
 == Todo list
 
 * Read Well architecture framework whitepaper.
