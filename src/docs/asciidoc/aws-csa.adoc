@@ -1275,7 +1275,129 @@ You can share subnet with other AWS account:
 * you can share subnet within AWS organization
 * other account can only deploy resources into subnet, it cannot modify its settings
 
+==== Routing
 
+Every VPC has a virtual routing device called the VPC router.
+
+It has an interface in any VPC subnet known as the "subnet+1"
+addresss - for 10.0.1.0/24 this would be 10.0.1.1.
+
+The router is highly available, scalable, and controls data entering and
+leaving VPC and its subnets.
+
+Each VPC has a "main" route table, which is allocated to all subnets in the VPC by default. A subnet must
+have one route table.
+
+Additional "custom" route tables can be created and associated with subnets - but only
+one route table per subnet.
+
+A route table controls what the VPC courer does with traffic leaving a subnet.
+
+An internet gateway is created and attached to a VPC (1:1). It can
+route traffic for public IPs to and from the internet.
+
+Poutes:
+
+A Router is a collection of routes that are used when traffic from
+when traffic from a subnet arrives at VPC
+
+Every route table has a local route, which matches the CIDR of the VPC
+and lets traffic be routed between subnets.
+
+A route contains a destination and a target. Traffic
+is forwarded to the target if its destination matches
+the route destination.
+
+If multiple routes apply, the most specific is chosen.
+
+Targets can be IPs ar AWS networking gateways/objects.
+
+A subnet is a public subnet if:
+
+* subnet is configured do allocate public IPs (but it can be
+  overriden when deploying instance to the subnet)
+* the VPC has an associated Interent Gateway
+* subnet has a default route to that internet gateway.
+
+**Internet gateway**:
+
+* needs to be attached manually to
+  specific VPC after creation.
+* can only be attached to one VPC
+* VPC can have at most one internet gateway
+* gateway does **static network address translation** (static NAT)
+
+Route propagation:
+
+VPG - can propagate any routes from the route table
+  to VPG.
+
+=== Bastion host
+
+private dns: ip-x-x-x-x.ec2.internal
+public dns: ec2-18-205-247-220.compute-1.amazonaws.com
+
+=== NAT
+
+Static NAT - a private IP is mapped to a public IP (what IGWs do)
+
+Dynamic NAT - a range of private addresses are mapped
+onto one or more public (used by your home router and NAT gateways).
+
+AWS:
+
+* NAT gateways
+* NAT instances
+
+NAT gateway
+
+* must be placed in public subnet
+* must have elastic IP assigned
+* are not high available
+* must be placed in a single subnet
+* scale with load
+* initially supports over 5Gb of bandwidth, can scale up to 45Gb
+
+To have NAT instance working you have to disable **Source and destination check**
+
+=== Network Access Control Lists (NACL)
+
+NACL operate at Layer 4 of the OSI model (TCP/UDP) and below.
+
+A subnet has to be associated with a NACL - either the VPC default
+or custom NACL.
+
+NACLs only impact craffic crossing the boundary of a subnet.
+
+NACLs are collections of rules that can explicitly allow or deny
+traffic based on its protocol, port range, and source/destination
+
+Rules are processed in number order, lowes first. When a match is
+found, that action is taken and processing stops.
+
+The "*" rule is processed last and is an implicit **deny**.
+
+NACLs have two sets of rules: inbound and outbound.
+
+**Ephemeral ports**:
+
+* when a client initiates communications with a server, it is to a well-known
+  port number on that server
+* the response is from that well-known port to an ephemeral port on the client.
+  The client decides the port.
+* NACLs are stateless, they have to consider **both** initiating and
+  response traffic - tsate is a session-layer concept.
+
+* practical range of ephemeral ports: 1024-65535
+
+=== Creating VPC
+
+. Create VPC
+. Create subnets
+. Set __Auto-assign public IPs__ for public subnets.
+. Add Internet Gateway and assign it to the VPC.
+. Create route table which routes to Internet Gateway
+. Associate public subnets with public route table.
 
 
 
@@ -1287,3 +1409,4 @@ You can share subnet with other AWS account:
     ** https://tools.ietf.org/html/rfc6455
 
 
+Questions: what is the pricing of NAT Gateways?
