@@ -1399,10 +1399,192 @@ NACLs have two sets of rules: inbound and outbound.
 . Create route table which routes to Internet Gateway
 . Associate public subnets with public route table.
 
+=== VPC Peering
+
+Allows direct communication between VPCs.
+
+Services can communicate using private IPs from VPC to VPC.
+
+VPC peers can span AWS accounts and even regions (with some limitations).
+
+Data is encrypted and transits via the AWS global backbone.
+
+VPC peers are used to link two VPCs at layer 3: company mergers,
+shared services, company and vendor, auditing.
+
+Important limits and considerations:
+
+* CIDR blocks cannot overlap
+* VPC peers connect two network - routing is not transitive.
+* routes are required at both sides (remote CIDR -> peer connection)
+* NACLs and SGs can be used to control access
+* SGs can be referenced but **not** cross-region.
+* IPv6 support is not available cross-region.
+* DNS resolution to private IPs can be enabled, but it's a setting
+  needed at both sides.
+
+VPC Peering are configured with a **Peering Connection**.
+
+Steps:
+
+. create peering connection
+. configure routing - both sides
+. configure NACLs (if necessary)
+. configure Security Groups
+
+You can enable private address resolution by editing dns settings on
+peering connection:
+
+* Requester DNS resolution
+* Accepter DNS resolution
+
+There is no transitive routing in peering connections.
+
+=== VPC Endpoints
+
+**VPC Endpoints** are gateway objects created within a VPC.
+They can be used to connect to AWS public services without the need
+for the VPC to have an attached internet gateway and be public.
+
+VPC Endpoint types:
+
+* gateway endpoints: can be used for DynamoDB and S3
+* Interface endpoints: Can be used for everything else (e.g. SNS, SQS)
+
+When to use VPC Endpoint:
+
+* if the entire VPC is private with no IGW
+* if a specific instance has no public IP/NATGW and needs to access public services.
+* to access resources restricted to specific VPCs or endpoints (private S3 bucket)
+
+Limitations and considerations:
+
+* Gateway endpoints
+  ** are used via route table entries - they are geateway devices.
+     **Prefix lists** for a service are used in the destination field with the gateway
+     as the target.
+  ** gateway endpoints can be restricted via policies.
+  ** gateway endpoints are HA across AZs in a region.
+* Interface endpoints:
+  ** are interfaces in a specific subnet.
+     For HA, you need to add multiple interfaces - one per AZ.
+  ** are controlled via SGs on that interface.
+     NACLs also impact traffic.
+  ** add or replace the DNS for the service - no route table updates are required.
+  ** code changes to the endpoint DNS, or enable private DNS to override
+     the default service DNS.
+
+=== IPv6 within AWS
+
+* not supported for every AWS product
+
+* You have to enable IPv6 support for VPC - you get /56 IPv6 CIDR range.
+* You have to edit IPv6 CIDRs for subnet to add IP range
+* Modify route tables (IGW)
+* Add entries to NACLs for IPv6
+
+In IPv6 every address is publicly routable.
+
+Limitations:
+
+* DNS names are not allocated to IPv6 addresses.
+* IPv6 addresses are all publicly routable - there is no concept of private vs public with IPv6.
+* with IPv6 the OS is configured with this public address via DHCP6.
+* Elastic IPs aren't relevant with IPv6.
+* not currently supported for VPNs, customer gateways, and VPC endpoints.
+
+=== Egress only IGW
+
+**Egress-only internet gateways** provide IPv6 instances with outgoing access
+to the public internet using IPv6 but prevent the instances from
+being accessed **from** internet.
+
+NAT isn't required with IPv6, and so NATGW's aren't compatible with
+IPv6. Egress-only gateways provide the outgoing-only access of a NATGW
+but do so without adjusting any IP addresses.
+
+== DNS - Domain Name System
+
+Resolver::
+  Piece of software that resolves DNS addresses.
+
+DNS Root Servers::
+  a group of servers that are authoritative to give answers about the root zone.
+  TLD (top level domains) are controlled by the root zone.
+
+Top-Level Domain (TLD)::
+  the top tier in the DNS hierarchy. Large orgs or country orgs are delegated
+  control of these by the root servers to be authoritative.
+
+Subdomain::
+  anything between a host and a TLD is a subdomain.
+
+Zone and Zone Files::
+  a mapping of IPs and hosts for given subdomain.
+
+Records::
+  DNS has lots of record types - A, MX, AAAA, Cname, TXT, NS
+
+Name Server::
+  runs a DNS service and can either store or cache information for
+  the DNS platform. Whether a name server caches or acts as an authority
+  depends on if it's referenced from a higher level.
+
+Authoritative::
+  The root servers are authoritative for the root zone - they are
+  used by every operating system and networking stack globally.
+  The root servers delegate ownership of a part of the hierarchy, such
+  as .com, to an organization. That organization runs name servers that become
+  authoritative - they can answer queries with authority. Because the root points
+  at these servers, they are authoritative.
+
+Hosts::
+  A record in a zone file.
+
+FQDN::
+  Fully qualified domain name.
+
+=== Public vs private zones
+
+Private zones:
+
+* created manually
+* associated with one or more VPCs
+* private zones need **enableDdsHostnames** and **enableDnsSupport**
+  enabled on a VPC
+* not all Route 53 features supported - limits on health checks
+* split-view DNS is supported, using the same zone name for
+  public and private zones - providing VPC resources with different records
+  (e.g. testing, internal versions of websites).
+  ** vith split view, private is preferred - if no matches, public
+     is used.
+
+Record set types:
+
+* A (and AAAA) - host to IP (AAAA maps to IPv6)
+* CNAME - alias for subdomain or fully-qualified domain name.
+  ** cant be sued for naked domain name
+* MX - mail servers
+  ** each MX record has a priority. Remote mail servers
+     use this to locate the server to use when sending mail.
+* NS record - used to set authoritative servers for a subdomain.
+* TXT record - used for descriptive text in a domain - often
+  used to verify domain ownership.
+* Alias records - an extension of CNAME - can be used like an A record,
+  with the functionality of a CNAME and none of the limitations.
+  Can refer to AWS logical services (load balancers, S3 buckets), and
+  AWS doesn't charge for queries of alias records against AWS resources.
+
+=== Health checks
+
+
+
+
 
 
 == Todo list
 
+* Route table's route propagation and Virtual Private Gateways
 * Read Well architecture framework whitepaper.
 * Websockets:
     ** https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
