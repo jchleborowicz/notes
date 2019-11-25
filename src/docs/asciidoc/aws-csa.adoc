@@ -1984,7 +1984,244 @@ Uses multiple AZs
 Two main db categories:
 
 * sql
-* no-sql
+* non-sql
+
+Non-sql databases:
+
+* key-value - data stored as key and value pairs.
+  Super-fast queries and ability to scale.
+  No relationships and weak schema - Amazon DynamoDB
+* document - data stored as structured key-value pairs
+  called documents.
+  Operation on documents are highly performant - MongoDB
+* column - data is stored in columns rather than rows.
+  Queries against attribute sets, such as all DOBs or all
+  surnames are fast. Great for data warehousing and analytics - Amazon Redshift
+* graph - designed for dynamic relationships.
+  Stores data as nodes and relationships between these nodes.
+  Ideal for human-related data, such as social media - neo4j
+
+=== RDS
+
+Database types:
+
+* Aurora
+* MySQL
+* MariaDB
+* PostgreSQL
+* Oracle
+* Microsoft SQL Server
+
+RDS can be deployed in single AZ or Multi-AZ mode (for resilience).
+
+RDS supports following instance types:
+
+* general purpose (DB.M4 and DB.M5)
+* memory optimiezed (DB.R4 and DB.R5, and DB.X1e and DB.X1 for Oracle))
+* burstable (DB.T2 and DBT3)
+
+Two types of storage:
+
+* General Purpose SSD (gp2): 3 IOPS per GiB, burst to 3k IOPS
+* Provisioned IOPS SSD (io1): 1k to 80k IOPS (engine dependent) size,
+  and IOPS can be configured independently
+
+RDS instances are charged based on:
+
+* instance size
+* provisioned storage
+* IOPS if using io1
+* data transferred **out**
+* any backups/snapshots beyond the 100% that is free with each db instance
+
+RDS supports encryption with following conditions:
+
+* encryption can be configured when creating db instances
+* encryption can be added by taking a snapshot, making encrypted snapshot,
+  and creating new encrypted instance from that encrypted snapshot.
+* encryption cannot be removed
+* read replicas need to be the same state as the primary instance (encrypted or not)
+* encrypted snapshots can be copied between regions - but a new destination region
+  KMS CMK is used (because they are region specific)
+
+Network access to RDS instance is controlled by a **security group**
+associated with the RDS instance.
+
+Creating database:
+
+1. create database subnet group
+2. create database
+
+Storage autoscaling.
+
+Standby instance.
+
+Every database has an endpoint (CNAME), e.g.: rdslesson.cng9aqcehd6j.us-east-1.rds.amazonaws.com
+
+For long term needs purchase RDS reserved instance.
+
+Creating LAMP stack:
+
+[source,bash]
+----
+sudo yum update -y
+sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+sudo yum install -y httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+wget https://wordpress.org/latest.tar.gz
+tar -xzf latest.tar.gz
+sudo cp -r wordpress/* /var/www/html/
+cd /var/www/html/
+sudo cp wp-config-sample.php wp-config.php
+sudo nano wordpress/wp-config.php
+
+sudo chown -R apache /var/www
+sudo chgrp -R apache /var/www
+sudo chmod 2775 /var/www
+sudo find /var/www -type d -exec sudo chmod 2775 {} \;
+sudo find /var/www -type f -exec sudo chmod 0664 {} \;
+sudo systemctl restart httpd
+----
+
+==== Backups
+
+Automated backups to S3 occur daily:
+
+* can be retained from 0 to 35 days (with 0 being disabled).
+* backups are taken from the standby instance.
+
+Manual snapshots are taken manually and exist until deleted,
+and point-in-time log-based backups are also stored ond S3.
+
+Log backups occur to S3 every 5 minutes, allowing point-in-time recovery
+at any point in the backup retention window.
+
+Restores create a new RDS instance with a new endpoint address - this
+will require application changes.
+
+==== Multi-AZ
+
+RDS can be provisioned in single or multi-AZ mode
+
+Multi-AZ mode provisions a primary instance and a standby instance in a different AZ
+of the same region.
+
+Only the primary can be accessed using the instance CNAME.
+
+There is no preference benefit, but it provides a better RTO than restoring
+a snapshot.
+
+Replication to stanby instance is synchronous.
+
+In case of primary failure, db CNAME gets changed to stanby instance.
+
+You don't have any any access to standby instance.
+
+You can have only one standby instance.
+
+
+==== Read replicas
+
+Read-only copies of an RDS instance.
+
+Can be created in the same or different region from the primary instance.
+
+Read Replicas can be addressed independently (each having their own dns).
+
+Can be used for read workloads, allowing you to scale reads.
+
+Five Read Replicas can be created from a RDS instance.
+
+Read Replicas can be created from Read Replicas.
+
+Read Replicas can be promoted to primary instances and can be themselves Multi-AZ.
+
+Replication is **asynchronous**.
+
+Reads from a Read Replica are eventually consistent.
+
+To be able to create a Read Replica, you must turn on automatic backup on source database.
+
+==== Aurora
+
+Compatibile with MySQL and PostgreSQL.
+
+* uses a database configuration of a "cluster"
+* a cluster contains a single primary instance and zero or more replicas
+
+Cluster storage:
+
+* all instances (primary and replicas) use the same shared storage - the cluster
+  volumes.
+* cluster volume is totally SSD based, which can scale to 64TiB in size
+* replicates data six times, across three AZs
+* can tolerate two failures without writes being impacted and three failures without
+  impacting reads.
+* Aurora storage is auto-healing.
+
+Cluster Scaling and Availaibility:
+
+* cluster volumes scale automatically, only bills for **consumed data**,
+  and is constantly backed up to S3
+* Aurora replicas improve availability, can be promoted to be a primary instance
+  quickly, and allow for efficient read scaling.
+* reads and writes use the **cluster endpoint**
+* reads use the **reader endpoint**, which palances connections over all
+  replica instances.
+
+Aurora can have up to 15 replicas.
+
+To improve resilience, use additional replicas.
+
+To scale **write** workloads, scale **up** the instance size.
+
+To scale **reads**, scale **out** (adding more replicas).
+
+Writer instance and reader instance.
+
+Failover - tier-0 to tier-15.
+
+Backtracking:
+
+* max window of 72 hours
+* You will get outage when backtracking.
+
+Parallel query::
+  allows queries to be executed against all nodes
+  in the aurora cluster in the same time.
+
+Aurora global database:
+
+* one primary region - master of the data
+* one read-only secondary region
+
+You can use auto-scaling to dynamicly change number of reader instances.
+
+==== Aurora serverless
+
+Based on the same database engine as Aurora, but instead of provisioning certain resource
+allocation, Aurora Serverless handles this as a service.
+
+You simply specify a minimum and maximum number of **Aurora capacity units** (**ACUs**) -
+Aurora Serverless can use the **Data API**.
+
+Proxy Fleet - transparet set of proxy instances that directs traffic to aurora serverless instances, without
+client application knowing any difference.
+
+Removes much complexity of managing aurora db.
+
+Aurora serverless exists in a singel AZ.
+
+Instances are not hosted inside your VPC, you have no physical instances.
+
+It uses service known as **private link**, which places endpoints inside a VPC to access remote services.
+
+You can't currently acces an aurora serverless cluster from cross-vpn or inter-region vpc peer.
+
+**Data API** allows to access database using traditional APIs.
+
+==== No-sql databases
 
 
 
@@ -2000,6 +2237,18 @@ Two main db categories:
 * CORS: https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html
 * Storage classes: https://aws.amazon.com/s3/storage-classes/
 * https://docs.aws.amazon.com/AmazonS3/latest/user-guide/restore-archived-objects.html
+* databases:
+  ** https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html
+  ** https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithOptionGroups.html
+  ** https://aws.amazon.com/rds/mysql/pricing/
+  ** https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAM.html
+  ** https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Limits.html
+  ** https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html
+  ** https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html
+* Multi-AZ RDS: https://aws.amazon.com/rds/details/multi-az/
+* Aurora serverless: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.setting-capacity.html
+
+
 
 
 Questions: what is the pricing of NAT Gateways?
