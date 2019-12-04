@@ -1,4 +1,3 @@
-= AWS Certified Solutions Architect - Associate
 
 https://interactive.linuxacademy.com/diagrams/AWSCSA.html
 
@@ -2221,9 +2220,595 @@ You can't currently acces an aurora serverless cluster from cross-vpn or inter-r
 
 **Data API** allows to access database using traditional APIs.
 
-==== No-sql databases
+==== DynamoDB
+
+DynamoDB is a global service, partitioned regionally and allows the creation
+of tables.
+
+Described as key-value store or more appropriately as wide-column store.
+
+* TABLE - collection of items that share the same partition key or partition key
+  and sort key (sk) together with other configuration and performance settings.
+* ITEM - a collection of attributes (up to **400kB** in size) inside
+  a table that shares **the same key structure** as every other item in the table.
+* ATTRIBUTE - key and value
+
+The primary key is made up of a partition key (hash key)
+and an optional sort key.
+
+The partition key is used to partition data across hosts
+for scalability and availability.
+
+Choose an attribute which has a wide range of values
+and is likely to have evenly distributed access patterns.
+
+For example CustomerId is good while GameId is bad
+if most of your traffic relates to a few popular games.
+
+Partition key types: string, binary, number
+
+Column data types:
+
+* String
+* Binary
+* Number
+* StringSet
+* BinarySet
+* NumberSet
+* Map
+* List
+* Boolean
+* null
+
+Size limit for item 4000kB (primary, sort keys and names and values of attributes).
+
+You cannot PUT or GET partial items.
+
+You can apply resource-level permissions.
+
+DynamoDB stores at least 3 replicas of the data.
+
+Three replicas of the data.
+
+DynamoDB will survive an AZ failure without any additional configuration.
+
+Operations:
+
+* scan - scans all items
+* query - can only ever retrieve data for specified partition key.
+
+Point-in-time recovery - you need to enable it to be able to restore table up to last 35 days.
+
+Manual table backups:
+
+* you can restore only to new table
+
+Encryption:
+
+* always enabled
+* DEFAULT - server side encryption using AWS owned CMK
+* KMS - server side encryption using AWS managed CMK
+
+Global tables:
+
+* table that replicate data to replica tables in other regions
+* you have to enable streams for the table
+* add replica tables
+* multimaster replication - you can write to all replicas
+* last writer wins
+* table has to be empty when you enable global tables
+
+Two read/write capacity models:
+
+* provisioned throughput (default) - each table is configured with read
+  capacity units (**RCU**) and write capacity units (**WCU**)
+* on-demand - DynamoDB automatically scales to handle performance demands
+  and bills a per-request charge
+
+Each operation on ITEMS consumes at least 1 RCU or WCU - partial RCU/WCU cannot
+be consumed.
+
+Read Capacity Units:
+
+* One RCU is 4kB of data read from a table per second in a strongly consistent way.
+    ** Reading 2kB of data consumes 1 RCU.
+    ** Reading 4.5kB takes 2 RCU
+    ** reading 10 * 400 bytes takes 10 RCU.
+* eventually consistent reads - 1 RCU per 2 x 4kB data reads per second.
+* atomic transactions require 2x the RCU
+
+Write Capacity Units:
+
+* one WCU is 1kB of data or less written to a table
+    ** an operation that writes 200 bytes consumes 1 WCU
+    ** an operation that writes 2kB consumes 2 WCU
+    ** five operations of 200 bytes take 5 WCU
+* atomic transactions require 2x the WCU
+
+When allocating performance:
+
+* you allocate it to partitions, not to tables
+* partition is replicated into three different AZs
+* for each partition: single leader node and two non-leader nodes
+
+Streams:
+
+* rolling 24h window of changes
+* provide an ordered list of changes that occur to items within a DynamoDb table.
+* streams are enabled **per table** and only contain the data from
+  the point of being enabled
+* every stream has an ARN that identifies it globally across all tables,
+  accounts, and regions.
+* four view types:
+  ** KEYS_ONLY: whenever an item is added, updated, or deleted, the key(s) of that
+     item are added to the stream.
+  ** NEW_IMAGE: the entire item is added to the stream "post-change"
+  ** OLD_IMAGE: the entire item is added to the stream "pre-change"
+  ** NEW_AND_OLD_IMAGES: both the new and old versions of the item are added
+     to the stream
+
+Triggers:
+
+* streams can be integrated with AWS Lambda, invoking a function whenever
+  items are changed in a DynamoBD table (a DB trigger)
+
+Form of indexes:
+
+* local secondary indexes (LSI)
+  ** must be created during table creation
+  ** use the same partition key, but an alternate sort key
+  ** share the RCU and WCU values for main table
+  ** max 5 LSI per table
+* global secondary indexes (GSI)
+  ** max 20 GSI per table by default, can be increased by support ticket
+  ** can be created at any point after the table is created
+  ** can use different partition and sort keys
+  ** have their own RCU and WCU values
+  ** data from the source table is replicated asynchronously
+  ** you can't perform strongly consistent reads on global secondary index
+
+Indexes are alternate representation of data in existing table.
+
+Projected attributes: all, keys only, include selected fields.
+
+==== DAX
+
+DynamoDB Accelerator (DAX):
+* is an in-memory cache designed specifically for DynamoDB.
+* runs inside a VPC
+* app uses DAX Client
+* should not be used for consistent reads - every read from DAX is eventually consistent
+
+Results devileverd from DAX are available in microseconds rather than
+in single-digit milliseconds available from DynamoDB.
+
+DAX maintains two distinct caches:
+
+* the item cache
+  ** populated with results from GetItem and BatchGetItem
+  ** 5 minute default TTL
+* the query cache
+  ** populated with results from Query and Scan
+  ** caches based on the parameters specified
+
+==== ElastiCache
+
+* managed in-memory data store
+* supports the Redis or Memchached
+* used for:
+  ** offloading database reads by caching responses, improving
+     app speed and reducing costs
+  ** storing user session state, allowing for stateless compute instances
+
+== Load balancing
+
+Types of Elastic Load Balancers:
+
+* Classic (CLB)
+* Application (ELB)
+* Network (NLB)
+
+ELBs can be paired with Auto Scaling groups to enhance HA and fault tolerance.
+
+A node is placed in each AZ the load balancer is active in. Each node gets 1/N of the traffic,
+where N is the number of nodes. Historically, each node could only load balance to
+instances in the same AZ. This results in uneven traffic distribution.
+Cross-zone load balancing allows each node to distribute traffic to all instances.
+
+An ELB can be public facing or internal.
+
+=== Classic Load Balancers
+
+* AWS recommends not to use CLB
+* support layer 3 & 4 (TCP and SSL) and some HTTP/S features
+* it isn't a Layer 7 device, so no real HTTP/S
+* one SSL cert per CLB - can get expensive for complex projects
+* can offload SSL connections - HTTPS to the load balancer and HTTP to
+  the instance
+* can be associated with Auto Scaling groups
+* DNS A Record is used to connect to the CLB
+
+=== Application load balancers (ALBs)
+
+Operate at Layer 7.
+
+Understand HTTP and HTTPS and can load balance based on this protocol layer.
+
+ALBs are now recommended as the default LB for VPCs.
+
+They perform better than CLBs and are almost always cheaper.
+
+Content rules can direct certain traffic to specific target groups.
+
+* host-based rules: route traffic based on the host used
+* path-based rules: route traffic based on URL path
+
+ALBs support EC2, ECS, EKS, Lambda, HTTPS, HTTP/2 and WebSockets.
+
+ALBs can be integrated with AWS Web Application Firewall (WAF)
+
+Use an ALB if you need to use containers or microservices.
+
+Targets -> Target Groups -> Content rules
+
+An ALB can host multiple SSL certificates using SNI.
+
+* you can choose only one subnet per AZ
+
+Supported listeners: http and https.
+
+**Target groups**:
+
+Target types:
+
+* ec2 instance
+* IP
+* Lambda function
+
+Listener rules:
+
+* conditions:
+  ** path
+  ** http header
+  ** http request method
+  ** query string
+  ** source ip
+
+=== Network load balancers
+
+Operate at Layer 4.
+
+* can support protocols other than HTTP/S because it forwards upper layers unchanged
+* Less latency because no processing above Layer 4 is required
+* IP addressable - static address
+* best load balancing performance within AWS
+* source IP address preservation - packets unchanged
+* targets can be addressed using IP address
+* supports targets outside VPC
+* routing requests to multiple applications on a single ec2 instance
+
+== Scaling
+
+Auto-scaling groups are based on:
+
+* launch configurations
+* launch templates
+
+Launch configurations:
+
+* AMI
+* instance type
+* key pair
+* IAM role
+* user data
+* purchase options
+* network configuration
+* security groups
+
+Launch templates:
+
+* versioning and inheritance
+* tagging
+* more advanced purchasing options
+* new instance features, including:
+  ** elastic graphics
+  ** T2/T3 unlimited settings
+  ** placement groups
+  ** capacity reservation
+  ** tenancy options
+
+You cannot change settings of existing launch configuration.
+
+Scaling can be:
+
+* manual
+* scheduled
+* dynamic
+
+Scaling policies:
+
+* simple
+* step scaling
+* target tracking
+
+Default cooldown - min time between scaling events.
+
+Scheduled actions.
+
+To associate load balancer:
+
+* classic load balancer - direct selection
+* application load balancer - through target groups
+* health check type: ec2 (default), ELB
+
+== Hybrid and scaling
+
+=== VPN
+
+VPC VPN components:
+
+* VPC
+* Virtual Private Gateway (VGW) attached to a VPC
+* a Customer Gateway (CGW) - configuration for on-premises router.
+  Represents physical piece of hardware at client side
+* VPN Connection (using 1 or 2 IPsec tunnels)
+
+Dynamic Customer Gateway:
+
+* dynamically exchange subnet information over BGP
+* you need to provide BGP ASN (Autonomous System Number) - unique identifier for a BGP router.
+* if you don't have existing ASN you can use a private ASN in the 64512-65534 range.
+
+Best Practice & HA:
+
+* use dynamic VPNs (uses BGP) where possible
+* connect both Tunnels to your CGW - VPC VPN is HA by design
+* where possible use two VPN connections and two CGWs
+
+You download configuration for VPN connection, configuration contains information
+needed to configure on-premise router.
+
+You enable route propagation on route to VPG.
+
+VPG versus Direct Connect:
+
+* VPN are setup in minutes, Direct Connect potentially weeks or months
+* VPN are cheaper for all but the highest load
+* VPN have per-hour cost per active VPN connection and data charges
+* performance of VPN is limited by a customer gateway equipment
+
+Setups:
+
+. single CGW and single tunnel
+. HA AWS end - two tunnels
+. Full HA - two CGWs and two tunnels at each of CGWs
+
+Routing:
+
+. local route always takes priority
+. longest prefix
+. static routes
+. direct connect is preferred over VPN
+  .. direct connect BGP
+  .. static VPN
+  .. BGP VPN
+
+=== Direct connect
+
+DX - Direct Connect - physical connection between your network and AWS either
+directly via a cross-connect and customer router at a DX location
+or via a DX partner provider.
+
+**Dedicated Connections** are direct via AWS and use single-mode fiber,
+running either **1 Gbps** using 1000Base-LX or **10Gbps** using 10GBASE-LR.
+
+Virtual interfaces (VIFs) run on top of a DX.
+
+Public VIFs can access AWS public services such as S3.
+
+Private VIFs are used to connect into VPCs.
+
+DX is not highly available or encrypted.
+
+It is possible to run VPN over public VIF running over
+Direct Connect connection.
 
 
+DX Locations
+
+Procedure:
+
+. You complete Direct Connect request
+. AWS provisions a port
+. You download LOA - Letter of authorization - which
+  allows you to arrange physical connection between AWS and yourself
+
+=== Choosing between VPN and DX
+
+VPN:
+
+* urgent need - can be deployed in minutes
+* cost constrained - cheap
+* low end or consumer hardware - DX requires BGP
+* encryption required
+* flexibility to change locations
+* highly available options available
+* short-term connectivity
+
+Direct Connect:
+
+* Higher throughput
+* consistent performance (throughput)
+* consistent low latency
+* large amounts of data - cheaper than VPN for higher volume
+* no contention with existing internet connection
+
+Both:
+
+* VPN as cheaper HA option for DX
+* VPN as an additional layer of HA (in addition to two DX)
+* if some form of connectivity is needed immediately,
+  provides it before the DX connection is live
+* can be used to add encryption over the top of a DX (public VIF VPN)
+
+=== Snow products
+
+Used when you have huge amount of data.
+
+* snowball
+* snowball edge
+* snowmobile
+
+Snowball:
+
+* can be used for **in** or **out** jobs.
+* log a job and an empty device or device with data is shipped
+* ideal for TB or PB data transfers - 50 TB or 80 TB capacity per Snowball
+* 1Gbps (RJN5 1Gbase-TX) or 10Bbps (LR/SR) using a SFP
+* data encryption using KMS
+* generally used from 10 TB -> 10 PB (the economical range)
+* larger jobs or multiple locations can use multiple Snowballs
+* end-to-end proces time is low for the amount of data (i.e., week(s))
+
+Other options:
+
+* direct transfer to S3
+* storage gateway
+
+Connectivity options:
+
+* Snowball client
+* AWS S3 adapter - to use as
+
+Snowball Edge:
+
+* includes both storage and compute
+* larger capacity
+* 10 Gbps (RJ45), 10/25 Gbps (SFP), 45/50/100 Gbps (QSFP+)
+* compute can be used for local instances or Lambda functionality
+* three versions:
+  ** edge storage optimized: 80TB, 24 vCPU, 32 GiB RAM
+  ** edge compute optimized: 100 TB + 7.68 TB NVMe, 52 vCPUs, and 208 GiB RAM
+  ** edge compute optimized with GPU - as above with a GPU equivalent to P3 EC2 instance
+* compute can be used for local IoT, for data processing prior to ingestion into AWS, and much more
+* used in the same type of situations as Snowballs but when compute is required
+
+Snowmobile:
+
+* portable storage data center within a shipping container on a semi-truck
+* available in certain areas via special order from AWS
+* used when single location is 10 PB+ is required
+* each snowmobile can transfer up to 100 PB
+* not economical for sub 10 PB and where multiple locations are required
+* situated on-site and connected into your data center for
+  the duration of transfer
+
+=== Storage gateway
+
+Storage gateway is a hybrid storage service that allows you to migrate data int AWS, extending yoru on-premises strage capacity using AWS.
+
+Storage gateway types:
+
+* file gateway - store files as objects in S3, with a local cache for low-latency access to your
+  most recently used data
+  ** presents its storage as SMB shares
+* volume gateway - block storage in S3 with point-in-time backups as Amazon EBS snapshots.
+  ** you create access volumes
+  ** access volumes accesible by iSCSI
+  ** iSCSI is generally used with NAS or SAN products
+  ** types:
+    *** gateway stored volumes - all the data stored on the gateway itself and snapshots are taken into AWS
+    *** gateway cached volums - primary source of data is inside AWS, that data is cached at the gateway
+* tape gateway (VTL - virtual tape library) - back up your data to S3 and archive in Amazon Glacier using
+  your existing tape-based processes
+  ** present VTL over iSCSI to any compatible backup software
+  ** high admin overhead
+
+Storage gateway is a virtual appliance.
+
+=== Database Migration Service
+
+AWS DMS is a service to migrate relational database.
+
+It can migrate **to** and **from** any locations with network connectivity to AWS.
+
+* DMS is compatible with: Oracle, MS SQL, MySQL, MariaDB,
+  PostgreSQL, MongoDB, SAP.
+* data can be synced to most of the above engines, as well
+  as Redshift, S3 and DynamoDB.
+* you can also use the Schema Conversion Tool (AWS SCT) to transform
+  between different database engines as part of a migration.
+
+Components:
+
+* source
+* source endpoint
+* replication instance (contains replication task)
+* destination edpoint
+* destination
+
+Scenarios:
+
+* scaling database resources **up** or **down** without downtime
+* migrating databases from on-premises to AWS, from AWS to on-premises,
+  or **to/from** other cloud platforms.
+* moving data between different DB engines, including schema conversion
+* partial/subset data migration
+* migration with little to no admin overhead, as a service
+
+== Identity federation
+
+Identity federation (IDF) is an architecture where identities of an external
+identity provider (IDP) are recognized.
+
+Single sign-on (SSO) is where credentials of an external identity are used to allow
+access to a local system (e.g. AWS).
+
+Types of IDF include:
+
+* **cross-account roles**: a remote account (IDP) is allowed to assume
+  a role and access your account's resources
+* **SAML 2.0 IDF**: an on-premises or AWS-hosted directory service
+  instance is configured to allow Active Directory users to log in to the
+  AWS console.
+* Web Identity Federation: IDPs such as Google, Amazon, and Facebook
+  are allowed to assume roles and access resources in your account
+
+**Cognito** and the **Secure Token Service** (**STS**) are used for
+IDF.
+
+A federated identity is verified using an external IDP and by proving
+the identity (using a token or assertion of some kind) is allowed
+to swap that ID for temporary AWS credentials by assuming a role.
+
+=== Reasons to use Identity Federation
+
+**Enterprise access to AWS Resources**:
+
+* users/staff have an existing pool of identities
+* you need those identities to be used across all enterprise
+  systems including AWS
+* access to AWS resources using SSO
+* potentially tens or hundreds of thousands of users - more than IAM
+  can handle
+* you might have an ID team within your business
+
+**Mobile and Web Applications**:
+
+* mobile or web application requires access to AWS resources
+* you need a certain level of guest access - and extra once logged in
+* customers have other identities - Google, Twitter, Facebook,
+  etc. - and need to use those
+* you don't want credentials stored within the application
+* could be millions of more users - beyond the capabilities of IAM
+* customers might have multiple third-party logins, but
+  they represent one real person
+
+**Centralized Identity Management (AWS Accounts)**:
+
+* tens of hundreds of AWS accounts in an organization
+* need central store of IDs - either IAM or an external provider
+* role switching used from an ID account into member accounts
 
 
 == Todo list
@@ -2247,6 +2832,10 @@ You can't currently acces an aurora serverless cluster from cross-vpn or inter-r
   ** https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html
 * Multi-AZ RDS: https://aws.amazon.com/rds/details/multi-az/
 * Aurora serverless: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.setting-capacity.html
+* Identity federation:
+  ** https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html
+  ** https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithSAML.html
+  ** https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html
 
 
 
