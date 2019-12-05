@@ -2810,6 +2810,144 @@ to swap that ID for temporary AWS credentials by assuming a role.
 * need central store of IDs - either IAM or an external provider
 * role switching used from an ID account into member accounts
 
+== Application integration services
+
+=== SNS - Simple Notification Service
+
+Topic - you send notifications to the topic.
+
+Subscriber - the receiver.
+
+* SNS coordinates and manages the sending and delivery of messages.
+* Messages sent to a topic are delivered to subscribers.
+* SNS is integrated with many AWS services and can be used
+  for certain event notifications (e.g., CloudFormation stack creation)
+* using SNS, CloudWatch notify admins of important alerts
+* SNS can be used for mobile push notifications
+
+SNS components:
+
+* Topic
+    ** an isolated configuration for SNS, including permissions
+        *** messages (<= 256 kB) are sent to a topic
+        *** subscribers to that topic receive messages
+* Subscriber
+    ** endpoints that receive messages for a topic
+        *** HTTP(s)
+        *** email and email-JSON
+        *** SOS (message can be added to one or more queues)
+        *** mobile push notifications (iOS, Android, Amazon, MS)
+        *** lambda functions (function invoked)
+        *** SMS (cellular message)
+* Publisher
+    ** an entity that publishes/sends messages to queues
+        *** application
+        *** aws services, including S3 (S3 events), CloudWatch,
+            CloudFormation, etc.
+
+Supports encryption in transit and at rest.
+
+=== SQS - Simple Queue Service
+
+* message queues for inter-process/server/service messaging
+* SQS is used mainly to create decoupled architectures
+* messages are added to a queue and retrieved via polling
+
+Polling types:
+
+* short polling - available messages are returned ASAP
+  ** a short poll might return 0 messages.
+  ** causes increases number of API calls
+* long polling - waits for messages for a given WaitTimeSeconds
+  ** more efficient - less empty API calls
+
+Types of queues:
+
+* standard queues
+* fifo queues
+
+Each SQS message contains up to 256 kB.
+
+Can link data stored in S3 for larger payloads.
+
+When a message is polled, it is hidden in the queue.
+
+It can be deleted when processing is completed - otherwise,
+after a __VisibilityTimeout__ period, it will return
+to the queue.
+
+Queues can be configured with a __maxReceiveCount__,
+allowing  messages that are failing to be moved to a dead-letter queue.
+
+Lambda functions can be invoked based on messages on a queue
+offering better scaling and faster response than Auto Scaling
+groups for any messages that can be processed quickly.
+
+Standard queues:
+
+* nearly unlimited throughput
+* order not quaranteed
+* messages ar e guaranteed to be delivered at least once,
+  but sometimes more than once
+
+FIFO queues:
+
+* first-in, first-out
+* mesages are delivered once - duplicates do not occur
+* max 3k messages per second witch batching
+* max 300 messages per second without batching
+
+VisibilityTimeout - 0 secs to 12 hours (default 30 seconds)
+
+MessageRetentionPeriod - 16 seconds to 14 days, default 4 days
+
+You use receipt handle when deleting message from the queue.
+
+[source,bash]
+----
+aws sqs get-queue-attributes --queue-url https://URL --attribute-names All
+
+aws sqs send-message --queue-url https://URL --message-body "INSERTMESSAGE"
+
+aws sqs receive-message --wait-time-seconds 10 --max-number-of-messages 10 --queue-url https://URL
+
+aws sqs --region us-east-1 receive-message --wait-time-seconds 10 --max-number-of-messages 10 --queue-url https://URL
+
+aws sqs delete-message --queue-url https://URL --receipt-handle "INSERTHANDLE"
+----
+
+=== Elastic Transcoder
+
+Converts media files.
+
+Billed a per-minute charge while using the service.
+
+A pipeline is a queue for jobs:
+
+* stores source and destination settings, notification, security, and other high settings
+* jobs processed in the ordder they are added as resources allow.
+
+Job:
+
+* defines the input object and up to 30 output objects/formats
+* added to a pipeline in the same region and use the buckets defined
+  in the pipeline for input/output
+
+Presets contain transcoding settings.
+
+Pipeline settings:
+
+* name
+* input bucket
+* IAM role
+* output bucket for transcoded files and playlists
+* output bucket for thumbnails
+* notifications:
+  ** on progressing
+  ** on warning
+  ** on completion
+  ** on error
+
 
 == Todo list
 
