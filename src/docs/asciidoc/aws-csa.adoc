@@ -2948,6 +2948,363 @@ Pipeline settings:
   ** on completion
   ** on error
 
+== Analytics
+
+=== Athena
+
+Amazon Athena is an interactive query service that utilizes
+**schema-on-read**, allowing you to run ad-hoc SQL-like queries on data
+from a range of sources.
+
+Results are returned in seconds.
+
+You are only billed for the compute time used and any existing
+storage costs.
+
+Source data:
+
+* xml
+* json
+* csv/tsv
+* avro
+* orc
+* parquet
+
+Integrated with:
+
+* CloudTrail logs
+* CloudFlow logs
+* ELB logs
+* VPC flow logs
+* AWS Glue (ETL product)
+
+=== Elastic MapReduce
+
+Based on Apache Hadoop.
+
+Delivered as a managed cluster using EC2 instances.
+
+Used for huge-scale log analysis, indexing, machine learning, financial analysis,
+simulations, bioinformatics, etc.
+
+master node:
+
+* manages the cluster
+* manages HDFS naming
+* distributes workloads
+* monitors health
+* you log into master node throguh ssh
+* if master node fails - the cluster fails
+
+core nodes:
+
+* zero or more in the cluster
+* managed by the master node
+* run tasks and manage data for HDFS
+* if they fail, can cause cluster instability
+
+task nodes:
+
+* optional
+* if task node fails, a core node starts the task on another task/core node.
+* can use spot instances
+
+EMR FS - enchancement to HDFS
+
+EMR cluster can be long lived or ad hoc.
+
+Whole cluster file system is backed by S3.
+
+When to use EMR:
+
+* on-demand billing
+* when needed semi-structured or unstructured analysis of data
+
+=== Kinesis
+
+Kinesis is scalable and resilient streaming service.
+
+Ingests large amounts of data from millions of producers.
+
+Consumers can access a rolling window of data, or it can be stored
+in persistent storage of database products.
+
+Kinesis stream
+
+* used to collect, process and analyze data.
+* public service accessible from inside VPCs or from the public
+  internet by an unlimited number of producers.
+* 24 default window, max 7 days window
+* data added by consumers, read by consumers
+
+Kinesis shard:
+
+* added to streams to scale
+* stream starts with one shard, which allows 1MiB of ingestion and
+  2MiB of consumption
+* shards can be added and removed from the streams
+
+Kinesis data record:
+
+- basic entity written to and read from Kinesis stream
+* can be up to 1MB in size
+
+Use when:
+
+* have many producers and consumens, and
+* have a rolling window of data
+* SQS is a queue, Kinesis allows lots of intependent consumers
+  reading from the same data window.
+
+Kinesis Data Firehose:
+
+* stores data directly to:
+  ** S3
+  ** redshift
+  ** Elasticsearch
+  ** Splunk
+* can perform data transformations on live streaming data
+
+=== Redshift
+
+Redshift is petabyte-scale data warehousing solution.
+
+* column-based database designed for analytical workloads.
+* generally a relational store like RDS woudld be used for OLTP,
+  and Redshift would be used for OLAP (retrieval and analytics)
+* multiple databases become source data to be injected
+  into a data warehouse solution such as Redshift
+
+Components:
+
+* leader node
+* compute node
+* slices
+
+Data can be loaded from S3 and unloaded to S3.
+
+Backups can be performed to S3.
+
+When to use:
+
+* Athena for transaction-type queries on data in S3
+* EMR - analytics and transformation of data
+* Redshift - end-state repository fot the data
+
+== Logging and Monitoring
+
+=== CloudWatch
+
+Provides near real-time monitoring of AWS products.
+
+You can import custom metric data in real-time from some AWS services
+and on-premises platforms.
+
+Data retention is based on granularity:
+
+* one-hour metrics are retained for 455 days
+* five-minute metrics for 63 days
+* one-minute metrics for 15 days
+
+Metrics can be configured with alarms that can take actions.
+
+Data can be presented as a dashboard.
+
+Cloudwatch Agent:
+
+* sits inside EC2 instance
+* can track memory utilization
+
+A CloudWath metric is a set of data points over time.
+
+Alarms can be created on metrics, taking an action
+if the alarm is triggered.
+
+Alarm states:
+
+* INSUFFICIENT
+* ALARM
+* OK
+
+Alarm key components:
+
+* metric - the data points
+* threshold - static or anomaly
+* period - how long the threshold should be bad before an
+  alarm is generated
+* Action:
+  ** SNS
+  ** AutoScaling
+  ** EC2
+
+==== CloudWatch Logs
+
+Metric filters can be used to analyze logs and create metrics.
+
+* Log group:
+  ** a container for log streams.
+  ** controls retention, monitoring and access control
+* Log stream:
+  ** sequence of log events with the same source
+* log event:
+  * timestamp and raw message
+* metric filter pattern matches text in all log events
+  in all log streams of whichever glog group it's
+  created on, creating a metric.
+
+Log group can:
+
+* export data to S3
+* stream to AWS lambda
+* stream to Amazon Elasticsearch Service
+* can have retention setting
+* add metric filter - text search
+
+=== CloudTrail
+
+Governance, compliance, risk management, and auditing
+service that records account activity within an AWS account.
+
+Any actions taken by users, roles, or AWS services
+are recorded.
+
+Activity is recorded as a CloudTrail event.
+
+* by default you can view 90 days via event history.
+* trails can be created, giving more control over logging
+
+Events can be:
+
+* **management events** - control plane events
+  - e.g. user login, configuring security,
+  adjusting security group
+* **data events** - e.g. - object-level events in S3 or
+  function level events in Lambda
+
+Trail - a unit of configuration:
+
+* name
+* region or all regions
+* "apply trail to my organization" flag
+* management events: all, read-only, write-only, none
+* data events:
+  ** S3
+  ** Lambda
+* storage location (S3 bucket)
+* can enable encryption with SSE-KMS
+* can enable log file valitdation
+* can send SNS notification fro every log file delivery
+* can integrate to CloudWatch Logs
+
+Delivers log file on periodic basis.
+
+=== VPC Flow Logs
+
+Capture metadata about the traffic flowing in and out of networking interfaces
+within a VPC.
+
+Cen be placed on a specific network interface, a subnet, or an
+entire VPC.
+
+Capture metadata from the capture point and anything within it.
+
+Flow logs aren't real-tiem and don't capture
+the actual tarffic - only the metadata on the traffic.
+
+Flow logs capture:
+
+* account-id
+* interface-id
+* scraddr
+* srcport
+* dstaddr
+* dstport
+* protocol
+* packets
+* bytes
+* start
+* end
+* action
+* log-status
+
+Don't capture some traffic:
+
+* Amazon DNS server
+* Windows license activation,
+* 169.254.169.254
+* DHCP traffic
+* VPC router
+
+Flow log settings:
+
+* vpc
+* filter (accept, reject, all)
+* Destination (S3, CloudWatch Logs)
+* Destination log group
+* IAM role
+
+== Operations
+
+=== CloudWatch Events
+
+* near real-time visibility of changes within an AWS account.
+* many AWS services directly supported
+* event pattern matching against CloudTrail events
+* scheduled events - cron-style
+
+Target examples:
+
+* EC2 instances
+* Lambda functions
+* Step Functions state machines
+* SNS topics
+* SQS queues
+
+=== KMS
+
+* Provides regional, secure key management and encryption/decryption.
+* FIPS 140-2 level 2 validated (Federal Information Processing Standard)
+* certain aspects support level 3
+* everything in KMS is regional
+* can use CloudHSM via Custom Key Stores (FIPS 140_2 Level 3)
+
+Customer Master Keys:
+
+* manages customer master keys (CMK), which are
+  created in a region and never leave the region or KMS
+* can encrypt of decrypt data up to 4KB.
+* CMKs have key policies and can be used to create other keys
+
+* KMS can **encrypt** data up to 4KB with a CMK - you supply
+  the data and specify the key to use
+* it can **decrypt** data up to 4KB - you provide the ciphertext
+  and it returns plaintext
+* you can **re-encrypt** up to 4KB - you supply the cipthertext,
+  the new key to use, and you are returned new ciphertext
+
+CMK types:
+
+* Customer Managed
+  ** certain services allow you to pick a CMK
+  ** allow key rotation configuration
+  ** can be controlled via key policies
+  ** can be enabled/disabled
+* AWS managed CMK
+    ** used by default
+    ** formatted as __aws/service-name__
+    ** only the service they belong to can use them directly
+* AWS Owned CMK (not dedicated to specific account)
+
+Data Encryption Keys:
+
+* KMS can generate a **data encryption key** (**DEK**) using a CMK.
+* you can encrypt data of any size with DEK
+* KMS supplies a plaintext version and an encrypted version
+* the encrypted DEK and encrypted data can be stored together
+* CMS is used to decrypt the DEK, which can then decrypt the data.
+
+
+
 
 == Todo list
 
