@@ -3303,6 +3303,94 @@ Data Encryption Keys:
 * the encrypted DEK and encrypted data can be stored together
 * CMS is used to decrypt the DEK, which can then decrypt the data.
 
+CloudHSM - dedicated hardware encryption module.
+
+Custom key stores - interacting with CloudHSM on your behalf.
+
+=== Elastic Beanstalk
+
+Platform as a Service product.
+
+Handles provisioning, monitoring, Auto Scaling, load balancing, and software updating.
+
+Supported platforms:
+
+* java
+* .net
+* node.js
+* php
+* ruby
+* python
+* go
+* docker
+* apache
+* iis
+* nginx
+* tomcat
+
+You need to alter application code to be able to use Elastic Beanstalk.
+
+Don't use Elastic Beanstalk when:
+
+* you want low-level infrastructure control
+* need Chef support
+
+Deployment options:
+
+* all at once
+* rolling
+* rolling with additional batch
+* blue/green
+
+Components:
+
+* applications - containers
+* envirenments - stages
+  ** web server environment
+  ** worker environment
+* application versions
+* saved configurations
+
+==== OpsWorks
+
+Basing on Chef.
+
+Moves away from the low-level configuration
+of CloudFormation but nos as far as Elastic Beanstalk.
+
+Lets you create a stack of resources with layers and manage
+resources as a unit.
+
+Components:
+
+* stacks
+  ** a unit of managed infrastructure
+  ** can use stacks per application or per plaftorm
+  ** could use stacks for development, staging, or prod environments
+* layers
+  ** comparable to application ties within a stack
+  ** e.g., database, application, proxy layer
+  ** recipes are generally associated with layers and configure what to
+     install on instances in that layer
+* instances
+  ** EC2 instances associated with a layer
+  ** configured as 24/7, load based, or time based
+* apps
+  ** apps are deployed to layers from a source code repo or S3
+  ** actual deployment happens using recipes on a layer
+  ** other recipes are run when deployments happen, potentially
+     to reconfigure other instances.
+* recipes
+  ** setup - executed on an instance when first provisioned
+  ** configure - executed on all instances when instance is added
+     or removed
+  ** deploy and undeploy - executed when apps are added or removed
+  ** shutdown - executed when an instance is shut down but before it's
+     stopped
+
+Chef 11 - linux only
+
+Chef 12 - linux and windows
 
 
 
