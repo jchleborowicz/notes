@@ -943,3 +943,74 @@ Picking the right solution:
   ** MicroK8s
   ** Ubuntu and LXD
   ** AWS, Azure and Google Cloud
+
+== Basics - commands:
+
+https://kubernetes.io/docs/tutorials/kubernetes-basics
+
+[source,bash]
+----
+$ kubectl version
+$ kubectl cluster-info
+$ kubectl get nodes
+$ kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node
+$ kubectl get deployments
+$ kubectl get events
+$ kubectl expose deployment hello-node --type=LoadBalancer --port=8080
+$ minikube service hello-node
+$ minikube addons list
+$ minikube addons enable heapster
+$ kubectl get pod,svc -n kube-system
+
+----
+
+=== Hello minikube
+
+https://kubernetes.io/docs/tutorials/hello-minikube/
+
+[source,nashorn js]
+----
+$ kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node
+
+$ kubectl expose deployment hello-node --type=LoadBalancer --port=8080
+
+$ minikube service hello-node
+
+----
+
+
+Kubernetes Deployment Controller - monitors application instances.
+
+Pod:
+
+* group of one or more containers
+* shared resources:
+  ** shared storage, as Volumes
+  ** networking, as a unique cluster ip
+  ** information about how to run each container, such as the container
+     image version or specific ports to use
+* run on the same node
+
+Nodes contain at least:
+
+* kubelet
+* container runtime
+
+Connecting to pod:
+
+[source,bash]
+----
+$ echo -e "\n\n\n\e[92mStarting Proxy. After starting it will not output a response. Please click the first Terminal Tab\n"; kubectl proxy
+
+$ export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+
+$ echo Name of the Pod: $POD_NAME
+
+$ curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/proxy/
+
+$ kubectl logs $POD_NAME
+
+$ kubectl exec $POD_NAME env
+
+$ kubectl exect -it $POD_NAME bash
+----

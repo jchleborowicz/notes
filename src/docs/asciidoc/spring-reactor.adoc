@@ -1,0 +1,22 @@
+= Spring Reactor
+
+Flux - stream that can emit 0..n elements.
+
+[source,java]
+----
+Flux<String> just = Flux.just("1", "2", "3");
+----
+
+Mono - stream of 0..1 elements.
+
+[source,java]
+----
+Mono<String> just = Mono.just("foo");
+----
+
+Publisher interface:
+
+[source,java]
+----
+Publisher<String> just = Mono.just("foo");
+----
