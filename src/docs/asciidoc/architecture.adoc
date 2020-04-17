@@ -1,0 +1,20 @@
+= Software Architecture
+
+== "Building Evolutionary Architectures"
+
+Book by Patrick Kua, Rebecca Parsons and Neal Ford
+
+Architect's job is to analyze business and domian requirements along with other important factors
+to find a solution that balances all concerns optimally.
+
+Architectural factors:
+
+* auditability
+* performance
+* security
+* requirements
+* data
+* legality
+* scalability
+
+

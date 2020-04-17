@@ -1,0 +1,15 @@
+= Java Modularity
+
+Book "Java 9 Modularity" by Sander Mak, Paul Bakker
+
+Factors:
+
+* encapsulation
+* isolation
+* configuration
+
+Tenets:
+
+. strong encapsulation
+. well-defined interfaces
+. explicit dependencies

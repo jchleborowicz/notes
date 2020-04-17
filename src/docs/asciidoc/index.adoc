@@ -38,6 +38,8 @@ link:groovy.html[Groovy]
 
 link:java8-lambdas.html[Java 8 lambdas]
 
+link:java-modularity.html[Java modularity]
+
 link:javascript.html[JavaScript]
 
 link:jhipster.html[JHipster]
