@@ -464,6 +464,22 @@ def describe_pet(pet_name, animal_type='dog'):
 describe_pet('harry')
 ----
 
+=== Global statement
+
+When you need to modify a global variable from within a function.
+
+[source,python]
+----
+state = 'Idle'
+
+def sample():
+    global state
+    state = 'Running'
+
+sample()
+print(state)
+----
+
 === Returning value and arbitrary number of arguments.
 
 [source,python]
