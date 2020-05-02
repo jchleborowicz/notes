@@ -1,3 +1,5 @@
+// suppress inspection "GrazieInspection" for whole file
+// suppress inspection "PyInitNewSignature" for whole file
 // suppress inspection "PyShadowingBuiltins" for whole file
 // suppress inspection "PyUnusedLocal" for whole file
 // suppress inspection "HtmlUnknownTarget" for whole file
@@ -443,7 +445,7 @@ def greet_user(username):
 greet_user('jesse')
 ----
 
-docstrings are enclosed in triple quotes
+docstrings are enclosed in triple quotes.
 
 === Keyword arguments
 
@@ -472,7 +474,7 @@ def avg(*args):
 print(avg(1, 2, 3))
 ----
 
-The arguments of `*args` argument are being packed into tuple.
+`args` argument is a tuple.
 
 ==== Using arbitrary keyword arguments
 
@@ -519,21 +521,21 @@ pizza.make_pizza(16, 'pepperoni')
 pizza.make_pizza(12, 'mushrooms', 'green peppers', 'extra cheese')
 ----
 
-Imported functions are available in format:
+Imported functions are available in a format:
 
-****
+----
 __module_name.function_name__()
-****
+----
 
 Importing specific functions:
 
-****
+----
 from _module_name_ import _function_name_
-****
+----
 
-****
+----
 from _module_name_ import _function_name_1_, _function_name_2_
-****
+----
 
 Giving an alias to a function
 
@@ -641,7 +643,7 @@ with open('pi_digits.txt') as file_object:
     print(contents)
 ----
 
-reading line by line:
+Reading a file line by line:
 
 [source,python]
 ----
@@ -947,7 +949,7 @@ Listening on all interfaces:
 $ flask run --host 0.0.0.0
 ----
 
-Getting reguest attributes:
+Getting request attributes:
 
 [source,python]
 ----
@@ -1214,7 +1216,7 @@ Sample bootstrap-basing template:
 {% endblock %}
 ----
 
-Flask-Botstrap's base template blocks:
+Flask-Bootstrap's base template blocks:
 
 * doc - entire document
 * html_attribs - attributes inside <html> tag
@@ -1287,7 +1289,7 @@ Including moment.js in base template:
 {% endblock %}
 ----
 
-Wokring with timestamps:
+Working with timestamps:
 
 [source,python]
 ----
