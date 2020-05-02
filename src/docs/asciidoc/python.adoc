@@ -1,3 +1,11 @@
+// suppress inspection "PyShadowingBuiltins" for whole file
+// suppress inspection "PyUnusedLocal" for whole file
+// suppress inspection "HtmlUnknownTarget" for whole file
+// suppress inspection "PyStatementEffect" for whole file
+// suppress inspection "PyShadowingNames" for whole file
+// suppress inspection "PyArgumentList" for whole file
+// suppress inspection "PyTypeChecker" for whole file
+// suppress inspection "PyUnresolvedReferences" for whole file
 = Python
 :doc-root: https://notes.jdata.pl
 :toc: left
@@ -9,21 +17,36 @@
 
 Python tutorial: https://docs.python.org/3/tutorial/
 
+Zen of Python display after typing in python interpreter:
+
+[source]
+----
+> import this
+----
+
+=== Compilation
+
 [source,python]
----
+python3 -m py_compile <file-name>
+
+
+=== Exceptions
+
+[source,python]
+----
 try:
     abc
 except IndexError:
-    println(“error”)
----
+    println("error")
+----
 
-Encoding:
+=== Encoding
 
  _# -*- coding: encoding -*-_
 
  _# -*- coding: cp-1252 -*-_
 
-Types:
+=== Types
 
 * int
 * float
@@ -49,7 +72,7 @@ built-in support for complex numbers:
 Single or double quotes, escaping with `\`
 
 Raw strings::
- `r”C:\some\name”`
+ `r"C:\some\name"`
 
 Repeating strings::
  `3 * 'um'`
@@ -71,7 +94,7 @@ Methods:
 
 [options="header"]
 |====
-|Name           |Descritpion
+|Name           |Description
 
 |title()        |Uppercases every word.
 |upper()        |
@@ -86,33 +109,6 @@ Concatenation with `+`
 
 Whitespaces: `\t`, `\n`
 
-
-== Functions
-
-[source,python]
-----
-def fib(n):
-    """Print a Fibonacci serries up to n."""
-    a, b = 0, 1
-    while a < n:
-        print(a, end=' ')
-        a, b = b, a + b
-    print()
-fib(2000)
-----
-
-The first statement in the body of the function can optionally
-be a string literal - this string literal is the function’s
-documentation string, or _docstring_.
-
-Functions without return statement return None value.
-
-=== Tools
-
-Compilation:
-
-[source,python]
-python3 -m py_compile <file-name>
 
 == Variables
 
@@ -140,13 +136,6 @@ Division:
 
 * python3: 3 / 2 == 1.5
 * python2: 3 / 2 == 1
-
-Zen of Python display after typing:
-
-[source,python]
-----
->>> import this
-----
 
 == Lists
 
@@ -181,7 +170,7 @@ print(i, end=’,’)
 
 [source,python]
 ----
-names = ['Jack', 'Jim', 'Johhny']
+names = ['Jack', 'Jim', 'Johnny']
 
 for name in names:
     print(name)
@@ -331,7 +320,7 @@ print(alien['color'])
 print(alien['points'])
 ----
 
-Defining new key in dictionary:
+Defining new key in a dictionary:
 
 [source,python]
 ----
@@ -429,6 +418,24 @@ print(pets)
 
 [source,python]
 ----
+def fib(n):
+    """Print a Fibonacci series up to n."""
+    a, b = 0, 1
+    while a < n:
+        print(a, end=' ')
+        a, b = b, a + b
+    print()
+fib(2000)
+----
+
+The first statement in the body of the function can optionally
+be a string literal - this string literal is the function’s
+documentation string, or _docstring_.
+
+Functions without return statement return None value.
+
+[source,python]
+----
 def greet_user(username):
     """Display a simple greeting."""
     print("Hello, " + username.title() + "!")
@@ -438,7 +445,7 @@ greet_user('jesse')
 
 docstrings are enclosed in triple quotes
 
-=== Keyword argements
+=== Keyword arguments
 
 [source,python]
 ----
@@ -465,7 +472,7 @@ def avg(*args):
 print(avg(1, 2, 3))
 ----
 
-The arguments of `*args` argument are packed into tuple.
+The arguments of `*args` argument are being packed into tuple.
 
 ==== Using arbitrary keyword arguments
 
@@ -559,7 +566,7 @@ make_pizza(16, 'pepperoni')
 
 [source,python]
 ----
-class Dog():
+class Dog:
     """A simple attempt to model a dog."""
 
 
@@ -590,17 +597,16 @@ Creating classes in python 2:
 [source,python]
 ----
 class Dog(object):
-    --snip--
+    nop # --snip--
 ----
 
 === Inheritance
 
 [source,python]
 ----
-class Car():
-
+class Car:
     def __init__(self, param1):
-        --snip--
+        nop # --snip--
 
 
 class ElectricCar(Car):
@@ -1275,7 +1281,7 @@ Including moment.js in base template:
 
 [source,jinja2]
 ----
-{% block scripts %)
+{% block scripts %}
 {{ super() }}
 {{ moment.include_moment() }}
 {% endblock %}
