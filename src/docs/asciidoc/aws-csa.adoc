@@ -1274,7 +1274,7 @@ You can share subnet with other AWS account:
 * you can share subnet within AWS organization
 * other account can only deploy resources into subnet, it cannot modify its settings
 
-==== Routing
+=== Routing
 
 Every VPC has a virtual routing device called the VPC router.
 

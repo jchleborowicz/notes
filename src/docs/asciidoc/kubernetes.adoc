@@ -968,7 +968,7 @@ $ kubectl get pod,svc -n kube-system
 
 https://kubernetes.io/docs/tutorials/hello-minikube/
 
-[source,nashorn js]
+[source]
 ----
 $ kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node
 

@@ -1,44 +1,42 @@
 import java.awt.Desktop
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.6.0'
-        classpath 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.15'
-    }
-
-}
-
 plugins {
-    id 'com.github.jruby-gradle.base' version '1.4.0'
-}
-apply plugin: 'org.asciidoctor.convert'
-
-repositories {
-    maven { url "http://rubygems-proxy.torquebox.org/releases" }
+    id 'org.asciidoctor.jvm.convert' version '2.4.0'
 }
 
 description = 'Learning notes'
 version = '0.0.1'
 
-//loading custom properties
-final String customPropertiesFileName = 'custom.gradle.properties'
-if (new File(customPropertiesFileName).exists()) {
-    apply from: customPropertiesFileName
+configurations {
+    asciidoctorExt
 }
 
 dependencies {
-    gems 'rubygems:asciidoctor-diagram:1.5.4'
+    asciidoctorExt("io.spring.asciidoctor:spring-asciidoctor-extensions-block-switch:0.4.2.RELEASE")
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://repo.spring.io/release"
+        mavenContent {
+            includeGroup "io.spring.asciidoctor"
+        }
+    }
+}
+
+asciidoctorj {
+    modules {
+        pdf {
+            version '1.5.0-beta.8'
+        }
+    }
+    fatalWarnings ".*"
 }
 
 asciidoctor {
-    dependsOn jrubyPrepare
-    requires = ['asciidoctor-diagram']
-    gemPath = jrubyPrepare.outputDir
-
+    baseDirFollowsSourceDir()
+    configurations 'asciidoctorExt'
     sources {
         include '*.adoc'
     }
@@ -50,7 +48,9 @@ asciidoctor {
     }
 
     logDocuments = true
-    backends = ["html5", "pdf"]
+    outputOptions {
+        backends = ["html5", "pdf"]
+    }
 
     options doctype: 'book', eruby: 'erubis'
     attributes = [
@@ -69,18 +69,20 @@ asciidoctor {
 
 build.dependsOn asciidoctor
 
+final asciidocGeneratedDocs = "${buildDir}/docs/asciidoc/html5"
+
 task upload() {
     group 'Html operations'
     description 'Uploads html pages to s3.'
 
     dependsOn asciidoctor
 
-    inputs.dir "${buildDir}/asciidoc/html5"
+    inputs.dir asciidocGeneratedDocs
     outputs.upToDateWhen { true }
 
     doLast {
         exec {
-            commandLine 'aws', '--profile', awsProfile, 's3', 'sync', '--delete', 'build/asciidoc/html5', awsTarget
+            commandLine 'aws', '--profile', awsProfile, 's3', 'sync', '--delete', asciidocGeneratedDocs, awsTarget
         }
     }
 }
@@ -100,7 +102,7 @@ task openLocal() {
     dependsOn asciidoctor
 
     doLast {
-        openFile(new File("$buildDir/asciidoc/html5/index.html"))
+        openFile(new File("$asciidocGeneratedDocs/index.html"))
     }
 }
 
