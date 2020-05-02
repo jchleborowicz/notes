@@ -32,6 +32,8 @@ link:elasticstack.html[Elastic Stack]
 
 link:git.html[Git]
 
+link:golang.html[Go]
+
 link:gradle.html[Gradle]
 
 link:groovy.html[Groovy]

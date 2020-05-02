@@ -13,3 +13,41 @@ Tenets:
 . strong encapsulation
 . well-defined interfaces
 . explicit dependencies
+
+[source,java]
+----
+module pl.jch.learning.java_modularity.hello_world {
+    requires transitive java.compiler;
+    exports pl.jch.learning.java_modularity.hello_world;
+}
+----
+
+Compiling and running:
+
+[source,bash]
+----
+$ javac javac -d \
+  out/hello_world src/hello_world/module-info.java \
+  src/hello_world/pl/jch/learning/java_modularity/hello_world/HelloWorld.java
+$ jar -cfe mods/hello_world.jar \
+  pl.jch.learning.java_modularity.hello_world.HelloWorld \
+  -C out/hello_world .
+$ java --module-path out \
+  --module hello_world/pl.jch.learning.java_modularity.hello_world.HelloWorld
+$ java --module-path mods --module hello_world
+$ java -p mods -m hello_world
+----
+
+Showing module resolution
+[source,bash]
+----
+$ java --show-module-resolution -p mods -m hello_world --limit-modules java.base
+----
+
+[source,bash]
+----
+$ jlink --module-path mods/:$JAVA_HOME/jmods \
+  --add-modules hello_world \
+  --launcher hello=hello_world \
+  --output helloworld-image
+----

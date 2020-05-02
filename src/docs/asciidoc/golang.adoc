@@ -1,0 +1,50 @@
+= Go Language
+
+Directory project layout standard:
+https://github.com/golang-standards/project-layout
+
+Sipmle echo program:
+
+[source,go]
+----
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func main() {
+	var s, sep string
+	for i := 1; i < len(os.Args); i++ {
+		s += sep + os.Args[i]
+		sep = " "
+	}
+	fmt.Println(s)
+}
+----
+
+Definition:
+
+:=::
+short variable declaration
+
+Declaring variable:
+
+[source,go]
+----
+s := ""
+var s string
+var s = ""
+var s string = ""
+----
+
+Utility methods:
+
+----
+bufio.Scanner
+strings.Split
+ioutil.ReadFile
+ioutil.WriteFile
+----
+
