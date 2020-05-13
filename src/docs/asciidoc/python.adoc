@@ -350,13 +350,13 @@ Looping through keys:
 
 [source,python]
 ----
-for name in favorite_languages.keys():
-    print(name.title())
+favorite_languages = {'pl': 'polish', 'en': 'english', 'sp': 'spanish'}
 
-# same as:
+for key in favorite_languages.keys():
+    print(key, "-", favorite_languages[key])
 
-for name in favorite_languages:
-    print(name.title())
+for key, value in favorite_languages.items():
+    print(key, "-", value)
 ----
 
 Dictionary methods:
@@ -367,7 +367,35 @@ Dictionary methods:
 
 Set construction:
 
+[source,python]
+----
 set(favorite_languages.values())
+----
+
+Dictionary throws `KeyError` when trying to reference non-existent key.
+
+Default value:
+
+[source,python]
+----
+picnic_items.get('eggs', 0)
+----
+
+Setting value if key does not exist:
+
+[source,python]
+----
+picnic_items.setdefault('wine', 1)
+----
+
+Pretty printing:
+
+[source,python]
+----
+pprint.pprint(picnic_items)
+
+str = pprint.pformat(picnic_items)
+----
 
 == User input
 
