@@ -813,6 +813,12 @@ Installing on ubuntu:
 $ sudo apt install python3-venv
 ----
 
+Updating package tools:
+
+----
+$ python -m pip install --upgrade pip setuptools wheel
+----
+
 Created directory structure:
 
 * bin - files that interact with virtual environment
