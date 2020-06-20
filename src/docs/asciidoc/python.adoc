@@ -794,6 +794,7 @@ Assert methods:
 * assertIn(item, list)
 * assertNotIn(item, list)
 
+
 == Packages and virtual environments
 
 Location of third party packages:
@@ -817,6 +818,12 @@ Updating package tools:
 
 ----
 $ python -m pip install --upgrade pip setuptools wheel
+----
+
+Creating virtual envinorment:
+
+----
+$ python3 -m venv /path/to/my/env
 ----
 
 Created directory structure:
@@ -865,6 +872,42 @@ Installing virtualenvwrapper:
 ----
 $ pip install virtualenvwrapper
 $ which virtualenvwrapper.sh
+----
+
+=== Main function
+
+[source,python]
+----
+if __name__ == '__main__':
+    my_main_func()
+----
+
+=== Custom import name
+
+[source,python]
+----
+if visual_mode:
+    import draw_visual as draw
+else:
+    import draw_textual as draw
+
+draw.draw_game()
+----
+
+=== Extending module load path
+
+ $ PYTHONPATH=/foo python3 game.py
+
+=== Exploring built-in modules
+
+[source,python]
+----
+import urllib
+
+for module in dir(urllib):
+    print(module)
+
+help(urllib.urlopen)
 ----
 
 == Method decorators

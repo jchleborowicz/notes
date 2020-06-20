@@ -1,0 +1,20 @@
+= Python Flask library
+
+Libraries used:
+
+* Werkzeug - WSGI
+* Jinja - templates
+* MarkupSafe - comes with Jinja
+* ItsDangerous - securely signs data
+* Click - framework for writing command line apps
+
+[source]
+----
+url_for()
+
+with app.test_request_context():
+    print(url_for('index'))
+----
+
+with app.test_request_context():
+    print(url_for('index'))
