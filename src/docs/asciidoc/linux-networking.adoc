@@ -1,0 +1,183 @@
+= Linux networking
+
+== Basics
+
+MAC Address::
+    Unique fingerprint of the network interface.
+
+IP Address::
+    Unique address on the network.
+
+Subnet::
+    Separates the IP into network and host addresses.
+
+Gateway::
+    The connection leading outside of the local network.
+
+DNS Host::
+    Translates hostname into IP addresses.
+
+DNS Domain::
+    The lookup domain for the host.
+
+Checking IP address:
+
+[source,bash]
+----
+$ ifconfig
+$ ip addr
+$ nmcli
+$ nmcli device show
+$ ip route show
+$ routel
+----
+
+== Network topology
+
+=== Switching
+
+switch::
+    forwards packets within internal network
+
+router::
+    forwards packets between networks
+
+=== OSI Layers
+
+OSI model::
+    Open Systems Interconnection model.
+    Partitions a communication system into abstraction layers.
+
+.OSI layers
+[%header,cols="1,2,8,3"]
+|=======
+|#|Name|Description|Protocols
+|7|Application  |The *interface* permitting the user to send and receive data
+                 through clients and applications.
+                |HTTP, POP3, SMPT, DNS, SOAP
+|6|Presentation |*Converts* the request from the application into a universal format.
+                |TLS, SSL, MIME, JPEG, GIF
+|5|Session      |Permits the ability to open, close, and *manage* a session between
+                 the process and response.
+                |LDAP, NetBIOSq PPTP, RPC, SMB, SSL
+|4|Transport    |Defines how data will be sent, providing *validation* and security.
+                |TCP, UDP, SPX, iSCSI
+|3|Network      |Looks for the best **path** to reach the destination *[IP]*
+                |IP, IPSec, ICMP, RIP
+|2|DataLink     |Handles communication between **adjacent nodes [MAC]**
+                |Ethernet, Frame Relay, IEEE 802.11 (WiFi), PPP, VLAN, MAC
+|1|Physical     |Handles **bit level** transmission between network nodes.
+                |Ethernet physical, IEEE 1394 (firewire), Infrared
+|=======
+
+=== IP Address
+
+==== IPv4
+
+192.168.101.100
+
+32bit, 8 octets
+
+==== IPv6
+
+base-16 number:
+
+fe80:0000:0000:0000:5054:00ff:0fec9:c704
+
+128bit - 8 16bit sections.
+
+fe80::5054:ff:fec9:c704
+
+==== IPv4 classes
+
+[%header,cols="1,1,3,4"]
+|====
+|Class  |Bits|Range                             |Purpose
+|Class A|0---|0.0.0.0 to 127.255.255.255        |
+|Class B|10--|128.0.0.0 to 191.255.255.255      |
+|Class C|110-|192.0.0.0 to 223.255.255.255      |
+|Class D|1110|224.0.0.0 to 239.255.255.255      |Reserved for mulitcast
+|Class E|1111|240.0.0.0 to 255.255.255.255      |Reserved for experimental use.
+|====
+
+.Classes and subnets:
+
+* Class A - 255.0.0.0
+* Class B - 255.255.0.0
+* Class C - 255.255.255.0
+
+.Private networks:
+
+* Class A - 10.0.0.0 - 10.255.255.255
+* Class B - 172.16.0.0 _ 172.31.255.255
+* Class C - 192.168.0.0 - 192.168.255.255
+
+Loopback range - 127.0.0.0 - 127.255.255.255
+
+CIDR - Classless Inter-Domain Routing
+
+Subnets in IPv6:
+
+* 128 bits - whole address
+* first 64 bits - network address
+    ** first 48 bits - global network address
+    ** last 16 bits - internal network address
+* last 64 bits - MAC address
+
+Types of IPv6 address:
+
+* global unicast - Internet scope - routed on Internet `2001:`
+* unique local - internal network scope - not routed on internet
+* link local - network link scope - not routed on Internet - `FE80:`
+
+NAT::
+    Network address translation is a method of **remapping** one IP address space into another
+    by modifying network address information on the IP header of packets while they are
+    in transit across a traffic routing device.
+
+== Routing
+
+.Router
+* **layer 3** device, functioning at the IP level
+* forwards data between networks
+* the routing table is a **static table** mapping of the best path to a network destination
+
+Example:
+
+[pre]
+----
+Kernel IP routing table:
+Destination     Gateway         Genmask         Flags   Metric  Ref Use Iface
+0.0.0.0         172.31.96.1     0.0.0.0         UG      100     0   0   eth0
+172.31.96.0     0.0.0.0         255.255.255.0   U       100     0   0   eth0
+----
+
+Flags:
+
+* U - up
+* G - gateway
+
+Rules:
+
+* if the destination is outside of the local network, use the gateway
+* if the destination is inside the local network, don't use the gateway
+
+Static routes:
+
+* manually configured routes
+* for traffic that must not go through the default gateway
+
+.BGP
+* Border Gateway Protocol
+* routing protocol used to route traffic across the internet
+* layer 4 protocol sitting on top of TCP - this makes it simpler than OSPF,
+  as it doesn't manage what TCP handles
+* there is no discovery - peer that have been manually configured
+  to exchange routing information for a TCP connection
+* organizations can use BGP for true multi-homing their corporate network
+* an **ASN** (Autonomous System Number) is required to implement BGP peering
+    ** this is a special number assigned by IANA for use primarily with BGP that identifies
+       each network on the internet
+* two routers that have established a connection and exchanged BGP information
+  are **BGP peers**, exchanging routing information between them via BGP sessions over TCP
+
