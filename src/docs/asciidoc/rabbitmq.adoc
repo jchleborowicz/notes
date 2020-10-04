@@ -5,9 +5,11 @@
 :tabsize: 4
 :docinfo1:
 
+
 == Basics
 
 RabbitMQ is a message broker: it accepts and forwards messages.
+
 
 === AMQ Components
 
@@ -23,6 +25,7 @@ Binding::
     a rule that tels the exchange which queue the messages
     should be stored in
 
+
 === Jargon
 
 * producing a message - sending
@@ -33,6 +36,7 @@ Binding::
 === Exchanges
 
 The producer sends messages to an exchange.
+
 
 === Client
 
@@ -100,6 +104,7 @@ When sending message:
 . content header frame - uses _Basic.Properties_ data structure
 . body frames
 
+
 === Exchanges
 
 **Declaring the exchange**: _Exchange.Declare_ command.
@@ -113,6 +118,45 @@ Responses: _Queue.DeclareOK_
 **Binding the queue to the exchange**: _Queue.Bind_ command.
 
 Response: _Queue.BindOk_
+
+
+== Message properties
+
+**Basic.Properties** dictionary.
+
+Properties:
+
+* content-type
+* content-encoding - info about compression and encoding
+* message-id, correlation-id - uniquely identify messages and message responses,
+  tracking the messages through the workflow.
+* timestamp
+* expiration
+* delivery-mode - disk-backed or in-memory
+* app-id, user-id - track publishers
+* type - contract between publishers and consumers
+* reply-to
+* headers
+
+Serialization formats:
+
+* MessagePack
+* Apache Thrift
+* Google Protobuf
+
+== Performance trade-offs
+
+Delivery guarantee mechanisms:
+
+* No guarantee
+* Notification on failure
+* Publisher confirms
+* Alternate exchanges
+* HA queues
+* Transactions
+* HA queues with transactions
+* Persisted messages
+
 
 == Todo
 

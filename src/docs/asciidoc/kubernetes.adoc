@@ -944,7 +944,7 @@ Picking the right solution:
   ** Ubuntu and LXD
   ** AWS, Azure and Google Cloud
 
-== Basics - commands:
+== Basics - commands
 
 https://kubernetes.io/docs/tutorials/kubernetes-basics
 
@@ -964,18 +964,38 @@ $ kubectl get pod,svc -n kube-system
 
 ----
 
+== Kubernetes tutorials
+
 === Hello minikube
 
 https://kubernetes.io/docs/tutorials/hello-minikube/
 
+Running dashboard:
+
+----
+minikube dashboard
+----
+
+Pod - a group of one or more containers, tied together fro the purposes
+of administration and networking.
+
 [source]
 ----
-$ kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node
+$ kubectl create deployment hello-node --image=k8s.gcr.io/echoserver:1.4
+
+$ kubectl get deployments
+$ kubectl get pods
+$ kubectl get events
 
 $ kubectl expose deployment hello-node --type=LoadBalancer --port=8080
 
 $ minikube service hello-node
+$ minikube addons list
+$ minikube addons enable metrics-server
+$ minikube addons disable metrics-server
 
+$ kubectl delete service hello-node
+$ kubectl delete deployment hello-node
 ----
 
 
@@ -1014,3 +1034,94 @@ $ kubectl exec $POD_NAME env
 
 $ kubectl exect -it $POD_NAME bash
 ----
+
+
+https://kubernetes.io/docs/concepts/
+
+Pod shared resources:
+
+* shared storage, as Volumes
+* networking, as a unique cluster IP address
+* information about how to run each container,
+  such as the container image version or specific
+  ports to use
+
+Each node runs at least:
+
+* kubelet - a process responsible for communication between the
+  master and the node.
+* a container runtime (like docker or rkt)
+
+Troubleshooting with kubectl:
+
+* kubectl get
+* kubectl describe
+* kubectl logs
+* kubectl exec
+
+Getting pod name:
+
+----
+$ export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+echo Name of the Pod: $POD_NAME
+
+$ curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/proxy/
+
+$ kubectl exec $POD_NAME env
+
+$ kubectl exec -it $POD_NAME bash
+----
+
+Pod phases:
+
+* Pending - time before being scheduled, pulling images
+* Running - all containers created, at least one container still running
+* Succeeded - all containers have terminated in success, and will not be restarted
+* Failed - all containers have terminated, and at least one has terminated
+  in failure
+* Unknown - error in communicating with the host
+
+Service:
+
+* logical set of pods and a policy by which to access them.
+* enables loose coupling between dependent pods
+* set of pods targeted by a service is determined by a _LabelSelector_
+
+Service types:
+
+* _ClusterIP_ (default) - exposes the service on an internal IP in the cluster.
+* _NodePort_ - exposes on the same port of each selected Node
+  in the cluster using NAT.
+* _LoadBalancer_ - creates an external load balancer in the current cloud and
+  assigns a fixed, external IP to the Service
+* _ExternalName_ - exposes the service using arbitrary name (specified by `externalName`
+  in the spec) by returning a CNAME record with the name.
+  No proxy is used.
+
+----
+$ kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
+
+$ kubectl describe services/kubernetes-bootcamp
+
+$ export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+
+$ curl $(minikube ip):$NODE_PORT
+
+$ kubectl get pods -l run=kubernetes-bootcamp
+
+$ kubectl get services -l run=kubernetes-bootcamp
+
+$ export POD_NAME=$(kubectl get pods -o go-template --template '{{range.items}}{{.metadata.name}}{{"\n"}}{{end}}')
+
+$ kubectl label pod $POD_NAME app=v1
+
+$ kubectl delete service -l run=kubernetes-bootcamp
+----
+
+
+TODO:
+
+* https://kubernetes.io/docs/concepts/services-networking/connect-applications-service/
+* https://kubernetes.io/docs/tutorials/services/source-ip/
+
+
