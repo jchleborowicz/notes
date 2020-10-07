@@ -181,3 +181,89 @@ Static routes:
 * two routers that have established a connection and exchanged BGP information
   are **BGP peers**, exchanging routing information between them via BGP sessions over TCP
 
+=== ARP
+
+ARP - Address Resolution Protocol - communication protocol used for
+discovering the MAC address with a given network layer address
+(IP address).
+
+Put simply, ARP is used for mapin an IP address to a MAC address on the network.
+
+ARP sequence:
+
+. the data payload needs to be sent
+. the layer 3 header is created with the **source IP** and **destination IP**
+. the layer 2 header is created with the **source MAC** and **destination (gateway) MAC**
+. if the destination MAC address isn't known, a broadcast request is sent
+  to the network.
+. the datagram is sent to the network for delivery.
+
+ARP information is kept in the **ARP Table**
+
+ARP request:
+
+. request - broadcast - with question who has given IP
+. response - unicast - to requesting host
+
+[source,bash]
+----
+$ nmcli d showtorem
+
+## get ARP table (n - neighbour):
+$ ip n
+$ ip neigh
+----
+
+=== DNS
+
+DNS - Domain Name Service:
+
+* layer 7 communication protocol used for disrovering
+  the IP address associated with a given domain name
+* DNS in neccessary to map FQDN addresses to Layer 3 (IP) addresses
+
+FQDN - fully qualified domain name
+
+* complete domain name for a specific host on a network
+* computer send a **query** to DNS server
+* using **www.example.com** there is an implied period after **.com**
+* the query is going to start from the right, with the period
+  after the **.com**
+* this query is resolved by the root servers,
+  and then forwarded to the TLD servers
+* the TLD (Top Level Domain Servers) resolve **.com**
+* Root Servers are available to answer domain queries regarding
+  TLDs such as **.com**
+* the query is then forwarded by the name servers for the domain,
+  in this case **example.com**
+* the name servers may also be able to resolve the *www* portion.
+* or they may need to forward the query to additional authorative
+  DNS hosts managing the zones within the domain.
+
+
+=== TCP Handshake
+
+TCP:
+
+* layer 4 protocol
+* highly reliable connection protocol through
+  **Positive Acknowledgement with Retransmission (PAR)**.
+* data is re-sent if an acknowledgement isn't received
+* the layer 4 data is referred to as *segments*, each segment
+  contains a *checksum* for verification upon receipt.
+* if verification succeeds, an *acknowledgement* is sent
+* if verification fails, the receiver discards that segment and waits
+  for retransmission
+
+
+
+Protocol Data Units:
+
+* layer 4 - segments
+* layer 3 - packets
+* layer 2 - frames
+
+
+TODO:
+
+* do awk tutorial
