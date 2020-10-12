@@ -20,46 +20,64 @@ link:angular.html[Angular]
 
 link:ansible.html[Ansible]
 
-link:aws-csa.html[AWS Certified Solutions Architect Associate]
-
-link:devops.html[DevOps]
-
-link:docker.html[Docker]
+link:aws-csa.html[Architecture 101]
 
 link:cxf.html[CXF]
 
+link:kubernetes-certified-kubernetes-adm.html[Certified Kubernetes Administrator Course]
+
+link:devops.html[Course DevOps Essentials]
+
+link:docker.html[Docker]
+
 link:elasticstack.html[Elastic Stack]
 
-link:git.html[Git]
+link:git.html[GIT]
 
-link:golang.html[Go]
+link:golang.html[Go Language]
 
 link:gradle.html[Gradle]
 
 link:groovy.html[Groovy]
 
+link:jhipster.html[JHipster]
+
 link:java8-lambdas.html[Java 8 lambdas]
 
-link:java-modularity.html[Java modularity]
+link:java-modularity.html[Java Modularity]
 
 link:javascript.html[JavaScript]
 
-link:jhipster.html[JHipster]
-
 link:kotlin.html[Kotlin]
+
+link:kubernetes-up-and-running.html[Kubernetes Up and Running book notes]
+
+link:kubernetes-the-hard-way-course.html[Kubernetes the Hard Way Course]
 
 link:kubernetes.html[Kubernetes]
 
+link:linux-networking.html[Linux networking]
+
+link:prototype-js.html[Prototype]
+
+link:python-flask.html[Python Flask library]
+
 link:python.html[Python]
-
-link:prototype-js.html[prototype.js]
-
-link:rxjs.html[RxJS]
 
 link:rabbitmq.html[RabbitMQ]
 
-link:regex.html[regex]
+link:regex.html[Regex]
 
-link:tc-server.html[tc-server]
+link:rxjs.html[RxJS]
+
+link:architecture.html[Software Architecture]
+
+link:software-architecture.html[Software architecture]
+
+link:spring-reactor.html[Spring Reactor]
 
 link:ubuntu.html[Ubuntu]
+
+link:awk.html[awk]
+
+link:tc-server.html[tcServer]

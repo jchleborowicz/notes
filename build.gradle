@@ -114,3 +114,29 @@ task openRemote() {
         openUrl(notesUrl)
     }
 }
+
+task updateIndex() {
+    group 'Documentation'
+    description 'Updates index.adoc with links'
+
+    doLast {
+        final File indexFile = file("$rootDir/src/docs/asciidoc/index.adoc")
+        def content = indexFile.text
+
+        content = content.substring(0, content.indexOf('== Contents'))
+
+        content += '== Contents\n'
+
+        file('src/docs/asciidoc')
+                .listFiles()
+                .findAll { it.name != 'index.adoc' && it.name.endsWith('.adoc') }
+                .collect {
+                    'link:' + it.name.replaceFirst('\\.adoc$', '.html') +
+                            '[' + it.readLines().find { it.startsWith('=') }.replaceFirst('^=* ', '') + ']'
+                }
+                .sort {it.replaceFirst('^.*\\[', '')}
+                .each { content += '\n' + it + '\n' }
+
+        indexFile.write(content)
+    }
+}

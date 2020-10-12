@@ -1,4 +1,4 @@
-== Certified Kubernetes Administrator course
+== Certified Kubernetes Administrator Course
 
 Course by Linux Academy.
 
