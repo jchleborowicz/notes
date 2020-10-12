@@ -12,3 +12,99 @@ $ docker run -d \
     nginx
 ----
 
+== Common kubectl commands
+
+ $ kubectl config sen-context my-context --nameplace=mystuff
+ $ kubectl config use-context my-context
+
+[options=header,cols=2]
+|===
+|Option|Description
+| -o wide | wide columns
+| --no-headers |skip headers
+| -o jsonpath --template={.status.podIP}
+|===
+
+ $ kubectl apply -f file.yaml
+
+To check what would be changed:
+
+ $ kubectl apply --dry-run -f file.yaml
+
+To edit interactively:
+
+ $ kubectl edit <resource-name> <object-name>
+
+Deleting an object:
+
+ $ kubectl delete -f obj.yaml
+ $ kubectl delete <resource-name> <object-name>
+
+=== Labeling
+
+ $ kubectl label pods bar color=red
+ $ kubectl annotate pods bar annotation=value
+
+Removing a label:
+
+ $ kubectl label pods bar color-
+
+=== Debugging commands
+
+ $ kubectl logs <pod-name>
+ $ kubectl logs <pod-name> -c <container-name>
+
+-f - follow
+
+Running commands in the container:
+
+ $ kubectl exec -it <pod-name> -- bash
+
+Attaching to the container:
+
+ $ kubectl attach -it <pod-name>
+
+Copying files to and from a container:
+
+ $ kubectl cp <pod-name>:</path> <local-path>
+
+Forwarding a port:
+
+ $ kubectl port-forward <pod-name> 8080:80
+
+To enable auto-completion:
+
+ $ sudo apt install bash-completion
+ $ source <(kubectl completion bash)
+
+== Labels and annotations
+
+Labels - arbitrary, identifying info.
+
+Annotations - hold nonidentifying info that can be
+used by tools and libraries.
+
+ $ kubectl create deployment alpaca-prod --image=gcr.io/kuar-demo/kuard-amd64:blue
+ $ kubectl label deployment alpaca-prod ver=1 app=alpaca env=prod --overwrite
+
+ $ kubectl get deployments
+
+Selectors:
+
+ $ kubectl get pods --selector="ver=2"
+ $ kubectl get pods -l ver=2
+ $ kubectl get pods -l "app in (alpaca,bandicoot)"
+
+Getting objects with label defined:
+
+ $ kubectl get pods -l <label-name>
+
+Selector operators:
+
+* key=value
+* key!=value
+* key in (value1,value2)
+* key notin (value1,value2)
+* key
+* !key
+

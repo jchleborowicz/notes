@@ -144,7 +144,6 @@ NAT::
 
 Example:
 
-[pre]
 ----
 Kernel IP routing table:
 Destination     Gateway         Genmask         Flags   Metric  Ref Use Iface
@@ -256,14 +255,58 @@ TCP:
   for retransmission
 
 
-
 Protocol Data Units:
 
-* layer 4 - segments
-* layer 3 - packets
-* layer 2 - frames
+* layer 4 (transport, tcp) - segments
+* layer 3 (network, ip) - packets
+* layer 2 (data link, ethernet) - frames
+
+
+Three-way handshake:
+
+. -> SYN
+. <- SYN ACK
+. -> ACK, DATA
+
+=== Packet flow
+
+. DNS query - to get IP
+. ARP request - to get MAC
+. TCP 3-way handshake (SYN, SYN ACK, ACK)
+. connection
+
+=== VPN
+
+A VPN connection is an extension of a private network, using the IP connectivity of the internet to connect
+to remote clients to remote sites in an encrypted private connection.
+
+* secure private network traffic over an insecure public network.
+* permit connections to an internal corporate resource from a remote location.
+* connect two separated private networks together
+
+VPN connections:
+
+* site-to-site
+* remote access
+
+The tunnel:
+
+* tunneling permits the encapsulation of one type of protocol packing within the datagram of a different protocol,
+  for instance, sending TCP/IP traffic over the internet.
+* for PPTP and Layer Two Tunneling Protocol (L2TP), a tunnel is similar to a session. Each end of the tunnel
+  must agree to the tunnel connection, and will negotiate configuration variables such as address assignment
+  encryption, and compression parameters. The mechanism used to create, maintain and end the tunnel
+  is tunnel management protocol.
+* only after the tunnel is established can data be sent.
+* when the tunnel client sends the network data to the tunnel server,
+  the tunnel client appends a tunnel data transfer protocol header to the payload.
+* the client then sends the encapsulated (and usually encrypted) data to the tunnel server.
+* the tunnel server accepts the data, removes the tunnel data, and forwards the payload to the destination
+  network within the VPN.
+
 
 
 TODO:
+
 
 * do awk tutorial
