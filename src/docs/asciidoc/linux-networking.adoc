@@ -304,8 +304,108 @@ The tunnel:
 * the tunnel server accepts the data, removes the tunnel data, and forwards the payload to the destination
   network within the VPN.
 
+== Network interfaces
 
+=== Static versus DHCP
 
+[%header,cols=2]
+|===
+|Static|Dynamic
+
+|Dedicated, unchanging IP addresses assigned to the device
+|Dynamic address assigned from a pool of IP addresses within the DHCP scope
+
+|you must also specify the subnet, gateway and DNS host information
+|DHCP will provide subnet, gateway and DNS
+
+|not dependent on DHCP for anything
+|dependent on DHCP upon lease expiration
+
+|typically used for important network devices and hosts that require
+ absolute connectivity
+|typically used for hosts and clients requiring transient connections
+
+|
+|used for managing the IP addresses of a large number of hosts
+|===
+
+DHCP creates three potential points of failure:
+
+* the DHCP host itself - when changing configuration while old leases are still used
+* a rogue DHCP host - can redirect traffic to nefarious router
+* DNS - communication should rely on DNS names instead of IP addresses
+
+==== DHCP leases
+
+The DHCP server will grant a lease on an IP address - assigning it to the host
+for a period of time.
+
+The DHCP request and offer are layer 2 broadcasts (similar to ARP requests)
+and requires a running DHCP client.
+
+The DHCP server uses UDP port 67, and the Client uses UDP port 68
+
+You can use reservations to make sure the same host gets a new lease
+on the same IP upon expiration.
+
+==== DHCP sequence
+
+. DHCP Discover - the client broadcasts a request looking for a host that
+  can assign it an IP address
+. DHCP Offer - a DHCP server will respond and offer an IP address
+. DHCP Request - the client will request the offered IP address
+. DHCP Acknowledge - the DHCP server will acknowledge that the IP address
+  has been assigned
+
+You can find HDCP leases in `/var/lib/NetworkManager`
+
+==== ss command
+
+`ss` commands helps to investigate sockets
+
+ss -lunp | grep dhclient
+
+ss options:
+
+* -l - listening
+* -t - display tcp sockets
+* -u - display udp sockets
+* -n - numeric
+* -p - processes
+
+==== Static IP
+
+You need to provide:
+
+* IP address
+* netmask
+* gateway IP
+* dns host (optional)
+* dns domain (optional)
+
+Configure static ip:
+
+ $ nmcli connection modify <connection-name> ipv4.method manual \
+   ipv4.address 192.168.51.191/24 \
+   ipv4.gateway 192.168.51.2 \
+   ipv4.dns 192.168.51.2
+
+Restore DHCP
+
+ $ nmcli connection modify <connection-name> ipv4.method auto \
+   ipv4.address "" \
+   ipv4.gateway "" \
+   ipv4.dns ""
+
+==== Multiple IPs
+
+You can have:
+
+* multiple IPs on the same network on a single interface
+* multiple interface cards with the same IP
+* multiple IPs on multiple interface cards
+
+.
 TODO:
 
 
