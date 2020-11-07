@@ -48,6 +48,8 @@ link:java-modularity.html[Java Modularity]
 
 link:javascript.html[JavaScript]
 
+link:kafka.html[Kafka]
+
 link:kotlin.html[Kotlin]
 
 link:kubernetes-up-and-running.html[Kubernetes Up and Running book notes]

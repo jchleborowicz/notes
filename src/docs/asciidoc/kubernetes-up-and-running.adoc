@@ -108,3 +108,220 @@ Selector operators:
 * key
 * !key
 
+=== Label selectors in API objects
+
+[source,yaml]
+----
+selector:
+  matchLabels:
+    app: alpaca
+  matchExpressions:
+    - {key: ver, operator: In, values: [1, 2]}
+----
+
+== Service Discovery
+
+Exposing a service:
+
+----
+$ kubectl expose deployment <deployment-name>
+----
+
+----
+$ ALPACA_POD=$(kubectl get pods -l app=alpaca \
+  -o jsonpath='{.items[0].metadata.name}')
+$ kubectl port-forward $ALPACA_POD 48858:8080
+----
+
+DNS:
+
+alpaca-prod.default.svc.cluster.local.
+
+explained:
+
+* alpaca-prod - the name of the service
+* default - the namespace
+* svc - this is a service
+* cluster.local. - base domain name for the cluster
+
+Readiness Checks
+
+Modify for deployment:
+Modify for deployment:
+Modify for deployment:
+
+[source,yaml]
+----
+spec:
+  ...
+  template:
+    ...
+    spec:
+      containers:
+        ...
+        name: alpaca-prod
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          periodSeconds: 2
+          initialDelaySeconds: 0
+          failureThreshold: 3
+          successThreshold: 1
+----
+
+----
+$ kubectl get endpoints <service-name> --watch
+----
+
+Way to implement graceful shutdown:
+* signal that it no longer wants traffic
+* wait until existing connections are closed
+* then cleanly exit
+
+ClusterIP - stable virtual IP that load-balance traffic
+across all of the endpoints in a service.
+
+This is performed by kube-proxy.
+
+== HTTP Load Balancing with Ingress
+
+Service object operates at Layer 4.
+
+Ingress - HTTP-based load-balancing system (layer 7).
+
+The ingress controller is a software system exposed
+outside the cluster using a service of type _LoadBalancer_.
+
+Sample ingress:
+
+[source,yaml]
+----
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: path-ingress
+spec:
+  rules:
+  - host: bandicoot.example.com
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: bandicoot
+          servicePort: 8080
+      - path: "/a/"
+        backend:
+          serviceName: alpaca
+          servicePort: 8080
+----
+
+=== TLS for ingress
+
+Create secret
+----
+$ kubectl create secret tls <secret-name> --cert <certificate-pem-file> --key <private-key-pem-file>
+----
+
+or
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: tls-secret-name
+type: kubernetes.io/tls
+data:
+  tls.crt: <base64 encoded certificate>
+  tls.key: <base64 encoded private key>
+----
+
+tls-ingress.yaml
+
+[source,yaml]
+----
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: tls-ingress
+spec:
+  tls:
+  - hosts:
+    - alpaca.example.com
+    secretName: tls-secret-name
+  rules:
+  - host: alpaca.example.com
+    http:
+      paths:
+      - backend:
+          serviceName: alpaca
+          servicePort: 8080
+----
+
+Available controllers:
+
+* Contour (for Envoy proxy)
+* nginx
+* ambassador (Envoy-based)
+* glo (Envoy-based)
+* Traefik - implemented in Go
+
+Service mesh products:
+
+* Istio
+* Linkerd
+
+== ReplicaSets
+
+Reasons for replication:
+
+* redundancy - multiple running instances mean failure
+  can be tolerated
+* scale - more requests
+* sharding - different replicas can handl edifferent part of
+  a computation in parallel
+
+Reconciliation loops - constantly running, observing the current
+state and taking action to make the observed state
+match the desired state.
+
+== Deployments
+
+----
+$ kubectl scale deployment <deployment-name> --replicas=2
+----
+
+----
+$ kubectl get deployment <depl-name> -o yaml > temp-deployment.yaml
+$ kubectl replace -f temp-deployment.yaml --save-config
+----
+
+----
+...
+spec:
+  ...
+  template:
+    metadata:
+      annotations:
+        kubernetes.io/change-cause: "Update to green kuard"
+...
+----
+
+----
+$ kubectl rollout pause deployment <name>
+$ kubectl rollout resume deployment <name>
+$ kubectl rollout status deployment <name>
+$ kubectl rollout history deployment <name>
+$ kubectl rollout history deployment <name> --revision=2
+$ kubectl rollout undo deployment <name>
+$ kubectl rollout undo deployment <name> --to-revision=1
+----
+
+Deployment strategies:
+
+* Recreate
+* RollingUpdate
+
+

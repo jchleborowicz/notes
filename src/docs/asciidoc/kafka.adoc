@@ -1,0 +1,72 @@
+= Kafka
+
+Created at LinkedIn.
+
+* Message - unit of data
+* Key - optional metadata.
+* Batch - collection of messages
+
+Schemas: Avro is commonly used.
+
+Messages are categorized into topics.
+
+Topics are broken down into partitions.
+
+Stream is considered to be a single topic.
+
+Kafka clients:
+
+* producers
+* consumers
+
+Single Kafka server is called a **broker**.
+
+Brokers operate within a **cluster**.
+
+One broker will function as the cluster **controller**
+within a cluster.
+
+Controller:
+
+* responsible for administrative operations
+* assigning partitions to brokers
+* monitoring for browser failures
+
+A partition is owned by a single broker in the cluster,
+and that broker is called the **leader** of the partition.
+
+Multiple Clusters:
+
+* segregation of types of data
+* isolation for security requirements
+* multiple datacenters
+
+Kafka advantages:
+
+* multiple producers
+* multiple consumers
+* disk-based retention
+* scalable
+* high performance
+
+Use cases:
+
+* activity tracking
+* messaging
+* monitoring and logging
+* commit log
+* stream processing
+
+Zookeeper - stores metadata for the brokers.
+
+Zookeeper cluster is called an **ensemble**.
+
+You should have odd number of nodes in the ensemble.
+Not recommended to run more than 7 nodes.
+
+## Broker configuration
+
+BROKER.ID - integer
+
+PORT _ default 9092
+
