@@ -46,6 +46,8 @@ link:java8-lambdas.html[Java 8 lambdas]
 
 link:java-modularity.html[Java Modularity]
 
+link:java-changes.html[Java changes]
+
 link:javascript.html[JavaScript]
 
 link:kafka.html[Kafka]
@@ -59,6 +61,8 @@ link:kubernetes-the-hard-way-course.html[Kubernetes the Hard Way Course]
 link:kubernetes.html[Kubernetes]
 
 link:linux-networking.html[Linux networking]
+
+link:octave.html[Octave]
 
 link:prototype-js.html[Prototype]
 
