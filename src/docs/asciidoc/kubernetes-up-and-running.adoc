@@ -174,7 +174,7 @@ spec:
 $ kubectl get endpoints <service-name> --watch
 ----
 
-Way to implement graceful shutdown:
+Way to implement a graceful shutdown:
 * signal that it no longer wants traffic
 * wait until existing connections are closed
 * then cleanly exit
@@ -324,4 +324,15 @@ Deployment strategies:
 * Recreate
 * RollingUpdate
 
+Rolling update parameters:
+
+* maxUnavailable
+* maxSurge - how many extra resources
+* minReadySeconds - wait period after deploying a pod
+* progressDeadlineSeconds - if any particular stage in the rollout
+  fails to progress in specified time, then the deployment is
+  marked as failed
+
+
+== Daemon sets
 

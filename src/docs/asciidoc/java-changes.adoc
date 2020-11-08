@@ -1,0 +1,39 @@
+= Java changes
+
+== Java 9
+
+. modularity
+. JShell
+. G1 as default garbage collector
+. interfaces can have private methods
+. new methods in Optional class
+.. ifPresentOrElse()
+.. or()
+.. stream()
+. Immutable collection factory
+.. Set.of()
+.. Map.of()
+. CompletableFuture improvements
+.. orTimeout()
+.. completeOnTimeout()
+. Enhancements in @Deprecated
++
+ @Deprecated(since = "4", forRemoval = true)
++
+
+== Java 10
+
+. `var` keyword
+. Immutable collections:
+.. List.copyOf()
+.. Set.copyOf()
+.. Map.copyOf()
+. Parallel full GC for G1
+
+== Java 11
+
+. Local-variable syntax for lambda params
+. Launch single-file programs
++
+ $ java SimpleProgram.java
++

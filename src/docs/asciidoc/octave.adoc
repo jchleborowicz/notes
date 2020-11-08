@@ -1,4 +1,4 @@
-# Octave
+= Octave
 
 x = linspace(start, end, n);
 y = sin(x);
